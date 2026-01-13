@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-
 @layer base {
   :root {
     /* KOKOTOA Green Theme - Tanzania Inspired */
@@ -104,11 +102,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Poppins', sans-serif;
   }
 }
 

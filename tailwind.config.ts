@@ -65,8 +65,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

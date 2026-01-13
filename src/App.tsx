@@ -4,10 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import Index from "./pages/Index";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import POS from "./pages/POS";
+import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,10 +22,12 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/pos" element={<POS />} />
+            <Route path="/inventory" element={<Inventory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
