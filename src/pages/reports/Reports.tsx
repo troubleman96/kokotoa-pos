@@ -45,6 +45,8 @@ const Reports = () => {
       name: string;
       category: string;
       current_stock: number;
+      cost_price: number;
+      selling_price: number;
       cost_value: number;
       retail_value: number;
       is_low_stock: boolean;
@@ -57,6 +59,8 @@ const Reports = () => {
     };
   } | null>(null);
   const [dashboardData, setDashboardData] = useState<{
+    today: { sales: number; transactions: number };
+    this_month: { sales: number; transactions: number };
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);

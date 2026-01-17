@@ -1,4 +1,4 @@
-import { ShoppingCart, Package, BarChart3, WifiOff, Smartphone, Shield } from 'lucide-react';
+import { ShoppingCart, Package, BarChart3, Smartphone, Shield, Users, Receipt, Cloud } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const FeaturesSection = () => {
@@ -24,22 +24,22 @@ const FeaturesSection = () => {
       color: 'from-primary to-secondary',
     },
     {
-      icon: WifiOff,
+      icon: Users,
+      title: t('features.staff.title'),
+      description: t('features.staff.desc'),
+      color: 'from-blue-500 to-indigo-600',
+    },
+    {
+      icon: Receipt,
+      title: t('features.receipts.title'),
+      description: t('features.receipts.desc'),
+      color: 'from-emerald-500 to-teal-600',
+    },
+    {
+      icon: Cloud,
       title: t('features.offline.title'),
       description: t('features.offline.desc'),
-      color: 'from-secondary to-primary',
-    },
-    {
-      icon: Smartphone,
-      title: t('features.pos.title'),
-      description: t('features.pos.desc'),
-      color: 'from-primary/80 to-primary',
-    },
-    {
-      icon: Shield,
-      title: t('features.inventory.title'),
-      description: t('features.inventory.desc'),
-      color: 'from-secondary/80 to-secondary',
+      color: 'from-orange-500 to-red-600',
     },
   ];
 
