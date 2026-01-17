@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { format, subDays } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { reportsApi, graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package
+  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package, AlertTriangle
 } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -19,7 +20,7 @@ const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#E
 
 const Reports = () => {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'sales' | 'inventory' | 'analytics'>('sales');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [salesData, setSalesData] = useState<{
     sales: Array<{
@@ -67,22 +68,30 @@ const Reports = () => {
   const [inventoryValue, setInventoryValue] = useState<any[]>([]);
   const [dailyTrend, setDailyTrend] = useState<any[]>([]);
 
+  const [dailySummary, setDailySummary] = useState<any>(null);
+
   const [dateRange, setDateRange] = useState('7');
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       const days = parseInt(dateRange);
+
+      const dateTo = format(new Date(), 'yyyy-MM-dd');
+      const dateFrom = format(subDays(new Date(), days), 'yyyy-MM-dd');
+
       try {
-        const [dashboard, sales, inventory] = await Promise.all([
+        const [dashboard, sales, inventory, dailyRec] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
-          reportsApi.getSales().catch(() => null),
+          reportsApi.getSales({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
           reportsApi.getInventory().catch(() => null),
+          reportsApi.getDailySummary().catch(() => null),
         ]);
 
         if (dashboard?.data) setDashboardData(dashboard.data);
         if (sales?.data) setSalesData(sales.data);
         if (inventory?.data) setInventoryData(inventory.data);
+        if (dailyRec?.data) setDailySummary(dailyRec.data);
 
         // Fetch Analytics specifically if tab is active or just as extra data
         if (activeTab === 'analytics') {
@@ -114,9 +123,62 @@ const Reports = () => {
     fetchData();
   }, [dateRange, activeTab, language]);
 
+  const exportToCSV = (data: any[], filename: string) => {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => {
+        let val = row[header];
+        if (typeof val === 'string' && val.includes(',')) val = `"${val}"`;
+        return val;
+      }).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}_${format(new Date(), 'yyyyMMdd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link); // Append to body before clicking
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSalesExport = () => {
+    if (!salesData?.sales) return;
+    const exportData = salesData.sales.map(s => ({
+      Transaction: s.transaction_number,
+      Date: format(new Date(s.date), 'yyyy-MM-dd HH:mm'),
+      Items: s.items_count,
+      Total: s.total_amount,
+      Payment: s.payment_method,
+      Cashier: s.cashier,
+      Status: 'Completed' // Assuming all sales are completed for now, adjust if 'is_returned' is available
+    }));
+    exportToCSV(exportData, 'sales_report');
+  };
+
+  const handleInventoryExport = () => {
+    if (!inventoryData?.products) return;
+    const exportData = inventoryData.products.map(p => ({
+      SKU: p.sku,
+      Name: p.name,
+      Category: p.category,
+      Stock: p.current_stock,
+      Cost: p.cost_price,
+      Selling: p.selling_price,
+      Value: p.retail_value,
+      Status: p.is_low_stock ? 'Low Stock' : 'OK'
+    }));
+    exportToCSV(exportData, 'inventory_report');
+  };
+
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
   const tabs = [
+    { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview' },
     { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales' },
     { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory' },
     { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics' },
@@ -219,15 +281,106 @@ const Reports = () => {
           ))}
         </div>
 
+        {/* Overview Tab (Daily Summary) */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Today's Top Products */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    {language === 'sw' ? 'Bidhaa Zinazoongoza Leo' : "Today's Top Products"}
+                  </CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Bidhaa zenye mapato makubwa zaidi leo' : 'Highest revenue generating products today'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {dailySummary?.top_products?.length ? dailySummary.top_products.map((p: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{p.product_name}</span>
+                          <span className="text-xs text-muted-foreground">{p.product_sku}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-primary">{formatPrice(p.revenue)}</div>
+                          <div className="text-xs text-muted-foreground">{p.quantity} {language === 'sw' ? 'zimeuzwa' : 'sold'}</div>
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="text-center py-4 text-muted-foreground">
+                        {language === 'sw' ? 'Hakuna mauzo bado' : 'No sales yet today'}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Low Stock Alerts Snapshot */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-destructive" />
+                    {language === 'sw' ? 'Tahadhari ya Bidhaa' : 'Stock Alerts'}
+                  </CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Bidhaa zinazohitaji kuongezwa mara moja' : 'Items that need immediate restocking'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {dailySummary?.low_stock_alerts?.length ? dailySummary.low_stock_alerts.map((p: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-3 border border-destructive/20 rounded-lg bg-destructive/5">
+                        <div>
+                          <span className="font-medium text-foreground">{p.name}</span>
+                          <span className="text-xs text-muted-foreground block">{p.sku}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-destructive">{p.quantity}</div>
+                          <div className="text-xs text-muted-foreground">{language === 'sw' ? 'Baki (Min: ' : 'Left (Min: '}{p.minimum_stock})</div>
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="text-center py-4 text-primary">
+                        {language === 'sw' ? 'Bidhaa zote zipo katika hali nzuri' : 'All items are well stocked'}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Daily Sales Breakdown */}
+              <Card className="card-kokotoa lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mchanganuo wa Malipo ya Leo' : "Today's Payment Breakdown"}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {dailySummary?.payment_methods && Object.entries(dailySummary.payment_methods).map(([method, data]: [string, any]) => (
+                      <div key={method} className="p-4 rounded-xl border border-border bg-card shadow-sm">
+                        <div className="text-sm text-muted-foreground mb-1 font-medium">{method}</div>
+                        <div className="text-xl font-bold text-primary">{formatPrice(data.total)}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{data.count} {language === 'sw' ? 'miamala' : 'transactions'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
         {/* Sales Tab */}
         {activeTab === 'sales' && (
           <Card className="card-kokotoa">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>{language === 'sw' ? 'Mauzo ya Hivi Punde' : 'Recent Sales'}</CardTitle>
-                <Button variant="outline" size="sm">
+                <CardTitle>{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
+                <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length}>
                   <Download className="w-4 h-4 mr-2" />
-                  {language === 'sw' ? 'Pakua' : 'Download'}
+                  {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
                 </Button>
               </div>
             </CardHeader>
@@ -279,9 +432,9 @@ const Reports = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>{language === 'sw' ? 'Ripoti ya Hesabu' : 'Inventory Report'}</CardTitle>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleInventoryExport} disabled={!inventoryData?.products.length}>
                   <Download className="w-4 h-4 mr-2" />
-                  {language === 'sw' ? 'Pakua' : 'Download'}
+                  {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
                 </Button>
               </div>
             </CardHeader>
