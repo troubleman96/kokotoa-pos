@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, api, User } from '@/services/api';
+import { authApi, api, User, storesApi } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -22,30 +22,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const initAuth = async () => {
-      const token = api.getAccessToken();
-      if (token) {
-        try {
-          const response = await authApi.login({ phone: '', password: '' });
-          setUser(response.user);
-        } catch {
-          api.setAccessToken(null);
-          setUser(null);
-        }
+  const initAuth = async () => {
+    const token = api.getAccessToken();
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    
+    if (token) {
+      try {
+        const response = await authApi.login({ phone: '', password: '' });
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      } catch {
+        api.setAccessToken(null);
+        api.setRefreshToken(null);
+        setUser(null);
+        localStorage.removeItem('user');
       }
-      setIsLoading(false);
-    };
+    }
+    setIsLoading(false);
+  };
     initAuth();
   }, []);
 
   const login = async (phone: string, password: string) => {
     const response = await authApi.login({ phone, password });
-    api.setAccessToken(response.access_token);
-    setUser(response.user);
-    if (response.user.is_store_created) {
-      navigate('/pos');
-    } else {
+    api.setAccessToken(response.data.access_token);
+    api.setRefreshToken(response.data.refresh_token);
+    setUser(response.data.user);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    // Profile completion logic
+    if (response.data.user.is_profile_complete) {
+      navigate('/dashboard');
+    } else if (response.data.user.is_phone_verified) {
       navigate('/create-store');
+    } else {
+      navigate('/verify-otp', { state: { phone, isRegistration: false } });
     }
   };
 
@@ -70,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     api.setAccessToken(null);
+    api.setRefreshToken(null);
     setUser(null);
     navigate('/login');
   };
@@ -79,9 +94,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       try {
         const response = await authApi.login({ phone: '', password: '' });
-        setUser(response.user);
+        setUser(response.data.user);
       } catch {
         api.setAccessToken(null);
+        api.setRefreshToken(null);
         setUser(null);
       }
     }

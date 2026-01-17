@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi } from '@/services/api';
+import { authApi, storesApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import {
   ShoppingCart, Package, BarChart3, Settings, LogOut, Menu, X, Home,
-  User, Lock, Bell, Palette, Globe, Shield, Save, XCircle
+  User, Lock, Bell, Palette, Globe, Shield, Save, XCircle, Store, Edit2
 } from 'lucide-react';
 
 const SettingsPage = () => {
@@ -18,7 +18,7 @@ const SettingsPage = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'notifications' | 'appearance'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'notifications' | 'appearance'>('profile');
   const [isLoading, setIsLoading] = useState(false);
 
   const [profileData, setProfileData] = useState({
@@ -32,6 +32,14 @@ const SettingsPage = () => {
     new_password: '',
     new_password_confirm: '',
   });
+
+  const [storeData, setStoreData] = useState<{
+    id: number;
+    name: string;
+    location: string;
+    phone_number: string;
+    details: string;
+  } | null>(null);
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
@@ -116,9 +124,68 @@ const SettingsPage = () => {
     }
   };
 
+  // Fetch store data on component mount
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      if (!user?.store) return;
+
+      try {
+        const response = await storesApi.get(user.store);
+        if (response.data) {
+          setStoreData({
+            id: response.data.id,
+            name: response.data.name,
+            location: response.data.location,
+            phone_number: response.data.phone_number,
+            details: response.data.details || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching store data:', error);
+      }
+    };
+
+    fetchStoreData();
+  }, [user?.store]);
+
+  const handleUpdateStore = async () => {
+    if (!storeData || !storeData.name || !storeData.location) {
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: language === 'sw' ? 'Tafadhali jaza taarifa zote' : 'Please fill all required fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await storesApi.update(storeData.id, {
+        name: storeData.name,
+        location: storeData.location,
+        phone_number: storeData.phone_number,
+        details: storeData.details,
+      });
+      toast({
+        title: language === 'sw' ? 'Imefanikiwa!' : 'Success!',
+        description: language === 'sw' ? 'Taarifa za duka zimesasishwa' : 'Store information updated successfully',
+      });
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'profile', label: language === 'sw' ? 'Wasifu' : 'Profile', icon: User },
     { id: 'password', label: language === 'sw' ? 'Nenosiri' : 'Password', icon: Lock },
+    { id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store },
     { id: 'notifications', label: language === 'sw' ? 'Arifa' : 'Notifications', icon: Bell },
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
   ];
@@ -334,6 +401,104 @@ const SettingsPage = () => {
                       {isLoading ? (language === 'sw' ? 'Inabadilisha...' : 'Changing...') : (language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password')}
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Store Tab */}
+            {activeTab === 'store' && (
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Store className="w-5 h-5" />
+                    {language === 'sw' ? 'Taarifa za Duka' : 'Store Information'}
+                  </CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Sasisha taarifa za duka lako' : 'Update your store information'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {storeData ? (
+                    <>
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Store className="w-10 h-10 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{storeData.name}</h3>
+                          <p className="text-muted-foreground">{storeData.location}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">
+                          {language === 'sw' ? 'Jina la Duka *' : 'Store Name *'}
+                        </label>
+                        <Input
+                          value={storeData.name}
+                          onChange={(e) => setStoreData({ ...storeData, name: e.target.value })}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">
+                          {language === 'sw' ? 'Mahali *' : 'Location *'}
+                        </label>
+                        <Input
+                          value={storeData.location}
+                          onChange={(e) => setStoreData({ ...storeData, location: e.target.value })}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">
+                          {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
+                        </label>
+                        <Input
+                          value={storeData.phone_number}
+                          onChange={(e) => setStoreData({ ...storeData, phone_number: e.target.value })}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">
+                          {language === 'sw' ? 'Maelezo' : 'Description'}
+                        </label>
+                        <textarea
+                          value={storeData.details}
+                          onChange={(e) => setStoreData({ ...storeData, details: e.target.value })}
+                          className="w-full h-24 px-4 py-3 rounded-xl border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                          placeholder={language === 'sw' ? 'Maelezo mafupi kuhusu duka lako' : 'Brief description about your store'}
+                        />
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <Button onClick={handleUpdateStore} className="btn-kokotoa" disabled={isLoading}>
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          {isLoading ? (language === 'sw' ? 'Inahifadhi...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        {language === 'sw' ? 'Hakuna taarifa za duka' : 'No store information'}
+                      </h3>
+                      <p className="text-muted-foreground mb-4">
+                        {language === 'sw' ? 'Tafadhali tengeneza duka kwanza' : 'Please create a store first'}
+                      </p>
+                      <Link to="/create-store">
+                        <Button className="btn-kokotoa">
+                          <Store className="w-4 h-4 mr-2" />
+                          {language === 'sw' ? 'Unda Duka' : 'Create Store'}
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

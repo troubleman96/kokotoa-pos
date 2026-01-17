@@ -35,7 +35,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await graphsApi.getDashboard();
+        const response = await graphsApi.getDashboard(); // Uses /api/graphs/dashboard/
         if (response.data) {
           setDashboardData(response.data);
         }

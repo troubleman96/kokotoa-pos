@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { storesApi } from '@/services/api';
+import { storesApi, api } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,15 +26,38 @@ const CreateStore = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await storesApi.create({
+      // Ensure JWT token is sent by storesApi.create
+      const response = await storesApi.create({
         ...formData,
         phone_number: formData.phone_number || user?.phone || '',
       });
-      toast({
-        title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
-        description: language === 'sw' ? 'Karibu kwa dashibodi yako' : 'Welcome to your dashboard',
-      });
-      navigate('/dashboard');
+      // After store creation, fetch user profile to check is_profile_complete
+      // Assume user profile is updated in backend after store creation
+      if (response.data) {
+        // Optionally, fetch user profile from backend here if needed
+        const updatedUser = {
+          ...user,
+          store: response.data.id,
+          store_name: response.data.name,
+          is_store_created: true,
+          is_profile_complete: true,
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        // Redirect based on profile completion
+        if (updatedUser.is_profile_complete) {
+          toast({
+            title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
+            description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
+          });
+          navigate('/dashboard');
+        } else {
+          toast({
+            title: language === 'sw' ? 'Tengeneza Duka' : 'Create Store',
+            description: language === 'sw' ? 'Tafadhali tengeneza duka kwanza' : 'Please create a store first',
+          });
+          navigate('/create-store');
+        }
+      }
     } catch (error: unknown) {
       const err = error as { message?: string };
       toast({
