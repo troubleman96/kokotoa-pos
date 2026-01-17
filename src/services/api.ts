@@ -61,8 +61,8 @@ class ApiService {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
-    // Always get JWT token from localStorage
-    const token = localStorage.getItem('jwt_token');
+    // Get token using centralized method
+    const token = this.getAccessToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

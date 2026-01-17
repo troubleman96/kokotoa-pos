@@ -13,7 +13,7 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
     const { language, setLanguage } = useLanguage();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const location = useLocation();
 
     const navItems = [
@@ -69,10 +69,13 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     </div>
 
                     <div className="p-4 border-t border-border">
-                        <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
+                        <button
+                            onClick={logout}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full text-left"
+                        >
                             <LogOut className="w-5 h-5" />
                             <span>{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </aside>

@@ -22,28 +22,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const initAuth = async () => {
-    const token = api.getAccessToken();
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    
-    if (token && storedUser) {
-      try {
-        const response = await authApi.getCurrentUser();
-        setUser(response.data);
-        localStorage.setItem('user', JSON.stringify(response.data));
-      } catch {
-        api.setAccessToken(null);
-        api.setRefreshToken(null);
-        setUser(null);
-        localStorage.removeItem('user');
+    const initAuth = async () => {
+      const token = api.getAccessToken();
+      const storedUser = localStorage.getItem('user');
+
+      // Sync tokens for compatibility if one is missing
+      if (token) {
+        if (!localStorage.getItem('jwt_token')) localStorage.setItem('jwt_token', token);
+        if (!localStorage.getItem('access_token')) localStorage.setItem('access_token', token);
       }
-    }
-    setIsLoading(false);
-  };
+
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+
+      if (token && storedUser) {
+        try {
+          const response = await authApi.getCurrentUser();
+          setUser(response.data);
+          localStorage.setItem('user', JSON.stringify(response.data));
+        } catch {
+          api.setAccessToken(null);
+          api.setRefreshToken(null);
+          setUser(null);
+          localStorage.removeItem('user');
+        }
+      }
+      setIsLoading(false);
+    };
     initAuth();
   }, []);
 
