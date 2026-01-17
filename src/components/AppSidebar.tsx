@@ -1,0 +1,89 @@
+import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import {
+    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home
+} from 'lucide-react';
+
+interface AppSidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
+    const { language, setLanguage } = useLanguage();
+    const { user } = useAuth();
+    const location = useLocation();
+
+    const navItems = [
+        { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
+        { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
+        { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
+        { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
+        { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
+    ];
+
+    return (
+        <>
+            <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
+                <div className="flex flex-col h-full">
+                    <div className="p-4 border-b border-border">
+                        <div className="flex items-center justify-between">
+                            <Link to="/" className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                                    <span className="text-primary-foreground font-display font-bold text-xl">K</span>
+                                </div>
+                                <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
+                            </Link>
+                            <button onClick={onClose} className="lg:hidden text-muted-foreground">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">{user?.store_name || 'My Store'}</p>
+                    </div>
+
+                    <nav className="flex-1 p-4 space-y-2">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${location.pathname === item.path
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`}
+                            >
+                                <item.icon className="w-5 h-5" />
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                        <Link to="/users" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                            <Settings className="w-5 h-5" />
+                            <span>{language === 'sw' ? 'Watumiaji' : 'Users'}</span>
+                        </Link>
+                    </nav>
+
+                    <div className="p-4 border-t border-border">
+                        <div className="flex gap-2">
+                            <Button variant={language === 'sw' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('sw')} className={language === 'sw' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇹🇿 SW</Button>
+                            <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')} className={language === 'en' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇬🇧 EN</Button>
+                        </div>
+                    </div>
+
+                    <div className="p-4 border-t border-border">
+                        <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
+                            <LogOut className="w-5 h-5" />
+                            <span>{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
+                        </Link>
+                    </div>
+                </div>
+            </aside>
+
+            {isOpen && (
+                <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
+            )}
+        </>
+    );
+};
+
+export default AppSidebar;

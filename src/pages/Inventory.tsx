@@ -1,16 +1,13 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { 
-  Search, Plus, Edit2, Trash2, Package, ShoppingCart,
-  BarChart3, Settings, LogOut, Menu, X, Home,
+import {
+  Search, Plus, Edit2, Trash2, Package,
   AlertTriangle, Save, XCircle, Image as ImageIcon
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { productsApi, Product } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
@@ -18,26 +15,24 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import DashboardLayout from '@/components/DashboardLayout';
 
 const Inventory = () => {
-  const { language, setLanguage } = useLanguage();
-  const { user } = useAuth();
-  const location = useLocation();
+  const { language } = useLanguage();
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState<{
     name: string;
     sku: string;
@@ -59,14 +54,6 @@ const Inventory = () => {
     minimum_stock: '5',
     image: null,
   });
-
-  const navItems = [
-    { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
-    { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
-    { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
-    { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
-    { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
-  ];
 
   const categories = [
     { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
@@ -104,15 +91,15 @@ const Inventory = () => {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesLowStock = !showLowStockOnly || product.is_low_stock;
       return matchesSearch && matchesCategory && matchesLowStock;
     });
   }, [products, searchQuery, selectedCategory, showLowStockOnly]);
 
-  const lowStockCount = useMemo(() => 
-    products.filter(p => p.is_low_stock).length, 
+  const lowStockCount = useMemo(() =>
+    products.filter(p => p.is_low_stock).length,
     [products]
   );
 
@@ -252,80 +239,18 @@ const Inventory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
-        <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-display font-bold text-xl">K</span>
-                </div>
-                <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
-              </Link>
-              <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">{user?.store_name || 'My Store'}</p>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${
-                  location.pathname === item.path
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="p-4 border-t border-border">
-            <div className="flex gap-2">
-              <Button variant={language === 'sw' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('sw')} className={language === 'sw' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇹🇿 SW</Button>
-              <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')} className={language === 'en' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇬🇧 EN</Button>
-            </div>
-          </div>
-
-          <div className="p-4 border-t border-border">
-            <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
-              <LogOut className="w-5 h-5" />
-              <span>{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
-            </Link>
-          </div>
+    <DashboardLayout
+      title={language === 'sw' ? 'Hesabu ya Bidhaa' : 'Inventory Management'}
+      subtitle={language === 'sw' ? `Jumla: ${products.length} bidhaa` : `Total: ${products.length} products`}
+      notificationCount={lowStockCount}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Button onClick={openAddModal} className="btn-kokotoa">
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="relative z-10">{language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}</span>
+          </Button>
         </div>
-      </aside>
-
-      <div className="flex-1 flex flex-col">
-        <header className="bg-card border-b border-border p-4 lg:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-foreground">
-                <Menu className="w-6 h-6" />
-              </button>
-              <div>
-                <h1 className="font-display text-2xl font-bold text-foreground">
-                  {language === 'sw' ? 'Hesabu ya Bidhaa' : 'Inventory Management'}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'sw' ? `Jumla: ${products.length} bidhaa` : `Total: ${products.length} products`}
-                </p>
-              </div>
-            </div>
-            
-            <Button onClick={openAddModal} className="btn-kokotoa">
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="relative z-10">{language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}</span>
-            </Button>
-          </div>
-        </header>
 
         <div className="p-4 lg:p-6 border-b border-border bg-card/50 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -348,7 +273,7 @@ const Inventory = () => {
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.label}
                   </SelectItem>
-                ))}​
+                ))}
               </SelectContent>
             </Select>
 
@@ -383,17 +308,17 @@ const Inventory = () => {
                       <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Vitendo' : 'Actions'}</th>
                     </tr>
                   </thead>
-                   <tbody>
-                     {filteredProducts.map((product) => {
-                       return (
-                       <tr key={product.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                           <td className="p-4">
+                  <tbody>
+                    {filteredProducts.map((product) => {
+                      return (
+                        <tr key={product.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                          <td className="p-4">
                             <div className="flex items-center gap-3">
                               {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
                                 <div className="relative w-12 h-12 flex-shrink-0">
-                                  <img 
-                                    src={product.image_url || product.image || ''} 
-                                    alt={product.name} 
+                                  <img
+                                    src={product.image_url || product.image || ''}
+                                    alt={product.name}
                                     className="w-12 h-12 rounded-lg object-cover"
                                     onError={(e) => {
                                       const target = e.currentTarget;
@@ -416,47 +341,48 @@ const Inventory = () => {
                                   {product.category.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                             <div className="min-w-0">
-                               <span className="font-medium text-foreground block truncate">{product.name}</span>
-                               <span className="text-xs text-muted-foreground block truncate">{product.sku}</span>
-                             </div>
-                           </div>
-                         </td>
-                        <td className="p-4 text-muted-foreground capitalize">{product.category}</td>
-                        <td className="p-4 text-right text-muted-foreground">{formatPrice(product.cost_price)}</td>
-                        <td className="p-4 text-right font-medium text-primary">{formatPrice(product.selling_price)}</td>
-                        <td className="p-4 text-center">
-                          <span className={`font-semibold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
-                            {product.quantity}
-                          </span>
-                          <span className="text-xs text-muted-foreground ml-1">
-                            {product.unit} (min: {product.minimum_stock})
-                          </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          {product.is_low_stock ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-full text-xs font-medium">
-                              <AlertTriangle className="w-3 h-3" />
-                              {language === 'sw' ? 'Chini' : 'Low'}
+                              <div className="min-w-0">
+                                <span className="font-medium text-foreground block truncate">{product.name}</span>
+                                <span className="text-xs text-muted-foreground block truncate">{product.sku}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4 text-muted-foreground capitalize">{product.category}</td>
+                          <td className="p-4 text-right text-muted-foreground">{formatPrice(product.cost_price)}</td>
+                          <td className="p-4 text-right font-medium text-primary">{formatPrice(product.selling_price)}</td>
+                          <td className="p-4 text-center">
+                            <span className={`font-semibold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                              {product.quantity}
                             </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                              {language === 'sw' ? 'Sawa' : 'OK'}
+                            <span className="text-xs text-muted-foreground ml-1">
+                              {product.unit} (min: {product.minimum_stock})
                             </span>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => openEditModal(product)} className="hover:bg-primary/10 hover:text-primary">
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => { setProductToDelete(product); setIsDeleteModalOpen(true); }} className="hover:bg-destructive/10 hover:text-destructive">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )})}
+                          </td>
+                          <td className="p-4 text-center">
+                            {product.is_low_stock ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-full text-xs font-medium">
+                                <AlertTriangle className="w-3 h-3" />
+                                {language === 'sw' ? 'Chini' : 'Low'}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                                {language === 'sw' ? 'Sawa' : 'OK'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center justify-center gap-2">
+                              <Button variant="ghost" size="icon" onClick={() => openEditModal(product)} className="hover:bg-primary/10 hover:text-primary">
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => { setProductToDelete(product); setIsDeleteModalOpen(true); }} className="hover:bg-destructive/10 hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -488,7 +414,7 @@ const Inventory = () => {
               {editingProduct ? (language === 'sw' ? 'Hariri Bidhaa' : 'Edit Product') : (language === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product')}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -625,15 +551,15 @@ const Inventory = () => {
               {language === 'sw' ? 'Futa Bidhaa?' : 'Delete Product?'}
             </DialogTitle>
           </DialogHeader>
-          
+
           {productToDelete && (
             <div className="py-4">
               <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl mb-4">
                 {(productToDelete.image_url && productToDelete.image_url !== '') || (productToDelete.image && productToDelete.image !== '') ? (
                   <div className="relative w-12 h-12 flex-shrink-0">
-                    <img 
-                      src={productToDelete.image_url || productToDelete.image || ''} 
-                      alt={productToDelete.name} 
+                    <img
+                      src={productToDelete.image_url || productToDelete.image || ''}
+                      alt={productToDelete.name}
                       className="w-12 h-12 rounded-lg object-cover"
                       onError={(e) => {
                         const target = e.currentTarget;
@@ -663,7 +589,9 @@ const Inventory = () => {
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>{language === 'sw' ? 'Ghairi' : 'Cancel'}</Button>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+              {language === 'sw' ? 'Ghairi' : 'Cancel'}
+            </Button>
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
               {language === 'sw' ? 'Futa' : 'Delete'}
@@ -671,9 +599,7 @@ const Inventory = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
-    </div>
+    </DashboardLayout>
   );
 };
 

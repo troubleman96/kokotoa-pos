@@ -1,42 +1,28 @@
 import { useState, useEffect, useMemo } from 'react';
-import { 
-  Search, Plus, Minus, Trash2, ShoppingCart, 
-  CreditCard, Smartphone, Banknote, Package,
-  BarChart3, Settings, LogOut, Menu, X, Home
+import {
+  Search, Plus, Minus, Trash2, ShoppingCart,
+  CreditCard, Smartphone, Banknote
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { productsApi, salesApi, Product, SaleItem } from '@/services/api';
+import { productsApi, salesApi, Product } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import DashboardLayout from '@/components/DashboardLayout';
 
 interface CartItem extends Product {
   quantity: number;
 }
 
 const POS = () => {
-  const { language, setLanguage } = useLanguage();
-  const { user } = useAuth();
-  const location = useLocation();
+  const { language } = useLanguage();
   const { toast } = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const navItems = [
-    { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
-    { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
-    { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
-    { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
-    { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
-  ];
 
   const categories = [
     { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
@@ -73,7 +59,7 @@ const POS = () => {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -153,77 +139,19 @@ const POS = () => {
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
-        <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-display font-bold text-xl">K</span>
-                </div>
-                <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
-              </Link>
-              <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">{user?.store_name || 'My Store'}</p>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${
-                  location.pathname === item.path
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="p-4 border-t border-border">
-            <div className="flex gap-2">
-              <Button variant={language === 'sw' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('sw')} className={language === 'sw' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇹🇿 SW</Button>
-              <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')} className={language === 'en' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇬🇧 EN</Button>
-            </div>
-          </div>
-
-          <div className="p-4 border-t border-border">
-            <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
-              <LogOut className="w-5 h-5" />
-              <span>{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
-            </Link>
-          </div>
-        </div>
-      </aside>
-
-      <div className="flex-1 flex flex-col lg:flex-row">
-        <div className="flex-1 p-4 lg:p-6 overflow-auto">
-          <div className="flex items-center justify-between mb-6">
-            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-foreground">
-              <Menu className="w-6 h-6" />
-            </button>
-            <h1 className="font-display text-2xl font-bold text-foreground">
-              {language === 'sw' ? 'Skrini ya Mauzo' : 'Sales Screen'}
-            </h1>
-            <div className="text-sm text-muted-foreground">
-              {new Date().toLocaleDateString('sw-TZ', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-4 mb-6">
+    <DashboardLayout
+      title={language === 'sw' ? 'Skrini ya Mauzo' : 'Sales Screen'}
+      subtitle={new Date().toLocaleDateString('sw-TZ', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })}
+    >
+      <div className="flex flex-col lg:flex-row gap-4 h-full">
+        {/* Products Section */}
+        <div className="flex-1 space-y-4">
+          <div className="space-y-4">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -264,9 +192,9 @@ const POS = () => {
                   <div className="w-full aspect-square mb-3 relative">
                     {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
                       <div className="relative w-full h-full">
-                        <img 
-                          src={product.image_url || product.image || ''} 
-                          alt={product.name} 
+                        <img
+                          src={product.image_url || product.image || ''}
+                          alt={product.name}
                           className="w-full h-full rounded-lg object-cover"
                           onError={(e) => {
                             const target = e.currentTarget;
@@ -303,7 +231,8 @@ const POS = () => {
           )}
         </div>
 
-        <div className="w-full lg:w-96 bg-card border-t lg:border-t-0 lg:border-l border-border flex flex-col">
+        {/* Cart Section */}
+        <div className="w-full lg:w-96 bg-card border border-border rounded-xl flex flex-col">
           <div className="p-4 lg:p-6 border-b border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -329,9 +258,9 @@ const POS = () => {
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
                   <div className="relative w-12 h-12 flex-shrink-0">
                     {(item.image_url && item.image_url !== '') || (item.image && item.image !== '') ? (
-                      <img 
-                        src={item.image_url || item.image || ''} 
-                        alt={item.name} 
+                      <img
+                        src={item.image_url || item.image || ''}
+                        alt={item.name}
                         className="w-12 h-12 rounded-lg object-cover"
                         onError={(e) => {
                           const target = e.currentTarget;
@@ -433,11 +362,7 @@ const POS = () => {
           </div>
         </div>
       </div>
-
-      {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
-      )}
-    </div>
+    </DashboardLayout>
   );
 };
 
