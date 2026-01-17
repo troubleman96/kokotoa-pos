@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, api, User, storesApi } from '@/services/api';
+import { authApi, api, User, storesApi, accountsApi } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (token && storedUser) {
         try {
-          const response = await authApi.getCurrentUser();
+          const response = await accountsApi.getCurrentUser();
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch {
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = api.getAccessToken();
     if (token) {
       try {
-        const response = await authApi.getCurrentUser();
+        const response = await accountsApi.getCurrentUser();
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
       } catch {

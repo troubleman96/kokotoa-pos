@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi, storesApi } from '@/services/api';
+import { authApi, storesApi, accountsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -51,7 +51,7 @@ const SettingsPage = () => {
 
     setIsLoading(true);
     try {
-      await authApi.changeName({
+      await accountsApi.changeName({
         first_name: profileData.first_name,
         last_name: profileData.last_name,
       });

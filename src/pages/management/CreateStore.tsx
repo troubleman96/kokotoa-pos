@@ -44,27 +44,20 @@ const CreateStore = () => {
         navigate('/login');
         return;
       }
-      // Use fetch directly to get status and data
-      const accessToken = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/accounts/stores/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          ...formData,
-          phone_number: formData.phone_number || user.phone || '',
-        }),
+
+      const response = await storesApi.create({
+        ...formData,
+        phone_number: formData.phone_number || user.phone || '',
       });
-      const data = await res.json();
-      if (res.status === 201 && data.success) {
+
+      if (response.success) {
         // Update user in localStorage
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
         userData.is_profile_complete = true;
-        userData.store = data.data.id;
-        userData.store_name = data.data.name;
+        userData.store = response.data.id;
+        userData.store_name = response.data.name;
         localStorage.setItem('user', JSON.stringify(userData));
+
         toast({
           title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
           description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
@@ -73,7 +66,7 @@ const CreateStore = () => {
       } else {
         toast({
           title: language === 'sw' ? 'Kosa!' : 'Error!',
-          description: (data && data.message) || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+          description: response.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
           variant: 'destructive',
         });
       }
@@ -109,7 +102,7 @@ const CreateStore = () => {
             {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
           </h1>
           <p className="text-muted-foreground">
-            {language === 'sw' 
+            {language === 'sw'
               ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
               : 'Congratulations! Create your first store to start doing business.'
             }

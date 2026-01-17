@@ -166,7 +166,7 @@ const Users = () => {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'OWNER': return 'bg-primary/10 text-primary';
-      case 'MANAGER': return 'bg-blue-500/10 text-blue-500';
+      case 'CASHIER': return 'bg-blue-500/10 text-blue-500';
       case 'STAFF': return 'bg-muted text-muted-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -197,11 +197,10 @@ const Users = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${
-                  location.pathname === item.path
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${location.pathname === item.path
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
@@ -242,7 +241,7 @@ const Users = () => {
                 </p>
               </div>
             </div>
-            
+
             <Button onClick={openAddModal} className="btn-kokotoa">
               <Plus className="w-4 h-4 mr-2" />
               {language === 'sw' ? 'Ongeza Mtumiaji' : 'Add User'}
@@ -347,7 +346,7 @@ const Users = () => {
               {editingUser ? (language === 'sw' ? 'Hariri Mtumiaji' : 'Edit User') : (language === 'sw' ? 'Ongeza Mtumiaji Mpya' : 'Add New User')}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -389,7 +388,7 @@ const Users = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MANAGER">{language === 'sw' ? 'Meneja' : 'Manager'}</SelectItem>
+                  <SelectItem value="CASHIER">{language === 'sw' ? 'Mhasibu' : 'Cashier'}</SelectItem>
                   <SelectItem value="STAFF">{language === 'sw' ? 'Mfanyakazi' : 'Staff'}</SelectItem>
                 </SelectContent>
               </Select>
@@ -418,7 +417,7 @@ const Users = () => {
               {language === 'sw' ? 'Hatua hii haiwezi kutenduliwa.' : 'This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
-          
+
           {userToDelete && (
             <div className="py-4">
               <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl">
