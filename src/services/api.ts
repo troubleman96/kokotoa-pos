@@ -181,28 +181,28 @@ export const api = new ApiService();
 
 export const authApi = {
   register: (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) =>
-    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean }; errors: any }>('/auth/register/', data),
+    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean }; errors: any }>('/accounts/auth/register/', data),
 
   verifyOtp: (data: { phone: string; otp_code: string }) =>
-    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean; can_create_store: boolean; is_profile_complete: boolean }; errors: any }>('/auth/verify-otp/', data),
+    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean; can_create_store: boolean; is_profile_complete: boolean }; errors: any }>('/accounts/auth/verify-otp/', data),
 
   resendOtp: (data: { phone: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/auth/resend-otp/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/resend-otp/', data),
 
   login: (data: { phone: string; password: string }) =>
-    api.post<AuthResponse & { errors: any }>('/auth/login/', data),
+    api.post<AuthResponse & { errors: any }>('/accounts/auth/login/', data),
 
   refreshToken: (refresh: string) =>
-    api.post<{ access: string; refresh: string; token_type: string; success: boolean; message: string; errors: any }>('/auth/token/refresh/', { refresh }),
+    api.post<{ access: string; refresh: string; token_type: string; success: boolean; message: string; errors: any }>('/accounts/auth/token/refresh/', { refresh }),
 
   requestPasswordReset: (data: { phone: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/reset/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/reset/', data),
 
   resetPassword: (data: { phone: string; otp_code: string; new_password: string; new_password_confirm: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/reset/confirm/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/reset/confirm/', data),
 
   changePassword: (data: { old_password: string; new_password: string; new_password_confirm: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/change/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/change/', data),
 };
 
 export const accountsApi = {
