@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
+import ProductDetailsModal from '@/components/ProductDetailsModal';
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -32,6 +33,11 @@ const Inventory = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Product details modal state
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -104,6 +110,28 @@ const Inventory = () => {
   );
 
   const formatPrice = (price: string) => `TSh ${parseFloat(price).toLocaleString()}`;
+
+  const handleViewProduct = async (product: Product) => {
+    setIsLoadingDetails(true);
+    setIsDetailsModalOpen(true);
+    try {
+      // Fetch full product details including QR code
+      const response = await productsApi.get(product.id);
+      if (response.data) {
+        setSelectedProduct(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: language === 'sw' ? 'Imeshindwa kupata taarifa za bidhaa' : 'Failed to fetch product details',
+        variant: 'destructive',
+      });
+      setIsDetailsModalOpen(false);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
 
   const openAddModal = () => {
     setEditingProduct(null);
@@ -311,7 +339,11 @@ const Inventory = () => {
                   <tbody>
                     {filteredProducts.map((product) => {
                       return (
-                        <tr key={product.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                        <tr
+                          key={product.id}
+                          className="border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer"
+                          onClick={() => handleViewProduct(product)}
+                        >
                           <td className="p-4">
                             <div className="flex items-center gap-3">
                               {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
@@ -599,6 +631,16 @@ const Inventory = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Product Details Modal with QR Code */}
+      <ProductDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        product={selectedProduct}
+      />
     </DashboardLayout>
   );
 };
