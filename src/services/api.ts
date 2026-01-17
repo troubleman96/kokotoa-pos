@@ -110,6 +110,24 @@ class ApiService {
     return this.handleResponse<T>(response);
   }
 
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    console.log(`[API] POST (FormData) ${API_BASE_URL}${endpoint}`);
+    console.log(`[API] FormData keys:`, Array.from(formData.keys()));
+    const token = localStorage.getItem('jwt_token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    console.log(`[API] Headers:`, headers);
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    console.log(`[API] Response Status: ${response.status}`);
+    return this.handleResponse<T>(response);
+  }
+
   async get<T>(endpoint: string): Promise<T> {
     console.log(`[API] GET ${API_BASE_URL}${endpoint}`);
     console.log(`[API] Headers:`, this.getHeaders());
@@ -188,6 +206,9 @@ export const authApi = {
 
   changeName: (data: { first_name: string; last_name: string }) =>
     api.post<{ success: boolean; message: string; data: { first_name: string; last_name: string }; errors: any }>('/accounts/auth/profile/change-name/', data),
+
+  getCurrentUser: () =>
+    api.get<{ success: boolean; message: string; data: User; errors: any }>('/accounts/auth/profile/'),
 };
 
 export const storesApi = {
@@ -237,13 +258,13 @@ export const productsApi = {
     return api.get<{ success: boolean; message: string; data: Product[]; errors: any }>(`/inventory/products/${query ? `?${query}` : ''}`);
   },
 
-  create: (data: Partial<Product & { cost_price: number; selling_price: number; quantity: number; minimum_stock: number }>) =>
-    api.post<{ success: boolean; message: string; data: Product; errors: any }>('/inventory/products/', data),
+  create: (formData: FormData) =>
+    api.postFormData<{ success: boolean; message: string; data: Product; errors: any }>('/inventory/products/', formData),
 
   get: (id: number) =>
     api.get<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`),
 
-  update: (id: number, data: Partial<Product & { cost_price: number; selling_price: number }>) =>
+  update: (id: number, data: Record<string, unknown>) =>
     api.put<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`, data),
 
   delete: (id: number) =>
@@ -252,10 +273,10 @@ export const productsApi = {
   getLowStock: () =>
     api.get<{ success: boolean; message: string; data: Product[]; errors: any }>('/inventory/products/low-stock/'),
 
-  adjustStock: (data: { product_id: number; movement_type: 'IN' | 'OUT'; quantity: number; reason?: string; reference?: string }) =>
+  adjustStock: (data: { product_id: number; movement_type: 'IN' | 'OUT' | 'ADJUST'; quantity: number; reason?: string; reference?: string }) =>
     api.post<{ success: boolean; message: string; data: StockMovement; errors: any }>('/inventory/products/adjust-stock/', data),
 
-  bulkAdjustStock: (data: { adjustments: Array<{ product_id: number; movement_type: 'IN' | 'OUT'; quantity: number; reason?: string }> }) =>
+  bulkAdjustStock: (data: { adjustments: Array<{ product_id: number; movement_type: 'IN' | 'OUT' | 'ADJUST'; quantity: number; reason?: string }> }) =>
     api.post<{ success: boolean; message: string; data: { adjustments_count: number }; errors: any }>('/inventory/products/bulk-adjust-stock/', data),
 };
 
@@ -366,8 +387,10 @@ export interface Product {
   selling_price: string;
   quantity: number;
   minimum_stock: number;
-  barcode?: string;
   is_active: boolean;
+  image: string | null;
+  image_url: string | null;
+  qr_code_url: string | null;
   is_low_stock: boolean;
   profit_margin: string;
   created_at: string;

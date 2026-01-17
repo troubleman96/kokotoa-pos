@@ -261,8 +261,34 @@ const POS = () => {
                   onClick={() => addToCart(product)}
                   className="card-kokotoa rounded-xl p-4 text-center hover:border-primary/30 transition-all group"
                 >
-                  <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">
-                    {product.category.charAt(0).toUpperCase()}
+                  <div className="w-full aspect-square mb-3 relative">
+                    {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
+                      <div className="relative w-full h-full">
+                        <img 
+                          src={product.image_url || product.image || ''} 
+                          alt={product.name} 
+                          className="w-full h-full rounded-lg object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) placeholder.style.display = 'flex';
+                          }}
+                          onLoad={(e) => {
+                            const target = e.currentTarget;
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) placeholder.style.display = 'none';
+                          }}
+                        />
+                        <div className="hidden absolute inset-0 w-full h-full rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-4xl">
+                          {product.category.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-4xl">
+                        {product.category.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <h3 className="font-medium text-foreground text-sm mb-1 truncate">
                     {product.name}
@@ -301,7 +327,24 @@ const POS = () => {
             ) : (
               cart.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                  <div className="text-2xl">{item.category.charAt(0).toUpperCase()}</div>
+                  <div className="relative w-12 h-12 flex-shrink-0">
+                    {(item.image_url && item.image_url !== '') || (item.image && item.image !== '') ? (
+                      <img 
+                        src={item.image_url || item.image || ''} 
+                        alt={item.name} 
+                        className="w-12 h-12 rounded-lg object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          const placeholder = target.nextElementSibling as HTMLElement;
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-xl">
+                      {item.category.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-foreground text-sm truncate">{item.name}</h4>
                     <p className="text-sm text-primary">{formatPrice(parseFloat(item.selling_price))}</p>

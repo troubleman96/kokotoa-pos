@@ -30,11 +30,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(JSON.parse(storedUser));
     }
     
-    if (token) {
+    if (token && storedUser) {
       try {
-        const response = await authApi.login({ phone: '', password: '' });
-        setUser(response.data.user);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        const response = await authApi.getCurrentUser();
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
       } catch {
         api.setAccessToken(null);
         api.setRefreshToken(null);
@@ -93,12 +93,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = api.getAccessToken();
     if (token) {
       try {
-        const response = await authApi.login({ phone: '', password: '' });
-        setUser(response.data.user);
+        const response = await authApi.getCurrentUser();
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
       } catch {
         api.setAccessToken(null);
         api.setRefreshToken(null);
         setUser(null);
+        localStorage.removeItem('user');
       }
     }
   };

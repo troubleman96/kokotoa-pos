@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +11,7 @@ import { Package, Store, MapPin, Phone, ArrowRight, CheckCircle } from 'lucide-r
 
 const CreateStore = () => {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -22,41 +22,60 @@ const CreateStore = () => {
     details: '',
   });
 
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      logout && logout();
+      navigate('/login');
+      return;
+    }
+    if (user.is_profile_complete) {
+      navigate('/dashboard');
+    }
+    // If user is not profile complete, stay on this page and show the form
+  }, [user, navigate, logout, authLoading]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Ensure JWT token is sent by storesApi.create
-      const response = await storesApi.create({
-        ...formData,
-        phone_number: formData.phone_number || user?.phone || '',
+      if (!user) {
+        logout && logout();
+        navigate('/login');
+        return;
+      }
+      // Use fetch directly to get status and data
+      const accessToken = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/accounts/stores/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          ...formData,
+          phone_number: formData.phone_number || user.phone || '',
+        }),
       });
-      // After store creation, fetch user profile to check is_profile_complete
-      // Assume user profile is updated in backend after store creation
-      if (response.data) {
-        // Optionally, fetch user profile from backend here if needed
-        const updatedUser = {
-          ...user,
-          store: response.data.id,
-          store_name: response.data.name,
-          is_store_created: true,
-          is_profile_complete: true,
-        };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        // Redirect based on profile completion
-        if (updatedUser.is_profile_complete) {
-          toast({
-            title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
-            description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
-          });
-          navigate('/dashboard');
-        } else {
-          toast({
-            title: language === 'sw' ? 'Tengeneza Duka' : 'Create Store',
-            description: language === 'sw' ? 'Tafadhali tengeneza duka kwanza' : 'Please create a store first',
-          });
-          navigate('/create-store');
-        }
+      const data = await res.json();
+      if (res.status === 201 && data.success) {
+        // Update user in localStorage
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        userData.is_profile_complete = true;
+        userData.store = data.data.id;
+        userData.store_name = data.data.name;
+        localStorage.setItem('user', JSON.stringify(userData));
+        toast({
+          title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
+          description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
+        });
+        navigate('/dashboard');
+      } else {
+        toast({
+          title: language === 'sw' ? 'Kosa!' : 'Error!',
+          description: (data && data.message) || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+          variant: 'destructive',
+        });
       }
     } catch (error: unknown) {
       const err = error as { message?: string };
@@ -69,6 +88,14 @@ const CreateStore = () => {
       setIsLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
