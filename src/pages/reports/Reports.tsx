@@ -10,6 +10,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import DashboardLayout from '@/components/DashboardLayout';
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
+
+const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 const Reports = () => {
   const { language } = useLanguage();
@@ -50,16 +56,23 @@ const Reports = () => {
     };
   } | null>(null);
   const [dashboardData, setDashboardData] = useState<{
-    today: { sales: number; transactions: number };
-    this_month: { sales: number; transactions: number };
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);
+
+  // Graph States
+  const [salesByMethod, setSalesByMethod] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [salesByHour, setSalesByHour] = useState<any[]>([]);
+  const [inventoryValue, setInventoryValue] = useState<any[]>([]);
+  const [dailyTrend, setDailyTrend] = useState<any[]>([]);
+
   const [dateRange, setDateRange] = useState('7');
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      const days = parseInt(dateRange);
       try {
         const [dashboard, sales, inventory] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
@@ -70,6 +83,28 @@ const Reports = () => {
         if (dashboard?.data) setDashboardData(dashboard.data);
         if (sales?.data) setSalesData(sales.data);
         if (inventory?.data) setInventoryData(inventory.data);
+
+        // Fetch Analytics specifically if tab is active or just as extra data
+        if (activeTab === 'analytics') {
+          const [daily, top, methods, hours, value] = await Promise.all([
+            graphsApi.getDailySales(days).catch(() => null),
+            graphsApi.getTopProducts({ limit: 5, days }).catch(() => null),
+            graphsApi.getPaymentMethods(days).catch(() => null),
+            graphsApi.getSalesByHour(days).catch(() => null),
+            graphsApi.getInventoryValue().catch(() => null),
+          ]);
+
+          if (daily?.data) {
+            setDailyTrend(daily.data.labels.map((l, i) => ({
+              name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+              sales: daily.data.data[i]
+            })));
+          }
+          if (top?.data) setTopProducts(top.data.data.map(p => ({ name: p.name, quantity: p.quantity_sold, revenue: p.revenue })));
+          if (methods?.data) setSalesByMethod(methods.data.labels.map((l, i) => ({ name: l, value: methods.data.data[i] })));
+          if (hours?.data) setSalesByHour(hours.data.labels.map((l, i) => ({ name: l, sales: hours.data.data[i] })));
+          if (value?.data) setInventoryValue(value.data.labels.map((l, i) => ({ name: l, value: value.data.data[i] })));
+        }
       } catch (error) {
         console.error('Error fetching reports:', error);
       } finally {
@@ -77,7 +112,7 @@ const Reports = () => {
       }
     };
     fetchData();
-  }, [dateRange]);
+  }, [dateRange, activeTab, language]);
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
@@ -309,38 +344,131 @@ const Reports = () => {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="card-kokotoa">
-              <CardHeader>
-                <CardTitle>{language === 'sw' ? 'Mauzo ya Leo' : 'Today\'s Sales'}</CardTitle>
-                <CardDescription>{language === 'sw' ? 'Muhtasari wa mauzo ya leo' : 'Summary of today\'s sales'}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <p className="text-4xl font-display font-bold text-primary mb-2">
-                    {formatPrice(dashboardData?.today.sales || 0)}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {dashboardData?.today.transactions || 0} {language === 'sw' ? 'muamala' : 'transactions'}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Daily Sales Trend */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+                  <CardDescription>{language === 'sw' ? `Mwenendo wa mauzo kwa muda mrefu` : `Revenue over the selected period`}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={dailyTrend}>
+                      <defs>
+                        <linearGradient id="colorSalesDetailed" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Mauzo' : 'Sales']}
+                      />
+                      <Area type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorSalesDetailed)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
 
-            <Card className="card-kokotoa">
+              {/* Payment Methods Breakdown */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Njia za Malipo' : 'Payment Methods'}</CardTitle>
+                  <CardDescription>{language === 'sw' ? 'Mchanganuo wa malipo yaliyopokelewa' : 'Breakdown of sales by payment type'}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={salesByMethod}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {salesByMethod.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => formatPrice(v)}
+                      />
+                      <Legend verticalAlign="bottom" height={36} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Top Products */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Bidhaa Zinazouzika' : 'Top Selling Products'}</CardTitle>
+                  <CardDescription>{language === 'sw' ? 'Bidhaa zilizouzwa zaidi kwa idadi' : 'Best performing products by quantity'}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topProducts} layout="vertical" margin={{ left: 40 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.1} />
+                      <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis dataKey="name" type="category" fontSize={10} width={100} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                      />
+                      <Bar dataKey="quantity" fill="#10B981" radius={[0, 4, 4, 0]} barSize={20} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Peak Sales Hours */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Saa za Biashara' : 'Peak Sales Hours'}</CardTitle>
+                  <CardDescription>{language === 'sw' ? 'Mchanganuo wa mauzo kwa saa' : 'Sales distribution across the day'}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={salesByHour}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => formatPrice(v)}
+                      />
+                      <Bar dataKey="sales" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Category Value Breakdown */}
+            <Card className="card-kokotoa lg:col-span-2">
               <CardHeader>
-                <CardTitle>{language === 'sw' ? 'Thamani ya Hesabu' : 'Inventory Value'}</CardTitle>
-                <CardDescription>{language === 'sw' ? 'Jumla ya thamani ya bidhaa zote' : 'Total value of all products'}</CardDescription>
+                <CardTitle>{language === 'sw' ? 'Thamani ya Bidhaa kwa Aina' : 'Inventory Value by Category'}</CardTitle>
+                <CardDescription>{language === 'sw' ? 'Thamani ya bidhaa zilizopo ghala kwa sasa' : 'Total retail value distribution across categories'}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <p className="text-4xl font-display font-bold text-primary mb-2">
-                    {formatPrice(inventoryData?.summary.total_retail_value || 0)}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {inventoryData?.summary.total_items || 0} {language === 'sw' ? 'bidhaa' : 'products'}
-                  </p>
-                </div>
+              <CardContent className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={inventoryValue}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                      formatter={(v: number) => formatPrice(v)}
+                    />
+                    <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
