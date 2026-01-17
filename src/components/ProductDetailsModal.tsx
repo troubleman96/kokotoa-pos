@@ -1,4 +1,4 @@
-import { X, Download, QrCode } from 'lucide-react';
+import { X, Download, QrCode, RefreshCcw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,10 +7,11 @@ import { Product } from '@/services/api';
 interface ProductDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onAdjustStock?: (product: Product) => void;
     product: Product | null;
 }
 
-const ProductDetailsModal = ({ isOpen, onClose, product }: ProductDetailsModalProps) => {
+const ProductDetailsModal = ({ isOpen, onClose, onAdjustStock, product }: ProductDetailsModalProps) => {
     const { language } = useLanguage();
 
     if (!product) return null;
@@ -102,9 +103,21 @@ const ProductDetailsModal = ({ isOpen, onClose, product }: ProductDetailsModalPr
                                     <p className="text-sm text-muted-foreground mb-1">
                                         {language === 'sw' ? 'Kiasi' : 'Stock'}
                                     </p>
-                                    <p className={`font-medium ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
-                                        {product.quantity} {product.unit}
-                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <p className={`font-medium ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                                            {product.quantity} {product.unit}
+                                        </p>
+                                        {onAdjustStock && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 rounded-full hover:bg-amber-100 hover:text-amber-600"
+                                                onClick={() => onAdjustStock(product)}
+                                            >
+                                                <RefreshCcw className="w-3 h-3" />
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                                 <div>
                                     <p className="text-sm text-muted-foreground mb-1">

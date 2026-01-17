@@ -13,6 +13,7 @@ import POS from "./pages/POS";
 import Inventory from "./pages/Inventory";
 import Reports from "./pages/reports/Reports";
 import Settings from "./pages/Settings";
+import StockHistory from "./pages/StockHistory";
 import Users from "./pages/management/Users";
 import CreateStore from "./pages/management/CreateStore";
 import Login from "./pages/auth/Login";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/pos" element={<POS />} />
               <Route path="/inventory" element={<Inventory />} />
+              <Route path="/stock-history" element={<StockHistory />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/users" element={<Users />} />

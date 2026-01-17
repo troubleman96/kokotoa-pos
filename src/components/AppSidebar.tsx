@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home
+    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -20,7 +20,9 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
         { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
         { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
+        { path: '/stock-history', icon: History, label: language === 'sw' ? 'Logi ya Bidhaa' : 'Stock History' },
         { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
+        { path: '/users', icon: Settings, label: language === 'sw' ? 'Wafanyakazi' : 'Staff' },
         { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
     ];
 
@@ -49,18 +51,14 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${location.pathname === item.path
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`}
                             >
                                 <item.icon className="w-5 h-5" />
                                 <span>{item.label}</span>
                             </Link>
                         ))}
-                        <Link to="/users" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                            <Settings className="w-5 h-5" />
-                            <span>{language === 'sw' ? 'Watumiaji' : 'Users'}</span>
-                        </Link>
                     </nav>
 
                     <div className="p-4 border-t border-border">

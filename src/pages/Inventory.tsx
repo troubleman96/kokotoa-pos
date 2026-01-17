@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import {
   Search, Plus, Edit2, Trash2, Package,
-  AlertTriangle, Save, XCircle, Image as ImageIcon
+  AlertTriangle, Save, XCircle, Image as ImageIcon,
+  ArrowUpCircle, ArrowDownCircle, RefreshCcw, History
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { productsApi, Product } from '@/services/api';
@@ -34,10 +35,20 @@ const Inventory = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Product details modal state
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  // Adjustment state
+  const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+  const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
+  const [isAdjusting, setIsAdjusting] = useState(false);
+  const [adjustData, setAdjustData] = useState({
+    movement_type: 'IN',
+    quantity: 1,
+    reason: '',
+    reference: ''
+  });
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -130,6 +141,56 @@ const Inventory = () => {
       setIsDetailsModalOpen(false);
     } finally {
       setIsLoadingDetails(false);
+    }
+  };
+
+  const openAdjustModal = (product: Product) => {
+    setProductToAdjust(product);
+    setAdjustData({
+      movement_type: 'IN',
+      quantity: 1,
+      reason: '',
+      reference: ''
+    });
+    setIsAdjustModalOpen(true);
+  };
+
+  const handleAdjustStock = async () => {
+    if (!productToAdjust) return;
+
+    setIsAdjusting(true);
+    try {
+      const response = await productsApi.adjustStock({
+        product_id: productToAdjust.id,
+        movement_type: adjustData.movement_type as 'IN' | 'OUT' | 'ADJUST',
+        quantity: adjustData.quantity,
+        reason: adjustData.reason,
+        reference: adjustData.reference
+      });
+
+      if (response.success) {
+        toast({
+          title: language === 'sw' ? 'Mafanikio' : 'Success',
+          description: language === 'sw' ? 'Marekebisho yamekamilika' : 'Stock adjustment successful',
+        });
+        setIsAdjustModalOpen(false);
+        fetchProducts();
+      } else {
+        toast({
+          title: language === 'sw' ? 'Kosa' : 'Error',
+          description: response.message || (language === 'sw' ? 'Marekebisho yameshindwa' : 'Adjustment failed'),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Adjustment error:', error);
+      toast({
+        title: language === 'sw' ? 'Hitilafu' : 'Error',
+        description: language === 'sw' ? 'Kuna tatizo limetokea' : 'An error occurred during adjustment',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAdjusting(false);
     }
   };
 
@@ -404,10 +465,38 @@ const Inventory = () => {
                           </td>
                           <td className="p-4">
                             <div className="flex items-center justify-center gap-2">
-                              <Button variant="ghost" size="icon" onClick={() => openEditModal(product)} className="hover:bg-primary/10 hover:text-primary">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
+                                className="hover:bg-amber-100 hover:text-amber-600 dark:hover:bg-amber-900/20"
+                                title={language === 'sw' ? 'Marekebisho' : 'Adjust Stock'}
+                              >
+                                <RefreshCcw className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.stopPropagation(); window.open(`/stock-history?search=${product.sku}`, '_blank'); }}
+                                className="hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                                title={language === 'sw' ? 'Historia' : 'Stock History'}
+                              >
+                                <History className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.stopPropagation(); openEditModal(product); }}
+                                className="hover:bg-primary/10 hover:text-primary"
+                              >
                                 <Edit2 className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => { setProductToDelete(product); setIsDeleteModalOpen(true); }} className="hover:bg-destructive/10 hover:text-destructive">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.stopPropagation(); setProductToDelete(product); setIsDeleteModalOpen(true); }}
+                                className="hover:bg-destructive/10 hover:text-destructive"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -632,12 +721,128 @@ const Inventory = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Stock Adjustment Modal */}
+      <Dialog open={isAdjustModalOpen} onOpenChange={setIsAdjustModalOpen}>
+        <DialogContent className="max-w-md bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display">
+              <RefreshCcw className="w-5 h-5 text-amber-500" />
+              {language === 'sw' ? 'Marekebisho ya Hesabu' : 'Stock Adjustment'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {productToAdjust && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Package className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground leading-none mb-1">{productToAdjust.name}</h4>
+                  <p className="text-xs text-muted-foreground">{productToAdjust.sku}</p>
+                  <p className="text-xs font-medium text-primary mt-1">
+                    {language === 'sw' ? 'Sasa:' : 'Current:'} {productToAdjust.quantity} {productToAdjust.unit}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">{language === 'sw' ? 'Aina ya Marekebisho' : 'Adjustment Type'}</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    variant={adjustData.movement_type === 'IN' ? 'default' : 'outline'}
+                    onClick={() => setAdjustData({ ...adjustData, movement_type: 'IN' })}
+                    className="flex flex-col h-auto py-2 gap-1"
+                  >
+                    <ArrowUpCircle className="w-4 h-4" />
+                    <span className="text-[10px]">{language === 'sw' ? 'Ingizo' : 'Stock In'}</span>
+                  </Button>
+                  <Button
+                    variant={adjustData.movement_type === 'OUT' ? 'default' : 'outline'}
+                    onClick={() => setAdjustData({ ...adjustData, movement_type: 'OUT' })}
+                    className="flex flex-col h-auto py-2 gap-1"
+                  >
+                    <ArrowDownCircle className="w-4 h-4" />
+                    <span className="text-[10px]">{language === 'sw' ? 'Toleo' : 'Stock Out'}</span>
+                  </Button>
+                  <Button
+                    variant={adjustData.movement_type === 'ADJUST' ? 'default' : 'outline'}
+                    onClick={() => setAdjustData({ ...adjustData, movement_type: 'ADJUST' })}
+                    className="flex flex-col h-auto py-2 gap-1"
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                    <span className="text-[10px]">{language === 'sw' ? 'Weka Sawa' : 'Set Exact'}</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {adjustData.movement_type === 'ADJUST'
+                    ? (language === 'sw' ? 'Hesabu Mpya' : 'New Total Quantity')
+                    : (language === 'sw' ? 'Kiasi (Kinajumlishwa/Kinaondolewa)' : 'Quantity Change (Add/Subtract)')}
+                </label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={adjustData.quantity}
+                  onChange={(e) => setAdjustData({ ...adjustData, quantity: parseInt(e.target.value) || 1 })}
+                  className="bg-background"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">{language === 'sw' ? 'Sababu' : 'Reason'}</label>
+                <Input
+                  placeholder={language === 'sw' ? 'Mf: Umepokea mzigo, Uharibifu, n.k' : 'e.g., Stock replenishment, Damage, etc.'}
+                  value={adjustData.reason}
+                  onChange={(e) => setAdjustData({ ...adjustData, reason: e.target.value })}
+                  className="bg-background"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">{language === 'sw' ? 'Rejea (Hiyari)' : 'Reference (Optional)'}</label>
+                <Input
+                  placeholder={language === 'sw' ? 'Mf: PO-001' : 'e.g., PO-001'}
+                  value={adjustData.reference}
+                  onChange={(e) => setAdjustData({ ...adjustData, reference: e.target.value })}
+                  className="bg-background"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsAdjustModalOpen(false)} disabled={isAdjusting}>
+              {language === 'sw' ? 'Ghairi' : 'Cancel'}
+            </Button>
+            <Button
+              className="btn-kokotoa"
+              onClick={handleAdjustStock}
+              disabled={isAdjusting}
+            >
+              {isAdjusting ? (
+                <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {language === 'sw' ? 'Hifadhi' : 'Save Adjustment'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Product Details Modal with QR Code */}
       <ProductDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => {
           setIsDetailsModalOpen(false);
           setSelectedProduct(null);
+        }}
+        onAdjustStock={(product) => {
+          setIsDetailsModalOpen(false);
+          openAdjustModal(product);
         }}
         product={selectedProduct}
       />
