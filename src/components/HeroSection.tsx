@@ -39,7 +39,7 @@ const HeroSection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4">
-              <Link to="/pos">
+              <Link to="/login">
                 <Button size="lg" className="btn-kokotoa text-primary-foreground px-8 h-14 text-lg">
                   <span className="relative z-10 flex items-center gap-2">
                     {t('hero.cta')}

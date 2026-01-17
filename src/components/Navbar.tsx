@@ -79,7 +79,7 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Link to="/pos">
+            <Link to="/login">
               <Button className="btn-kokotoa text-primary-foreground px-6">
                 <span className="relative z-10">{t('nav.getStarted')}</span>
               </Button>
