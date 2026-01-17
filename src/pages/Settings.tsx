@@ -13,7 +13,7 @@ import {
 import DashboardLayout from '@/components/DashboardLayout';
 
 const SettingsPage = () => {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'notifications' | 'appearance'>('profile');

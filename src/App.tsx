@@ -14,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import Reports from "./pages/reports/Reports";
 import Settings from "./pages/Settings";
 import StockHistory from "./pages/StockHistory";
+import SalesHistory from "./pages/SalesHistory";
 import Users from "./pages/management/Users";
 import CreateStore from "./pages/management/CreateStore";
 import Login from "./pages/auth/Login";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/pos" element={<ProtectedRoute><POS /></ProtectedRoute>} />
               <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
               <Route path="/stock-history" element={<ProtectedRoute><StockHistory /></ProtectedRoute>} />
+              <Route path="/sales-history" element={<ProtectedRoute><SalesHistory /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />

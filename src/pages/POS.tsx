@@ -1,8 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   Search, Plus, Minus, Trash2, ShoppingCart,
-  CreditCard, Smartphone, Banknote
+  CreditCard, Smartphone, Banknote, User, Phone,
+  MapPin, StickyNote, Receipt, CheckCircle2, X, Hash
 } from 'lucide-react';
+import ReceiptModal from '@/components/ReceiptModal';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+} from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { productsApi, salesApi, Product } from '@/services/api';
 import { Button } from '@/components/ui/button';
@@ -23,6 +28,16 @@ const POS = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Checkout & Receipt state
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState({ text: '', number: '' });
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [paymentRef, setPaymentRef] = useState('');
+  const [saleNotes, setSaleNotes] = useState('');
 
   const categories = [
     { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
@@ -93,7 +108,12 @@ const POS = () => {
 
   const total = cart.reduce((sum, item) => sum + (parseFloat(item.selling_price) * item.quantity), 0);
 
-  const completeSale = async (paymentMethod: string) => {
+  const openCheckout = (method: string) => {
+    setPaymentMethod(method);
+    setIsCheckoutModalOpen(true);
+  };
+
+  const completeSale = async () => {
     if (cart.length === 0) {
       toast({
         title: language === 'sw' ? 'Kikapu Tupu!' : 'Cart Empty!',
@@ -112,23 +132,42 @@ const POS = () => {
         discount_percent: 0,
       }));
 
-      await salesApi.create({
+      const response = await salesApi.create({
         items,
         payment_method: paymentMethod,
-        customer_phone: '',
-        customer_name: '',
+        customer_phone: customerPhone,
+        customer_name: customerName,
+        payment_reference: paymentRef,
+        notes: saleNotes,
       });
 
-      toast({
-        title: language === 'sw' ? 'Mauzo Yamekamilika! ✓' : 'Sale Complete! ✓',
-        description: `${formatPrice(total)} - ${paymentMethod}`,
-      });
-      setCart([]);
-    } catch (error: unknown) {
-      const err = error as { message?: string };
+      if (response.success) {
+        toast({
+          title: language === 'sw' ? 'Mauzo Yamekamilika! ✓' : 'Sale Complete! ✓',
+          description: `${formatPrice(total)} - ${paymentMethod}`,
+        });
+
+        // Fetch receipt automatically
+        const receiptResponse = await salesApi.getReceipt(response.data.id);
+        if (receiptResponse.success) {
+          setReceiptData({
+            text: receiptResponse.data.receipt_text,
+            number: receiptResponse.data.receipt_number
+          });
+          setIsCheckoutModalOpen(false);
+          setIsReceiptModalOpen(true);
+          setCart([]);
+          // Reset fields
+          setCustomerName('');
+          setCustomerPhone('');
+          setPaymentRef('');
+          setSaleNotes('');
+        }
+      }
+    } catch (error: any) {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
-        description: err.message || (language === 'sw' ? 'Mauzo yameshindwa' : 'Sale failed'),
+        description: error.message || (language === 'sw' ? 'Mauzo yameshindwa' : 'Sale failed'),
         variant: 'destructive',
       });
     } finally {
@@ -314,7 +353,7 @@ const POS = () => {
 
             <div className="grid grid-cols-3 gap-2">
               <Button
-                onClick={() => completeSale('CASH')}
+                onClick={() => openCheckout('CASH')}
                 variant="outline"
                 className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
                 disabled={isProcessing}
@@ -323,7 +362,7 @@ const POS = () => {
                 <span className="text-xs">{language === 'sw' ? 'Taslimu' : 'Cash'}</span>
               </Button>
               <Button
-                onClick={() => completeSale('MOMO')}
+                onClick={() => openCheckout('MPESA')}
                 variant="outline"
                 className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
                 disabled={isProcessing}
@@ -332,7 +371,7 @@ const POS = () => {
                 <span className="text-xs">M-Pesa</span>
               </Button>
               <Button
-                onClick={() => completeSale('BANK')}
+                onClick={() => openCheckout('BANK')}
                 variant="outline"
                 className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
                 disabled={isProcessing}
@@ -343,7 +382,7 @@ const POS = () => {
             </div>
 
             <Button
-              onClick={() => completeSale('CASH')}
+              onClick={() => openCheckout('CASH')}
               className="w-full btn-kokotoa h-14 text-lg"
               disabled={cart.length === 0 || isProcessing}
             >
@@ -362,7 +401,152 @@ const POS = () => {
           </div>
         </div>
       </div>
+      <CheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        onConfirm={completeSale}
+        isProcessing={isProcessing}
+        total={total}
+        paymentMethod={paymentMethod}
+        customerName={customerName}
+        setCustomerName={setCustomerName}
+        customerPhone={customerPhone}
+        setCustomerPhone={setCustomerPhone}
+        paymentRef={paymentRef}
+        setPaymentRef={setPaymentRef}
+        notes={saleNotes}
+        setNotes={setSaleNotes}
+        language={language}
+      />
+
+      <ReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        receiptText={receiptData.text}
+        receiptNumber={receiptData.number}
+      />
     </DashboardLayout>
+  );
+};
+
+interface CheckoutModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isProcessing: boolean;
+  total: number;
+  paymentMethod: string;
+  customerName: string;
+  setCustomerName: (v: string) => void;
+  customerPhone: string;
+  setCustomerPhone: (v: string) => void;
+  paymentRef: string;
+  setPaymentRef: (v: string) => void;
+  notes: string;
+  setNotes: (v: string) => void;
+  language: string;
+}
+
+const CheckoutModal = ({
+  isOpen, onClose, onConfirm, isProcessing, total, paymentMethod,
+  customerName, setCustomerName, customerPhone, setCustomerPhone,
+  paymentRef, setPaymentRef, notes, setNotes, language
+}: CheckoutModalProps) => {
+  const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md bg-card border-border">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-xl font-display">
+            <CheckCircle2 className="w-6 h-6 text-primary" />
+            {language === 'sw' ? 'Thibitisha Malipo' : 'Confirm Checkout'}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 text-center">
+            <p className="text-sm text-muted-foreground mb-1">{language === 'sw' ? 'Jumla ya Kulipa' : 'Total Amount'}</p>
+            <p className="text-3xl font-display font-bold text-primary">{formatPrice(total)}</p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+              {paymentMethod}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                <User className="w-3 h-3" />
+                {language === 'sw' ? 'Jina la Mteja' : 'Customer Name'}
+              </label>
+              <Input
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder={language === 'sw' ? 'Hiari' : 'Optional'}
+                className="bg-background"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                {language === 'sw' ? 'Simu ya Mteja' : 'Customer Phone'}
+              </label>
+              <Input
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder={language === 'sw' ? 'Hiari' : 'Optional'}
+                className="bg-background"
+              />
+            </div>
+            {paymentMethod !== 'CASH' && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-primary uppercase flex items-center gap-1">
+                  <Hash className="w-3 h-3" />
+                  {language === 'sw' ? 'Kumbukumbu ya Malipo' : 'Payment Reference'}
+                </label>
+                <Input
+                  value={paymentRef}
+                  onChange={(e) => setPaymentRef(e.target.value)}
+                  placeholder={language === 'sw' ? 'Namba ya muamala...' : 'Transaction ID...'}
+                  className="bg-background border-primary/30 focus-visible:ring-primary"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                <StickyNote className="w-3 h-3" />
+                {language === 'sw' ? 'Maelezo' : 'Notes'}
+              </label>
+              <Input
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder={language === 'sw' ? 'Hiari' : 'Optional'}
+                className="bg-background"
+              />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" onClick={onClose} disabled={isProcessing} className="flex-1">
+            <X className="w-4 h-4 mr-2" />
+            {language === 'sw' ? 'Ghairi' : 'Cancel'}
+          </Button>
+          <Button
+            className="flex-2 btn-kokotoa shadow-lg"
+            onClick={onConfirm}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+            )}
+            {language === 'sw' ? 'Kamilisha Mauzo' : 'Complete Sale'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
