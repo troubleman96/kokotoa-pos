@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import {
 
 const Dashboard = () => {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<{
     today: { sales: number; transactions: number };
     this_month: { sales: number; transactions: number };
@@ -81,7 +83,9 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout
-      title={language === 'sw' ? 'Karibu, Mfanyabiashara!' : 'Welcome, Business Owner!'}
+      title={language === 'sw'
+        ? `Karibu, ${user?.first_name || 'Mfanyabiashara'}!`
+        : `Welcome, ${user?.first_name || 'Business Owner'}!`}
       subtitle={new Date().toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', {
         weekday: 'long',
         year: 'numeric',

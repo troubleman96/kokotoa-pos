@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { usersApi, User } from '@/services/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import DashboardLayout from '@/components/DashboardLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from '@/components/ui/dialog';
@@ -14,16 +13,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import {
-  ShoppingCart, Package, BarChart3, Settings, LogOut, Menu, X, Home,
   Plus, Edit2, Trash2, Users as UsersIcon, Phone, Shield
 } from 'lucide-react';
+import { usersApi } from '@/services/api';
+import type { User } from '@/services/api';
 
 const Users = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language } = useLanguage();
   const { user: currentUser } = useAuth();
-  const location = useLocation();
   const { toast } = useToast();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,13 +36,6 @@ const Users = () => {
     role: 'STAFF',
   });
 
-  const navItems = [
-    { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
-    { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
-    { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
-    { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
-    { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
-  ];
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -173,81 +164,20 @@ const Users = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
-        <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-display font-bold text-xl">K</span>
-                </div>
-                <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
-              </Link>
-              <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">{currentUser?.store_name || 'My Store'}</p>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full ${location.pathname === item.path
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="p-4 border-t border-border">
-            <div className="flex gap-2">
-              <Button variant={language === 'sw' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('sw')} className={language === 'sw' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇹🇿 SW</Button>
-              <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')} className={language === 'en' ? 'flex-1 btn-kokotoa' : 'flex-1'}>🇬🇧 EN</Button>
-            </div>
-          </div>
-
-          <div className="p-4 border-t border-border">
-            <Link to="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full">
-              <LogOut className="w-5 h-5" />
-              <span>{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
-            </Link>
-          </div>
+    <DashboardLayout
+      title={language === 'sw' ? 'Usimamizi wa Watumiaji' : 'User Management'}
+      subtitle={language === 'sw' ? `Jumla: ${users.length} watumiaji` : `Total: ${users.length} users`}
+    >
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-muted-foreground hidden lg:block">
+            {language === 'sw' ? 'Orodha ya Watumiaji' : 'User List'}
+          </h2>
+          <Button onClick={openAddModal} className="btn-kokotoa">
+            <Plus className="w-4 h-4 mr-2" />
+            {language === 'sw' ? 'Ongeza Mtumiaji' : 'Add User'}
+          </Button>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header className="bg-card border-b border-border p-4 lg:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-foreground">
-                <Menu className="w-6 h-6" />
-              </button>
-              <div>
-                <h1 className="font-display text-2xl font-bold text-foreground">
-                  {language === 'sw' ? 'Usimamizi wa Watumiaji' : 'User Management'}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'sw' ? `Jumla: ${users.length} watumiaji` : `Total: ${users.length} users`}
-                </p>
-              </div>
-            </div>
-
-            <Button onClick={openAddModal} className="btn-kokotoa">
-              <Plus className="w-4 h-4 mr-2" />
-              {language === 'sw' ? 'Ongeza Mtumiaji' : 'Add User'}
-            </Button>
-          </div>
-        </header>
 
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
           {isLoading ? (
@@ -443,9 +373,7 @@ const Users = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
-    </div>
+    </DashboardLayout>
   );
 };
 
