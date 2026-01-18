@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 interface ApiResponse<T> {
@@ -39,29 +41,37 @@ class ApiService {
   setAccessToken(token: string | null) {
     this.accessToken = token;
     if (token) {
+      localStorage.setItem('jwt_token', token);
       localStorage.setItem('access_token', token);
-      localStorage.setItem('jwt_token', token); // Store JWT as 'jwt_token' for compatibility
     } else {
-      localStorage.removeItem('access_token');
       localStorage.removeItem('jwt_token');
+      localStorage.removeItem('access_token');
     }
   }
 
   getAccessToken(): string | null {
-    // Always prefer 'jwt_token' for Authorization
-    const jwt = localStorage.getItem('jwt_token');
-    if (jwt) return jwt;
-    if (!this.accessToken) {
-      this.accessToken = localStorage.getItem('access_token');
-    }
-    return this.accessToken;
+    if (this.accessToken) return this.accessToken;
+    const token = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
+    if (token) this.accessToken = token;
+    return token;
   }
 
-  private getHeaders(): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    // Get token using centralized method
+  setRefreshToken(token: string | null) {
+    if (token) {
+      Cookies.set('refresh_token', token, { expires: 30, secure: true, sameSite: 'strict' });
+      localStorage.setItem('refresh_token', token); // Fallback
+    } else {
+      Cookies.remove('refresh_token');
+      localStorage.removeItem('refresh_token');
+    }
+  }
+
+  getRefreshToken(): string | null {
+    return Cookies.get('refresh_token') || localStorage.getItem('refresh_token');
+  }
+
+  private getHeaders(isFormData = false): HeadersInit {
+    const headers: HeadersInit = isFormData ? {} : { 'Content-Type': 'application/json' };
     const token = this.getAccessToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -69,16 +79,38 @@ class ApiService {
     return headers;
   }
 
-  setRefreshToken(token: string | null) {
-    if (token) {
-      localStorage.setItem('refresh_token', token);
-    } else {
-      localStorage.removeItem('refresh_token');
-    }
-  }
+  private async request<T>(endpoint: string, options: RequestInit, retry = true): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, options);
 
-  getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    // Auto-refresh logic on 401 (but don't retry if the refresh request itself fails)
+    if (response.status === 401 && retry && endpoint !== '/accounts/auth/token/refresh/') {
+      const refreshToken = this.getRefreshToken();
+      if (refreshToken) {
+        try {
+          console.log('[API] Token expired, attempting refresh...');
+          const refreshRes = await authApi.refreshToken(refreshToken);
+          if (refreshRes && refreshRes.access) {
+            this.setAccessToken(refreshRes.access);
+            if (refreshRes.refresh) this.setRefreshToken(refreshRes.refresh);
+
+            // Retry the original request with new token
+            const newOptions = {
+              ...options,
+              headers: this.getHeaders(options.body instanceof FormData)
+            };
+            return this.request<T>(endpoint, newOptions, false);
+          }
+        } catch (error) {
+          console.error('[API] Refresh token expired or invalid:', error);
+          this.setAccessToken(null);
+          this.setRefreshToken(null);
+          // Don't redirect here, let AuthContext handle the state change
+        }
+      }
+    }
+
+    return this.handleResponse<T>(response);
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
@@ -98,82 +130,49 @@ class ApiService {
   }
 
   async post<T>(endpoint: string, body: object): Promise<T> {
-    console.log(`[API] POST ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] Body:`, body);
-    console.log(`[API] Headers:`, this.getHeaders());
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 
   async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    console.log(`[API] POST (FormData) ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] FormData keys:`, Array.from(formData.keys()));
-    const token = localStorage.getItem('jwt_token');
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    console.log(`[API] Headers:`, headers);
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'POST',
-      headers,
+      headers: this.getHeaders(true),
       body: formData,
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 
   async get<T>(endpoint: string): Promise<T> {
-    console.log(`[API] GET ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] Headers:`, this.getHeaders());
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'GET',
       headers: this.getHeaders(),
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 
   async put<T>(endpoint: string, body: object): Promise<T> {
-    console.log(`[API] PUT ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] Body:`, body);
-    console.log(`[API] Headers:`, this.getHeaders());
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 
   async patch<T>(endpoint: string, body: object): Promise<T> {
-    console.log(`[API] PATCH ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] Body:`, body);
-    console.log(`[API] Headers:`, this.getHeaders());
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'PATCH',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 
   async delete<T>(endpoint: string): Promise<T> {
-    console.log(`[API] DELETE ${API_BASE_URL}${endpoint}`);
-    console.log(`[API] Headers:`, this.getHeaders());
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return this.request<T>(endpoint, {
       method: 'DELETE',
       headers: this.getHeaders(),
     });
-    console.log(`[API] Response Status: ${response.status}`);
-    return this.handleResponse<T>(response);
   }
 }
 
