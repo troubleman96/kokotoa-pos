@@ -8,8 +8,11 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 const Dashboard = () => {
   const { language } = useLanguage();
@@ -19,23 +22,36 @@ const Dashboard = () => {
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);
+  const [salesTrend, setSalesTrend] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await graphsApi.getDashboard();
-        if (response.data) {
-          setDashboardData(response.data);
+        const [dashRes, salesRes] = await Promise.all([
+          graphsApi.getDashboard(),
+          graphsApi.getDailySales(30) // Long term trend as requested
+        ]);
+
+        if (dashRes.data) {
+          setDashboardData(dashRes.data);
+        }
+
+        if (salesRes.data) {
+          const transformed = salesRes.data.labels.map((label: string, index: number) => ({
+            name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            sales: salesRes.data.data[index]
+          }));
+          setSalesTrend(transformed);
         }
       } catch (error) {
-        console.error('Error fetching dashboard:', error);
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchDashboard();
-  }, []);
+  }, [language]);
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
@@ -174,6 +190,111 @@ const Dashboard = () => {
               </CardHeader>
             </Card>
           )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+            {/* Sales Chart */}
+            <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mauzo' : 'Sales Trend'}</CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Mwenendo wa mauzo kwa muda mrefu' : 'Long-term sales trend'}
+                  </CardDescription>
+                </div>
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="h-80 pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={salesTrend}>
+                    <defs>
+                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                      tickFormatter={(value) => `TSh ${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        borderColor: 'hsl(var(--border))',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                      }}
+                      itemStyle={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}
+                      formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Mauzo' : 'Sales']}
+                      labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="sales"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorSales)"
+                      animationDuration={1500}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Quick Summary / Status */}
+            <Card className="card-kokotoa overflow-hidden">
+              <CardHeader>
+                <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
+                    <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary animate-pulse"
+                      style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
+                    <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-foreground"
+                      style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {language === 'sw'
+                      ? 'Utendaji wa biashara yako unaonyesha mwelekeo chanya. Endelea kufuatilia mapato yako!'
+                      : 'Your business performance shows a positive trend. Keep tracking your revenue!'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           <Card className="card-kokotoa">
             <CardHeader>
