@@ -34,8 +34,8 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     <div className="p-4 border-b border-border">
                         <div className="flex items-center justify-between">
                             <Link to="/" className="flex items-center gap-2">
-                                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                                    <span className="text-primary-foreground font-display font-bold text-xl">K</span>
+                                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
+                                    <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                                 </div>
                                 <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
                             </Link>

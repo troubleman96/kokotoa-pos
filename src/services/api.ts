@@ -88,11 +88,17 @@ class ApiService {
       const refreshToken = this.getRefreshToken();
       if (refreshToken) {
         try {
-          console.log('[API] Token expired, attempting refresh...');
-          const refreshRes = await authApi.refreshToken(refreshToken);
-          if (refreshRes && refreshRes.access) {
-            this.setAccessToken(refreshRes.access);
-            if (refreshRes.refresh) this.setRefreshToken(refreshRes.refresh);
+          console.log('[API] 401 Unauthorized, attempting to hit refresh token...');
+          const refreshRes = await authApi.refreshToken(refreshToken) as any;
+
+          // Handle both wrapped and unwrapped response styles
+          const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
+          const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
+
+          if (newAccess) {
+            console.log('[API] Refresh successful, retrying original request.');
+            this.setAccessToken(newAccess);
+            if (newRefresh) this.setRefreshToken(newRefresh);
 
             // Retry the original request with new token
             const newOptions = {
@@ -100,12 +106,14 @@ class ApiService {
               headers: this.getHeaders(options.body instanceof FormData)
             };
             return this.request<T>(endpoint, newOptions, false);
+          } else {
+            console.error('[API] Refresh response missing tokens:', refreshRes);
+            throw new Error('Refresh failed');
           }
         } catch (error) {
-          console.error('[API] Refresh token expired or invalid:', error);
+          console.error('[API] Recovery failed during silent refresh:', error);
           this.setAccessToken(null);
           this.setRefreshToken(null);
-          // Don't redirect here, let AuthContext handle the state change
         }
       }
     }

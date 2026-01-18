@@ -23,47 +23,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      console.log('[AuthContext] Start initAuth');
       const accessToken = api.getAccessToken();
       const refreshToken = api.getRefreshToken();
       const storedUser = localStorage.getItem('user');
 
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        console.log('[AuthContext] Setting initial user from localStorage');
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('[AuthContext] Failed to parse stored user', e);
+        }
       }
 
-      // If we have a refresh token but no access token, attempt a silent refresh
-      if (!accessToken && refreshToken) {
-        try {
+      try {
+        if (!accessToken && refreshToken) {
           console.log('[AuthContext] Access token missing, attempting silent refresh...');
-          const refreshRes = await authApi.refreshToken(refreshToken);
-          if (refreshRes && refreshRes.access) {
-            api.setAccessToken(refreshRes.access);
-            if (refreshRes.refresh) api.setRefreshToken(refreshRes.refresh);
+          const refreshRes = await authApi.refreshToken(refreshToken) as any;
 
-            // Re-fetch user to be sure we have the latest data
+          // Handle both wrapped and unwrapped response styles
+          const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
+          const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
+
+          if (newAccess) {
+            console.log('[AuthContext] Silent refresh success');
+            api.setAccessToken(newAccess);
+            if (newRefresh) api.setRefreshToken(newRefresh);
+
             const userRes = await accountsApi.getCurrentUser();
             setUser(userRes.data);
             localStorage.setItem('user', JSON.stringify(userRes.data));
+          } else {
+            console.warn('[AuthContext] Silent refresh failed: No access token in response. Logging out.');
+            logout();
           }
-        } catch (error) {
-          console.error('[AuthContext] Silent refresh failed:', error);
-          logout();
-        }
-      } else if (accessToken) {
-        // We have an access token, just refresh the user profile to be safe
-        try {
+        } else if (accessToken) {
+          console.log('[AuthContext] Access token present, validating session...');
           const response = await accountsApi.getCurrentUser();
+          console.log('[AuthContext] Session validated');
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
-        } catch (error) {
-          console.error('[AuthContext] Failed to fetch current user:', error);
-          // If profile fetch fails with 401, the interceptor might have already handled it,
-          // but if we are here, it means the session is likely dead.
+        } else {
+          console.log('[AuthContext] No session tokens found');
+        }
+      } catch (error) {
+        console.error('[AuthContext] Auth initialization error:', error);
+        // Only logout if we had some tokens but they proved invalid
+        if (accessToken || refreshToken) {
+          console.log('[AuthContext] Clearing invalid session');
           logout();
         }
+      } finally {
+        setIsLoading(false);
+        console.log('[AuthContext] initAuth complete');
       }
-
-      setIsLoading(false);
     };
     initAuth();
   }, []);
@@ -104,9 +118,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    console.log('[AuthContext] Performing logout');
     api.setAccessToken(null);
     api.setRefreshToken(null);
     setUser(null);
+    localStorage.removeItem('user');
     navigate('/login');
   };
 

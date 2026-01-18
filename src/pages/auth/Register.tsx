@@ -24,7 +24,7 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.password_confirm) {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
@@ -85,8 +85,8 @@ const Register = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-primary-foreground font-display font-bold text-2xl">K</span>
+            <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
+              <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-display font-bold text-3xl text-foreground">KOKOTOA</span>
           </Link>

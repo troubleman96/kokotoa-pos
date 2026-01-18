@@ -30,8 +30,8 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-xl">K</span>
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
+              <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">KOKOTOA</span>
           </Link>
@@ -42,11 +42,10 @@ const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`font-medium transition-colors duration-200 ${
-                  isActive(link.path)
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className={`font-medium transition-colors duration-200 ${isActive(link.path)
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -64,13 +63,13 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border-border">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setLanguage('sw')}
                   className={language === 'sw' ? 'bg-primary/10 text-primary' : ''}
                 >
                   🇹🇿 {t('common.swahili')}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setLanguage('en')}
                   className={language === 'en' ? 'bg-primary/10 text-primary' : ''}
                 >
@@ -105,14 +104,13 @@ const Navbar = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`block py-2 font-medium ${
-                  isActive(link.path) ? 'text-primary' : 'text-muted-foreground'
-                }`}
+                className={`block py-2 font-medium ${isActive(link.path) ? 'text-primary' : 'text-muted-foreground'
+                  }`}
               >
                 {link.label}
               </Link>
             ))}
-            
+
             {/* Mobile Language Switcher */}
             <div className="flex gap-2 pt-2 border-t border-border">
               <Button

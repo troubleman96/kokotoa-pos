@@ -47,9 +47,9 @@ const HeroSection = () => {
                   </span>
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
+              <Button
+                size="lg"
+                variant="outline"
                 className="h-14 px-8 text-lg border-border hover:bg-muted"
               >
                 <Play className="w-5 h-5 mr-2" />
@@ -61,8 +61,8 @@ const HeroSection = () => {
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <span className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary border-2 border-background"
                   />
                 ))}
@@ -77,8 +77,8 @@ const HeroSection = () => {
               {/* Mock POS Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold">K</span>
+                  <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
+                    <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <h3 className="font-display font-semibold text-foreground">KOKOTOA POS</h3>
@@ -101,7 +101,7 @@ const HeroSection = () => {
                   { name: 'Sukari', price: '4,500', emoji: '🍬' },
                   { name: 'Mchele', price: '8,000', emoji: '🍚' },
                 ].map((product, i) => (
-                  <div 
+                  <div
                     key={i}
                     className="bg-muted/50 rounded-xl p-3 text-center hover:bg-primary/10 hover:border-primary/30 border border-transparent transition-all cursor-pointer"
                   >
