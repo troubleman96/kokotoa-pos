@@ -82,7 +82,7 @@ const HeroSection = () => {
                   </div>
                   <div>
                     <h3 className="font-display font-semibold text-foreground">KOKOTOA POS</h3>
-                    <p className="text-xs text-muted-foreground">Duka la Mwalimu</p>
+                    <p className="text-xs text-muted-foreground">Duka la Njaro</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-primary">
