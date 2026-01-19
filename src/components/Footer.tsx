@@ -101,7 +101,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-          <p>© 2025 KOKOTOA. {t('footer.rights')}.</p>
+          <p>© 2026 KOKOTOA. {t('footer.rights')}.</p>
         </div>
       </div>
     </footer>
