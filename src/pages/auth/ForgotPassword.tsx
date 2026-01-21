@@ -6,13 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Package, ArrowLeft, Lock, Smartphone } from 'lucide-react';
+import { Package, ArrowLeft, Lock, Smartphone, Eye, EyeOff } from 'lucide-react';
 
 const ForgotPassword = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState<'phone' | 'reset'>('phone');
   const [phone, setPhone] = useState('');
   const [formData, setFormData] = useState({
@@ -45,7 +47,7 @@ const ForgotPassword = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.new_password !== formData.new_password_confirm) {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
@@ -92,14 +94,14 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-primary-foreground font-display font-bold text-2xl">K</span>
+            <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
+              <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-display font-bold text-3xl text-foreground">KOKOTOA</span>
           </Link>
+          <p className="text-muted-foreground mt-2">{language === 'sw' ? 'Mfumo wa kisasa wa mauzo' : 'Modern POS System'}</p>
         </div>
 
         <Card className="card-kokotoa">
@@ -108,7 +110,7 @@ const ForgotPassword = () => {
               {language === 'sw' ? 'Sahau Nenosiri' : 'Forgot Password'}
             </CardTitle>
             <CardDescription>
-              {step === 'phone' 
+              {step === 'phone'
                 ? (language === 'sw' ? 'Tutakutumia OTP kuhakiki namba yako' : 'We will send an OTP to verify your number')
                 : (language === 'sw' ? 'Jaza OTP iliyotumwa kwa simu yako' : 'Enter the OTP sent to your phone')
               }
@@ -125,7 +127,7 @@ const ForgotPassword = () => {
                     <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="tel"
-                      placeholder="255628587749"
+                      placeholder="+255xxxxxxxxx"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="pl-12 h-12 bg-background"
@@ -180,13 +182,24 @@ const ForgotPassword = () => {
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={formData.new_password}
                       onChange={(e) => setFormData({ ...formData, new_password: e.target.value })}
-                      className="pl-12 h-12 bg-background"
+                      className="pl-12 pr-12 h-12 bg-background"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -197,13 +210,24 @@ const ForgotPassword = () => {
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={formData.new_password_confirm}
                       onChange={(e) => setFormData({ ...formData, new_password_confirm: e.target.value })}
-                      className="pl-12 h-12 bg-background"
+                      className="pl-12 pr-12 h-12 bg-background"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                 </div>
 

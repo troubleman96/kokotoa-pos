@@ -154,7 +154,7 @@ const CreateStore = () => {
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     type="tel"
-                    placeholder="255628587749"
+                    placeholder="+255xxxxxxxxx"
                     value={formData.phone_number}
                     onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                     className="pl-12 h-12 bg-background"
