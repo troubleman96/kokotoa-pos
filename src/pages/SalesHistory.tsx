@@ -310,7 +310,7 @@ const SalesHistory = () => {
                                                 </div>
                                                 <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
                                                     <Calendar className="w-3 h-3" />
-                                                    {new Date(sale.created_at).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                    {sale?.created_at ? new Date(sale.created_at).toLocaleString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
                                                 </div>
                                             </div>
 

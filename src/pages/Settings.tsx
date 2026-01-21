@@ -216,10 +216,10 @@ const SettingsPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <span className="text-primary font-display font-bold text-2xl">
-                    {profileData.first_name[0]}{profileData.last_name[0]}
+                    {profileData.first_name?.[0]}{profileData.last_name?.[0]}
                   </span>
                 </div>
                 <div>
@@ -345,8 +345,8 @@ const SettingsPage = () => {
             <CardContent className="space-y-4">
               {storeData ? (
                 <>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+                    <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <Store className="w-10 h-10 text-primary" />
                     </div>
                     <div>
