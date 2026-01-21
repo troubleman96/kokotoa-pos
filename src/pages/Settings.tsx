@@ -187,18 +187,20 @@ const SettingsPage = () => {
     >
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {tabs.map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'outline'}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={activeTab === tab.id ? 'btn-kokotoa' : ''}
-            >
-              <tab.icon className="w-4 h-4 mr-2" />
-              {tab.label}
-            </Button>
-          ))}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+          <div className="flex gap-2 min-w-max">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? 'default' : 'outline'}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`transition-all duration-200 ${activeTab === tab.id ? 'btn-kokotoa shadow-md scale-105' : 'hover:bg-primary/5'}`}
+              >
+                <tab.icon className={`w-4 h-4 mr-2 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Profile Tab */}

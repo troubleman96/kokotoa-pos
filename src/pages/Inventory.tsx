@@ -383,23 +383,24 @@ const Inventory = () => {
               <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
           ) : filteredProducts.length > 0 ? (
-            <Card className="card-kokotoa overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Aina' : 'Category'}</th>
-                      <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bei ya Ununuzi' : 'Buy Price'}</th>
-                      <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bei ya Mauzo' : 'Sell Price'}</th>
-                      <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Kiasi' : 'Stock'}</th>
-                      <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Hali' : 'Status'}</th>
-                      <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Vitendo' : 'Actions'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.map((product) => {
-                      return (
+            <div className="space-y-4">
+              {/* Desktop Table View */}
+              <Card className="card-kokotoa overflow-hidden hidden md:block">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
+                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Aina' : 'Category'}</th>
+                        <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bei ya Ununuzi' : 'Buy Price'}</th>
+                        <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bei ya Mauzo' : 'Sell Price'}</th>
+                        <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Kiasi' : 'Stock'}</th>
+                        <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Hali' : 'Status'}</th>
+                        <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Vitendo' : 'Actions'}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProducts.map((product) => (
                         <tr
                           key={product.id}
                           className="border-b border-border/50 hover:bg-muted/20 transition-colors cursor-pointer"
@@ -413,21 +414,7 @@ const Inventory = () => {
                                     src={product.image_url || product.image || ''}
                                     alt={product.name}
                                     className="w-12 h-12 rounded-lg object-cover"
-                                    onError={(e) => {
-                                      const target = e.currentTarget;
-                                      target.style.display = 'none';
-                                      const placeholder = target.nextElementSibling as HTMLElement;
-                                      if (placeholder) placeholder.style.display = 'flex';
-                                    }}
-                                    onLoad={(e) => {
-                                      const target = e.currentTarget;
-                                      const placeholder = target.nextElementSibling as HTMLElement;
-                                      if (placeholder) placeholder.style.display = 'none';
-                                    }}
                                   />
-                                  <div className="hidden absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                                    {product.category.charAt(0).toUpperCase()}
-                                  </div>
                                 </div>
                               ) : (
                                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
@@ -502,12 +489,115 @@ const Inventory = () => {
                             </div>
                           </td>
                         </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
+              {/* Mobile Card View */}
+              <div className="grid grid-cols-1 gap-4 md:hidden">
+                {filteredProducts.map((product) => (
+                  <Card
+                    key={product.id}
+                    className={`card-kokotoa overflow-hidden border-l-4 ${product.is_low_stock ? 'border-l-destructive' : 'border-l-primary'}`}
+                    onClick={() => handleViewProduct(product)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          {(product.image_url || product.image) ? (
+                            <img
+                              src={product.image_url || product.image || ''}
+                              alt={product.name}
+                              className="w-14 h-14 rounded-xl object-cover shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
+                              {product.category.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="font-bold text-foreground leading-tight">{product.name}</h4>
+                            <p className="text-xs text-muted-foreground font-mono">{product.sku}</p>
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-muted text-[10px] rounded text-muted-foreground uppercase tracking-wider font-semibold">
+                              {product.category}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-primary">{formatPrice(product.selling_price)}</p>
+                          <p className="text-[10px] text-muted-foreground">{language === 'sw' ? 'Bei ya Mauzo' : 'Selling Price'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 py-3 border-y border-border/50">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Hesabu' : 'Stock Level'}</p>
+                          <p className={`text-lg font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                            {product.quantity} <span className="text-xs font-normal text-muted-foreground">{product.unit}</span>
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Hali' : 'Status'}</p>
+                          {product.is_low_stock ? (
+                            <span className="text-destructive font-bold flex items-center justify-end gap-1 text-sm">
+                              <AlertTriangle className="w-3 h-3" />
+                              {language === 'sw' ? 'Inaisha' : 'Low'}
+                            </span>
+                          ) : (
+                            <span className="text-primary font-bold text-sm">
+                              {language === 'sw' ? 'Ipo' : 'In Stock'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex gap-1.5">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-9 px-3 bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"
+                            onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
+                          >
+                            <RefreshCcw className="w-3.5 h-3.5 mr-1.5" />
+                            {language === 'sw' ? 'Rekebisha' : 'Adjust'}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-9 px-3 bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20"
+                            onClick={(e) => { e.stopPropagation(); window.open(`/stock-history?search=${product.sku}`, '_blank'); }}
+                          >
+                            <History className="w-3.5 h-3.5 mr-1.5" />
+                            {language === 'sw' ? 'Historia' : 'Logs'}
+                          </Button>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full bg-muted/50"
+                            onClick={(e) => { e.stopPropagation(); openEditModal(product); }}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full bg-destructive/10 text-destructive"
+                            onClick={(e) => { e.stopPropagation(); setProductToDelete(product); setIsDeleteModalOpen(true); }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </Card>
+            </div>
           ) : (
             <Card className="card-kokotoa">
               <CardContent className="text-center py-12">

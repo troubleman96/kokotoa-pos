@@ -149,73 +149,135 @@ const StockHistory = () => {
                                 <p className="text-muted-foreground">{language === 'sw' ? 'Yukupata kumbukumbu...' : 'Loading history...'}</p>
                             </div>
                         ) : filteredMovements.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-border bg-muted/30">
-                                            <th className="text-left p-4 font-semibold text-muted-foreground whitespace-nowrap">{language === 'sw' ? 'Tarehe na Muda' : 'Date & Time'}</th>
-                                            <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
-                                            <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Aina' : 'Type'}</th>
-                                            <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Mabadiliko' : 'Change'}</th>
-                                            <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Sababu / Rejea' : 'Reason / Ref'}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredMovements.map((m) => (
-                                            <tr key={m.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                                                <td className="p-4 text-sm whitespace-nowrap">
-                                                    <div className="flex flex-col">
-                                                        <span className="font-medium text-foreground">{formatDate(m.created_at).split(',')[0]}</span>
-                                                        <span className="text-xs text-muted-foreground">{formatDate(m.created_at).split(',')[1]}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2 rounded-lg bg-muted flex items-center justify-center">
-                                                            <Package className="w-4 h-4 text-muted-foreground" />
+                            <div className="space-y-4">
+                                {/* Desktop View */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-border bg-muted/30">
+                                                <th className="text-left p-4 font-semibold text-muted-foreground whitespace-nowrap">{language === 'sw' ? 'Tarehe na Muda' : 'Date & Time'}</th>
+                                                <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
+                                                <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Aina' : 'Type'}</th>
+                                                <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Mabadiliko' : 'Change'}</th>
+                                                <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Sababu / Rejea' : 'Reason / Ref'}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredMovements.map((m) => (
+                                                <tr key={m.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                                                    <td className="p-4 text-sm whitespace-nowrap">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium text-foreground">{formatDate(m.created_at).split(',')[0]}</span>
+                                                            <span className="text-xs text-muted-foreground">{formatDate(m.created_at).split(',')[1]}</span>
                                                         </div>
-                                                        <div className="min-w-0">
-                                                            <p className="font-medium text-foreground truncate max-w-[200px]">{m.product_name}</p>
-                                                            <p className="text-xs text-muted-foreground">{m.product_sku}</p>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-2 rounded-lg bg-muted flex items-center justify-center">
+                                                                <Package className="w-4 h-4 text-muted-foreground" />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="font-medium text-foreground truncate max-w-[200px]">{m.product_name}</p>
+                                                                <p className="text-xs text-muted-foreground">{m.product_sku}</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted border border-border">
-                                                        {getMovementIcon(m.movement_type)}
-                                                        <span className="text-xs font-medium">{getMovementLabel(m.movement_type)}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <div className={`text-sm font-bold ${['IN', 'RETURN'].includes(m.movement_type) ? 'text-emerald-500' :
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted border border-border">
+                                                            {getMovementIcon(m.movement_type)}
+                                                            <span className="text-xs font-medium">{getMovementLabel(m.movement_type)}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <div className={`text-sm font-bold ${['IN', 'RETURN'].includes(m.movement_type) ? 'text-emerald-500' :
                                                             ['OUT', 'SALE', 'DAMAGE', 'EXPIRED'].includes(m.movement_type) ? 'text-rose-500' : 'text-amber-500'
+                                                            }`}>
+                                                            {['IN', 'RETURN'].includes(m.movement_type) ? '+' : ['OUT', 'SALE', 'DAMAGE', 'EXPIRED'].includes(m.movement_type) ? '-' : ''}
+                                                            {m.quantity}
+                                                        </div>
+                                                        <div className="text-[10px] text-muted-foreground">
+                                                            {m.quantity_before} → {m.quantity_after}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        <div className="max-w-[250px] ml-auto">
+                                                            <p className="text-sm text-foreground italic">{m.reason || '-'}</p>
+                                                            {m.reference && (
+                                                                <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-1">
+                                                                    <Info className="w-3 h-3" />
+                                                                    {m.reference}
+                                                                </p>
+                                                            )}
+                                                            <p className="text-[10px] text-muted-foreground flex items-center justify-end gap-1 mt-1">
+                                                                <User className="w-3 h-3" />
+                                                                {m.created_by_name}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile View */}
+                                <div className="grid grid-cols-1 gap-4 md:hidden">
+                                    {filteredMovements.map((m) => (
+                                        <div key={m.id} className="p-4 rounded-xl border border-border bg-card/50 shadow-sm space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                                                    <Calendar className="w-3.5 h-3.5" />
+                                                    {formatDate(m.created_at)}
+                                                </div>
+                                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] font-bold uppercase tracking-tight">
+                                                    {getMovementIcon(m.movement_type)}
+                                                    {getMovementLabel(m.movement_type)}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 rounded-xl bg-primary/10 flex items-center justify-center">
+                                                    <Package className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="font-bold text-foreground text-sm truncate">{m.product_name}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-mono">{m.product_sku}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className={`text-lg font-bold leading-none ${['IN', 'RETURN'].includes(m.movement_type) ? 'text-emerald-500' :
+                                                        ['OUT', 'SALE', 'DAMAGE', 'EXPIRED'].includes(m.movement_type) ? 'text-rose-500' : 'text-amber-500'
                                                         }`}>
                                                         {['IN', 'RETURN'].includes(m.movement_type) ? '+' : ['OUT', 'SALE', 'DAMAGE', 'EXPIRED'].includes(m.movement_type) ? '-' : ''}
                                                         {m.quantity}
                                                     </div>
-                                                    <div className="text-[10px] text-muted-foreground">
+                                                    <p className="text-[10px] text-muted-foreground mt-0.5">
                                                         {m.quantity_before} → {m.quantity_after}
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-right">
-                                                    <div className="max-w-[250px] ml-auto">
-                                                        <p className="text-sm text-foreground italic">{m.reason || '-'}</p>
-                                                        {m.reference && (
-                                                            <p className="text-xs text-muted-foreground flex items-center justify-end gap-1 mt-1">
-                                                                <Info className="w-3 h-3" />
-                                                                {m.reference}
-                                                            </p>
-                                                        )}
-                                                        <p className="text-[10px] text-muted-foreground flex items-center justify-end gap-1 mt-1">
-                                                            <User className="w-3 h-3" />
-                                                            {m.created_by_name}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {(m.reason || m.reference) && (
+                                                <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                                                    {m.reason && <p className="text-xs text-foreground italic line-clamp-2">"{m.reason}"</p>}
+                                                    {m.reference && (
+                                                        <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1.5">
+                                                            <Info className="w-3 h-3" />
+                                                            Ref: {m.reference}
                                                         </p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center justify-between text-[10px] pt-1">
+                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                    <User className="w-3 h-3" />
+                                                    {m.created_by_name}
+                                                </div>
+                                                <div className="text-primary font-medium">#{m.id}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 text-center">

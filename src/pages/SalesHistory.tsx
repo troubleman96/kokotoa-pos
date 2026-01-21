@@ -218,80 +218,147 @@ const SalesHistory = () => {
                                 <p className="text-muted-foreground">{language === 'sw' ? 'Inatafuta miamala...' : 'Loading transactions...'}</p>
                             </div>
                         ) : filteredSales.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="border-b border-border bg-muted/50">
-                                            <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                                            <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                            <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mteja' : 'Customer'}</th>
-                                            <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                                            <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Jumla' : 'Total'}</th>
-                                            <th className="p-4 text-center"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border/50">
-                                        {filteredSales.map((sale) => (
-                                            <tr
-                                                key={sale.id}
-                                                className={`group hover:bg-primary/5 transition-colors cursor-pointer ${sale.is_returned ? 'bg-destructive/5' : ''}`}
-                                                onClick={() => handleViewSale(sale)}
-                                            >
-                                                <td className="p-4">
-                                                    <div className="font-mono text-xs font-bold text-foreground bg-muted group-hover:bg-primary/10 p-1.5 rounded inline-block">
-                                                        {sale.transaction_number}
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="text-sm">
-                                                        <p className="font-medium text-foreground">
-                                                            {new Date(sale.created_at).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' })}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </p>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="text-sm">
-                                                        <p className="font-medium text-foreground">{sale.customer_name || 'Walk-in'}</p>
-                                                        {sale.customer_phone && <p className="text-xs text-muted-foreground">{sale.customer_phone}</p>}
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted border border-border">
-                                                            {sale.payment_method_display}
-                                                        </span>
+                            <div className="space-y-4">
+                                {/* Desktop View */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-border bg-muted/50">
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mteja' : 'Customer'}</th>
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                                                <th className="p-4 text-center"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-border/50">
+                                            {filteredSales.map((sale) => (
+                                                <tr
+                                                    key={sale.id}
+                                                    className={`group hover:bg-primary/5 transition-colors cursor-pointer ${sale.is_returned ? 'bg-destructive/5' : ''}`}
+                                                    onClick={() => handleViewSale(sale)}
+                                                >
+                                                    <td className="p-4">
+                                                        <div className="font-mono text-xs font-bold text-foreground bg-muted group-hover:bg-primary/10 p-1.5 rounded inline-block">
+                                                            {sale.transaction_number}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="text-sm">
+                                                            <p className="font-medium text-foreground">
+                                                                {new Date(sale.created_at).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' })}
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                {new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="text-sm">
+                                                            <p className="font-medium text-foreground">{sale.customer_name || 'Walk-in'}</p>
+                                                            {sale.customer_phone && <p className="text-xs text-muted-foreground">{sale.customer_phone}</p>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted border border-border">
+                                                                {sale.payment_method_display}
+                                                            </span>
+                                                            {sale.is_returned && (
+                                                                <span className="text-[10px] font-bold text-destructive uppercase">
+                                                                    {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        <div className={`font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
+                                                            {sale.formatted_total}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
+                                                            >
+                                                                <Printer className="w-4 h-4 text-primary" />
+                                                            </Button>
+                                                            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile View */}
+                                <div className="grid grid-cols-1 gap-4 md:hidden p-4">
+                                    {filteredSales.map((sale) => (
+                                        <div
+                                            key={sale.id}
+                                            className={`p-4 rounded-xl border border-border bg-card/50 shadow-sm space-y-3 relative overflow-hidden active:scale-[0.98] transition-all ${sale.is_returned ? 'border-l-4 border-l-destructive' : ''}`}
+                                            onClick={() => handleViewSale(sale)}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                                                    {sale.transaction_number}
+                                                </div>
+                                                <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(sale.created_at).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="font-bold text-foreground text-sm truncate">{sale.customer_name || 'Walk-in Customer'}</p>
                                                         {sale.is_returned && (
-                                                            <span className="text-[10px] font-bold text-destructive uppercase">
+                                                            <span className="text-[8px] font-bold text-destructive uppercase border border-destructive/20 px-1 rounded bg-destructive/5">
                                                                 {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
                                                             </span>
                                                         )}
                                                     </div>
-                                                </td>
-                                                <td className="p-4 text-right">
-                                                    <div className={`font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-1.5 p-1 rounded bg-muted/50 border border-border/50">
+                                                            {sale.payment_method === 'CASH' ? <DollarSign className="w-3 h-3 text-emerald-500" /> : <CreditCard className="w-3 h-3 text-blue-500" />}
+                                                            <span className="text-[10px] font-semibold">{sale.payment_method_display}</span>
+                                                        </div>
+                                                        {sale.customer_phone && (
+                                                            <p className="text-[10px] text-muted-foreground font-mono">{sale.customer_phone}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className={`text-base font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
                                                         {sale.formatted_total}
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
-                                                        >
-                                                            <Printer className="w-4 h-4 text-primary" />
-                                                        </Button>
-                                                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="h-8 px-3 bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 text-[10px] font-bold"
+                                                    onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
+                                                >
+                                                    <Printer className="w-3 h-3 mr-1.5" />
+                                                    {language === 'sw' ? 'RISITI' : 'RECEIPT'}
+                                                </Button>
+                                                <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                                    {language === 'sw' ? 'ANGALIA' : 'VIEW DETAILS'}
+                                                    <ChevronRight className="w-3.5 h-3.5" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 text-center bg-background">

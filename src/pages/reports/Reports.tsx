@@ -5,7 +5,7 @@ import { reportsApi, graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package, AlertTriangle
+  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package, AlertTriangle, CreditCard
 } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -361,12 +361,19 @@ const Reports = () => {
                   <CardTitle>{language === 'sw' ? 'Mchanganuo wa Malipo ya Leo' : "Today's Payment Breakdown"}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {dailySummary?.payment_methods && Object.entries(dailySummary.payment_methods).map(([method, data]: [string, any]) => (
-                      <div key={method} className="p-4 rounded-xl border border-border bg-card shadow-sm">
-                        <div className="text-sm text-muted-foreground mb-1 font-medium">{method}</div>
-                        <div className="text-xl font-bold text-primary">{formatPrice(data.total)}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{data.count} {language === 'sw' ? 'miamala' : 'transactions'}</div>
+                      <div key={method} className="p-4 rounded-xl border border-border bg-muted/30 shadow-sm flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wider">{method}</div>
+                          <div className="text-lg font-bold text-foreground">{formatPrice(data.total)}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
+                            <span className="text-primary font-bold text-xs">{data.count}</span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground font-medium">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -394,31 +401,71 @@ const Reports = () => {
                   <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto block" />
                 </div>
               ) : salesData?.sales.length ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Items'}</th>
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                        <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Jumla' : 'Total'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {salesData.sales.slice(0, 10).map((sale) => (
-                        <tr key={sale.id} className="border-b border-border/50 hover:bg-muted/20">
-                          <td className="p-4 font-medium">{sale.transaction_number}</td>
-                          <td className="p-4 text-muted-foreground">
-                            {new Date(sale.date).toLocaleDateString()}
-                          </td>
-                          <td className="p-4 text-muted-foreground">{sale.items_count}</td>
-                          <td className="p-4 text-muted-foreground">{sale.payment_method}</td>
-                          <td className="p-4 text-right font-medium text-primary">{formatPrice(sale.total_amount)}</td>
+                <div className="space-y-4">
+                  {/* Desktop View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/30">
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</th>
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                          <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {salesData.sales.slice(0, 10).map((sale) => (
+                          <tr key={sale.id} className="hover:bg-muted/20 transition-colors">
+                            <td className="p-4 font-mono text-xs font-bold text-foreground">{sale.transaction_number}</td>
+                            <td className="p-4">
+                              <div className="text-sm">
+                                <p className="font-medium">{new Date(sale.date).toLocaleDateString()}</p>
+                                <p className="text-[10px] text-muted-foreground">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-bold">{sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}</span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-xs font-medium text-muted-foreground">{sale.payment_method}</span>
+                            </td>
+                            <td className="p-4 text-right font-bold text-primary">{formatPrice(sale.total_amount)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile View */}
+                  <div className="grid grid-cols-1 gap-3 md:hidden">
+                    {salesData.sales.slice(0, 10).map((sale) => (
+                      <div key={sale.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
+                            {sale.transaction_number}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground font-medium">
+                            {new Date(sale.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
+                              <span className="text-xs font-bold">{sale.payment_method}</span>
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {sale.items_count} {language === 'sw' ? 'Vitu zilizouzwa' : 'Items sold'}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-base font-bold text-primary">{formatPrice(sale.total_amount)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12">
@@ -448,46 +495,90 @@ const Reports = () => {
                   <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto block" />
                 </div>
               ) : inventoryData?.products.length ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
-                        <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Aina' : 'Category'}</th>
-                        <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Kiasi' : 'Stock'}</th>
-                        <th className="text-right p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Thamani' : 'Value'}</th>
-                        <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Hali' : 'Status'}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inventoryData.products.slice(0, 10).map((product) => (
-                        <tr key={product.id} className="border-b border-border/50 hover:bg-muted/20">
-                          <td className="p-4">
-                            <span className="font-medium">{product.name}</span>
-                            <span className="text-xs text-muted-foreground block">{product.sku}</span>
-                          </td>
-                          <td className="p-4 text-muted-foreground">{product.category}</td>
-                          <td className="p-4 text-center">
-                            <span className={product.is_low_stock ? 'text-destructive font-semibold' : ''}>
-                              {product.current_stock}
-                            </span>
-                          </td>
-                          <td className="p-4 text-right text-muted-foreground">{formatPrice(product.retail_value)}</td>
-                          <td className="p-4 text-center">
-                            {product.is_low_stock ? (
-                              <span className="px-2 py-1 bg-destructive/10 text-destructive rounded-full text-xs font-medium">
-                                {language === 'sw' ? 'Chini' : 'Low'}
-                              </span>
-                            ) : (
-                              <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                                {language === 'sw' ? 'Sawa' : 'OK'}
-                              </span>
-                            )}
-                          </td>
+                <div className="space-y-4">
+                  {/* Desktop View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/30">
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Product'}</th>
+                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Aina' : 'Category'}</th>
+                          <th className="text-center p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Kiasi' : 'Stock'}</th>
+                          <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Thamani' : 'Value'}</th>
+                          <th className="text-center p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Hali' : 'Status'}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {inventoryData.products.slice(0, 10).map((product) => (
+                          <tr key={product.id} className="hover:bg-muted/20 transition-colors">
+                            <td className="p-4">
+                              <span className="font-bold text-sm text-foreground">{product.name}</span>
+                              <span className="text-[10px] text-muted-foreground font-mono block">{product.sku}</span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-xs font-medium text-muted-foreground">{product.category}</span>
+                            </td>
+                            <td className="p-4 text-center">
+                              <span className={`text-sm font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                                {product.current_stock}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right font-mono text-xs text-muted-foreground">{formatPrice(product.retail_value)}</td>
+                            <td className="p-4 text-center">
+                              {product.is_low_stock ? (
+                                <span className="px-2.5 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                  {language === 'sw' ? 'Chini' : 'Low'}
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                  {language === 'sw' ? 'Sawa' : 'OK'}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile View */}
+                  <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {inventoryData.products.slice(0, 10).map((product) => (
+                      <div key={product.id} className={`p-4 rounded-xl border border-border bg-card shadow-sm space-y-4 ${product.is_low_stock ? 'border-l-4 border-l-destructive' : ''}`}>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="font-bold text-sm text-foreground mb-0.5">{product.name}</p>
+                            <p className="font-mono text-[10px] text-muted-foreground">{product.sku}</p>
+                          </div>
+                          {product.is_low_stock ? (
+                            <span className="px-2 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-[9px] font-black uppercase">
+                              {language === 'sw' ? 'CHINI' : 'LOW'}
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase">
+                              {language === 'sw' ? 'SAWA' : 'OK'}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 pt-3 border-t border-border/50">
+                          <div>
+                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mb-1">{language === 'sw' ? 'STOKI' : 'STOCK'}</p>
+                            <p className={`text-sm font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>{product.current_stock}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mb-1">{language === 'sw' ? 'THAMANI' : 'VALUE'}</p>
+                            <p className="text-sm font-bold text-primary">{formatPrice(product.retail_value)}</p>
+                          </div>
+                        </div>
+
+                        <div className="text-[10px] text-muted-foreground flex items-center justify-between bg-muted/30 p-2 rounded-lg">
+                          <span className="font-bold uppercase tracking-widest">{language === 'sw' ? 'Aina:' : 'Category:'}</span>
+                          <span className="font-medium">{product.category}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12">

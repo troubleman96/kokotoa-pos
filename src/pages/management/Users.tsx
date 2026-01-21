@@ -186,66 +186,133 @@ const Users = () => {
             </div>
           ) : users.length > 0 ? (
             <Card className="card-kokotoa">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Mtumiaji' : 'User'}</th>
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Simu' : 'Phone'}</th>
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Jukumu' : 'Role'}</th>
-                      <th className="text-left p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Hali' : 'Status'}</th>
-                      <th className="text-center p-4 font-semibold text-muted-foreground">{language === 'sw' ? 'Vitendo' : 'Actions'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <tr key={user.id} className="border-b border-border/50 hover:bg-muted/20">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-primary font-semibold">{user.first_name[0]}{user.last_name[0]}</span>
+              <div className="space-y-4">
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mtumiaji' : 'User'}</th>
+                        <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Simu' : 'Phone'}</th>
+                        <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Jukumu' : 'Role'}</th>
+                        <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Hali' : 'Status'}</th>
+                        <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-center">{language === 'sw' ? 'Vitendo' : 'Actions'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50">
+                      {users.map((user) => (
+                        <tr key={user.id} className="group hover:bg-muted/20 transition-colors">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                                <span className="text-primary font-bold text-sm tracking-tighter">{user.first_name[0]}{user.last_name[0]}</span>
+                              </div>
+                              <div>
+                                <p className="font-bold text-foreground text-sm leading-none mb-1">{user.first_name} {user.last_name}</p>
+                                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{user.store_name}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium">{user.first_name} {user.last_name}</p>
-                              <p className="text-xs text-muted-foreground">{user.store_name}</p>
+                          </td>
+                          <td className="p-4 text-sm font-medium text-muted-foreground font-mono">{user.phone}</td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getRoleBadgeColor(user.role)}`}>
+                              {user.role_name}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            {user.is_phone_verified ? (
+                              <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                {language === 'sw' ? 'Imethibitishwa' : 'Verified'}
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                {language === 'sw' ? 'Haijathibitishwa' : 'Unverified'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center justify-center gap-2">
+                              {user.id !== currentUser?.id && (
+                                <>
+                                  <Button variant="ghost" size="icon" onClick={() => openEditModal(user)} className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors">
+                                    <Edit2 className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" onClick={() => { setUserToDelete(user); setIsDeleteModalOpen(true); }} className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </>
+                              )}
                             </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile View */}
+                <div className="grid grid-cols-1 gap-4 md:hidden p-4">
+                  {users.map((user) => (
+                    <div key={user.id} className="p-4 rounded-xl border border-border bg-card/50 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                            <span className="text-primary font-bold text-base">{user.first_name[0]}{user.last_name[0]}</span>
                           </div>
-                        </td>
-                        <td className="p-4 text-muted-foreground">{user.phone}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
+                          <div>
+                            <p className="font-bold text-foreground text-sm">{user.first_name} {user.last_name}</p>
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{user.store_name}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${getRoleBadgeColor(user.role)}`}>
                             {user.role_name}
                           </span>
-                        </td>
-                        <td className="p-4">
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 py-3 border-y border-border/50">
+                        <div>
+                          <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mb-1">{language === 'sw' ? 'SIMU' : 'PHONE'}</p>
+                          <p className="text-sm font-mono font-medium text-foreground">{user.phone}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mb-1">{language === 'sw' ? 'HALI' : 'STATUS'}</p>
                           {user.is_phone_verified ? (
-                            <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                              {language === 'sw' ? 'Imethibitishwa' : 'Verified'}
-                            </span>
+                            <span className="text-emerald-500 font-bold text-xs uppercase tracking-tight">{language === 'sw' ? 'Imethibitishwa' : 'Verified'}</span>
                           ) : (
-                            <span className="px-2 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-xs font-medium">
-                              {language === 'sw' ? 'Haijathibitishwa' : 'Unverified'}
-                            </span>
+                            <span className="text-amber-500 font-bold text-xs uppercase tracking-tight">{language === 'sw' ? 'Haijathibitishwa' : 'Unverified'}</span>
                           )}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center justify-center gap-2">
-                            {user.id !== currentUser?.id && (
-                              <>
-                                <Button variant="ghost" size="icon" onClick={() => openEditModal(user)} className="hover:bg-primary/10 hover:text-primary">
-                                  <Edit2 className="w-4 h-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => { setUserToDelete(user); setIsDeleteModalOpen(true); }} className="hover:bg-destructive/10 hover:text-destructive">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        {user.id !== currentUser?.id && (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="h-9 px-4 bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 text-[10px] font-bold uppercase tracking-wider"
+                              onClick={() => openEditModal(user)}
+                            >
+                              <Edit2 className="w-3.5 h-3.5 mr-2" />
+                              {language === 'sw' ? 'HARIRI' : 'EDIT'}
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="h-9 px-4 bg-destructive/5 text-destructive border-destructive/10 hover:bg-destructive/10 text-[10px] font-bold uppercase tracking-wider"
+                              onClick={() => { setUserToDelete(user); setIsDeleteModalOpen(true); }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-2" />
+                              {language === 'sw' ? 'FUTA' : 'DELETE'}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Card>
           ) : (
