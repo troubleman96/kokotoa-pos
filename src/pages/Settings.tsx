@@ -262,7 +262,7 @@ const SettingsPage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleUpdateProfile} className="btn-kokotoa" disabled={isLoading}>
+                <Button onClick={handleUpdateProfile} className="btn-kokotoa w-full sm:w-auto" disabled={isLoading}>
                   <Save className="w-4 h-4 mr-2" />
                   {isLoading ? (language === 'sw' ? 'Inahifadhi...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
                 </Button>
@@ -321,7 +321,7 @@ const SettingsPage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleChangePassword} className="btn-kokotoa" disabled={isLoading}>
+                <Button onClick={handleChangePassword} className="btn-kokotoa w-full sm:w-auto" disabled={isLoading}>
                   <Save className="w-4 h-4 mr-2" />
                   {isLoading ? (language === 'sw' ? 'Inabadilisha...' : 'Changing...') : (language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password')}
                 </Button>
@@ -401,7 +401,7 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="flex justify-end pt-4">
-                    <Button onClick={handleUpdateStore} className="btn-kokotoa" disabled={isLoading}>
+                    <Button onClick={handleUpdateStore} className="btn-kokotoa w-full sm:w-auto" disabled={isLoading}>
                       <Edit2 className="w-4 h-4 mr-2" />
                       {isLoading ? (language === 'sw' ? 'Inahifadhi...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
                     </Button>
@@ -446,9 +446,11 @@ const SettingsPage = () => {
                 { key: 'sales', sw: 'Arifa za mauzo', en: 'Sales notifications' },
                 { key: 'reports', sw: 'Ripoti za kila siku', en: 'Daily reports' },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-                  <span className="font-medium">{language === 'sw' ? item.sw : item.en}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                <div key={item.key} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl gap-4">
+                  <span className="font-medium text-sm sm:text-base leading-tight">
+                    {language === 'sw' ? item.sw : item.en}
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input type="checkbox" defaultChecked className="sr-only peer" />
                     <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                   </label>
