@@ -206,16 +206,16 @@ const SettingsPage = () => {
         {/* Profile Tab */}
         {activeTab === 'profile' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <User className="w-5 h-5" />
                 {language === 'sw' ? 'Taarifa za Wasifu' : 'Profile Information'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {language === 'sw' ? 'Sasisha taarifa yako ya kibinafsi' : 'Update your personal information'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <span className="text-primary font-display font-bold text-2xl">
@@ -274,16 +274,16 @@ const SettingsPage = () => {
         {/* Password Tab */}
         {activeTab === 'password' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <Lock className="w-5 h-5" />
                 {language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {language === 'sw' ? 'Usalama wa akaunti yako' : 'Secure your account'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
                   {language === 'sw' ? 'Nenosiri la Zamani' : 'Current Password'}
@@ -333,16 +333,16 @@ const SettingsPage = () => {
         {/* Store Tab */}
         {activeTab === 'store' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <Store className="w-5 h-5" />
                 {language === 'sw' ? 'Taarifa za Duka' : 'Store Information'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {language === 'sw' ? 'Sasisha taarifa za duka lako' : 'Update your store information'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               {storeData ? (
                 <>
                   <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
@@ -431,16 +431,16 @@ const SettingsPage = () => {
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <Bell className="w-5 h-5" />
                 {language === 'sw' ? 'Arifa' : 'Notifications'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {language === 'sw' ? 'Dhibiti arifa unazopokea' : 'Manage notifications you receive'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               {[
                 { key: 'low_stock', sw: 'Arifa za bidhaa zinazokwisha', en: 'Low stock alerts' },
                 { key: 'sales', sw: 'Arifa za mauzo', en: 'Sales notifications' },
@@ -463,16 +463,16 @@ const SettingsPage = () => {
         {/* Appearance Tab */}
         {activeTab === 'appearance' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <Palette className="w-5 h-5" />
                 {language === 'sw' ? 'Muonekano' : 'Appearance'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 {language === 'sw' ? 'Dhibiti jinsi programu inavyoonekana' : 'Customize how the app looks'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               <div>
                 <label className="text-sm font-medium text-foreground mb-3 block">
                   {language === 'sw' ? 'Lugha' : 'Language'}
