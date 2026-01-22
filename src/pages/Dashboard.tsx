@@ -154,7 +154,7 @@ const Dashboard = () => {
                   {formatPrice(dashboardData?.this_month.sales || 0)}
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'muamala' : 'transactions'}
+                  {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
                 </div>
               </CardContent>
             </Card>
