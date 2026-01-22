@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { format, parseISO, isValid } from 'date-fns';
 import {
     ShoppingBag, Search, Filter, Calendar,
     TrendingUp, Hash, Trash2, ArrowLeftRight,
@@ -247,10 +248,10 @@ const SalesHistory = () => {
                                                     <td className="p-4">
                                                         <div className="text-sm">
                                                             <p className="font-medium text-foreground">
-                                                                {new Date(sale.created_at).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' })}
+                                                                {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM yyyy') : '-'}
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                {sale.created_at ? format(parseISO(sale.created_at), 'HH:mm') : '-'}
                                                             </p>
                                                         </div>
                                                     </td>
@@ -310,7 +311,7 @@ const SalesHistory = () => {
                                                 </div>
                                                 <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
                                                     <Calendar className="w-3 h-3" />
-                                                    {sale?.created_at ? new Date(sale.created_at).toLocaleString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                                                    {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM, HH:mm') : '-'}
                                                 </div>
                                             </div>
 
