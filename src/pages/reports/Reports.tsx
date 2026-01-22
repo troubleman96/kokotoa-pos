@@ -20,7 +20,7 @@ const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#E
 
 const Reports = () => {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics'>('sales');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [salesData, setSalesData] = useState<{
     sales: Array<{
