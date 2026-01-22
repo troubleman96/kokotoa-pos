@@ -40,40 +40,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         if (!accessToken && refreshToken) {
           console.log('[AuthContext] Access token missing, attempting silent refresh...');
-          const refreshRes = await authApi.refreshToken(refreshToken) as any;
+          try {
+            const refreshRes = await authApi.refreshToken(refreshToken) as any;
+            const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
+            const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
 
-          // Handle both wrapped and unwrapped response styles
-          const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
-          const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
+            if (newAccess) {
+              console.log('[AuthContext] Silent refresh success');
+              api.setAccessToken(newAccess);
+              if (newRefresh) api.setRefreshToken(newRefresh);
 
-          if (newAccess) {
-            console.log('[AuthContext] Silent refresh success');
-            api.setAccessToken(newAccess);
-            if (newRefresh) api.setRefreshToken(newRefresh);
-
-            const userRes = await accountsApi.getCurrentUser();
-            setUser(userRes.data);
-            localStorage.setItem('user', JSON.stringify(userRes.data));
-          } else {
-            console.warn('[AuthContext] Silent refresh failed: No access token in response. Logging out.');
-            logout();
+              const userRes = await accountsApi.getCurrentUser();
+              setUser(userRes.data);
+              localStorage.setItem('user', JSON.stringify(userRes.data));
+            }
+          } catch (refreshErr) {
+            console.error('[AuthContext] Silent refresh failed:', refreshErr);
+            // Don't auto-logout here, let the user stay in "optimistic" mode
+            // If the session is truly dead, API calls will return 401 anyway
           }
         } else if (accessToken) {
-          console.log('[AuthContext] Access token present, validating session...');
-          const response = await accountsApi.getCurrentUser();
-          console.log('[AuthContext] Session validated');
-          setUser(response.data);
-          localStorage.setItem('user', JSON.stringify(response.data));
-        } else {
-          console.log('[AuthContext] No session tokens found');
+          console.log('[AuthContext] Access token present, validating session in background...');
+          // Validate in background, don't block login if we have a stored user
+          accountsApi.getCurrentUser().then(response => {
+            console.log('[AuthContext] Session validated');
+            setUser(response.data);
+            localStorage.setItem('user', JSON.stringify(response.data));
+          }).catch(err => {
+            console.error('[AuthContext] Background session validation failed:', err);
+            // If it's a 401, we might want to logout, but for general network errors, keep the session
+            if (err.message && (err.message.includes('401') || err.message.includes('unauthorized'))) {
+              logout();
+            }
+          });
         }
       } catch (error) {
-        console.error('[AuthContext] Auth initialization error:', error);
-        // Only logout if we had some tokens but they proved invalid
-        if (accessToken || refreshToken) {
-          console.log('[AuthContext] Clearing invalid session');
-          logout();
-        }
+        console.error('[AuthContext] Auth initialization error (outer):', error);
       } finally {
         setIsLoading(false);
         console.log('[AuthContext] initAuth complete');

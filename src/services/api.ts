@@ -58,7 +58,8 @@ class ApiService {
 
   setRefreshToken(token: string | null) {
     if (token) {
-      Cookies.set('refresh_token', token, { expires: 30, secure: true, sameSite: 'strict' });
+      const isSecure = window.location.protocol === 'https:';
+      Cookies.set('refresh_token', token, { expires: 30, secure: isSecure, sameSite: 'strict' });
       localStorage.setItem('refresh_token', token); // Fallback
     } else {
       Cookies.remove('refresh_token');
