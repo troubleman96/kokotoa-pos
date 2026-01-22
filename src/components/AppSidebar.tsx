@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt
+    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt, Users
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -23,7 +23,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         { path: '/stock-history', icon: History, label: language === 'sw' ? 'Logi ya Bidhaa' : 'Stock History' },
         { path: '/sales-history', icon: Receipt, label: language === 'sw' ? 'Miamala' : 'Transactions' },
         { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
-        { path: '/users', icon: Settings, label: language === 'sw' ? 'Wafanyakazi' : 'Staff' },
+        { path: '/users', icon: Users, label: language === 'sw' ? 'Wafanyakazi' : 'Staff' },
         { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
     ];
 
