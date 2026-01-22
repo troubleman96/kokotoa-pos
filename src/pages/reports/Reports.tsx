@@ -182,9 +182,9 @@ const Reports = () => {
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
   const tabs = [
-    { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales' },
-    { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics' },
     { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview' },
+    { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics' },
+    { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales' },
     { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory' },
   ];
 
@@ -331,7 +331,7 @@ const Reports = () => {
                     {formatPrice(dashboardData?.today.sales || 0)}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {dashboardData?.today.transactions || 0} {language === 'sw' ? 'muamala' : 'transactions'}
+                    {dashboardData?.today.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
                   </p>
                 </CardContent>
               </Card>

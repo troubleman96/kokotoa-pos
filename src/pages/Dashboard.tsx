@@ -119,7 +119,7 @@ const Dashboard = () => {
                     {dashboardData?.today.transactions || 0}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {language === 'sw' ? 'muamala' : 'transactions'}
+                    {language === 'sw' ? 'miamala' : 'transactions'}
                   </span>
                 </div>
               </CardContent>
