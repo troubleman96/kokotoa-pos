@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Lock, Bell, Palette, Save, Store, Edit2
+  User, Lock, Bell, Palette, Save, Store, Edit2, ChevronRight
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 
@@ -17,6 +17,7 @@ const SettingsPage = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'notifications' | 'appearance'>('profile');
+  const [showMobileMenu, setShowMobileMenu] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const [profileData, setProfileData] = useState({
@@ -180,14 +181,19 @@ const SettingsPage = () => {
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
   ];
 
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId as typeof activeTab);
+    setShowMobileMenu(false);
+  };
+
   return (
     <DashboardLayout
       title={language === 'sw' ? 'Mipangilio' : 'Settings'}
       subtitle={language === 'sw' ? 'Dhibiti akaunti yako' : 'Manage your account'}
     >
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+        {/* Desktop Tabs */}
+        <div className="hidden md:flex gap-2 mb-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
           <div className="flex gap-2 min-w-max">
             {tabs.map((tab) => (
               <Button
@@ -203,12 +209,42 @@ const SettingsPage = () => {
           </div>
         </div>
 
+        {/* Mobile Menu List */}
+        {showMobileMenu && (
+          <div className="md:hidden space-y-3">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.id}
+                variant="outline"
+                className="w-full justify-between h-16 px-6 text-lg font-medium border-primary/10 hover:border-primary/30 hover:bg-primary/5 transition-all card-kokotoa"
+                onClick={() => handleTabClick(tab.id)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                    <tab.icon className="w-5 h-5" />
+                  </div>
+                  <span>{tab.label}</span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </Button>
+            ))}
+          </div>
+        )}
+
         {/* Profile Tab */}
-        {activeTab === 'profile' && (
+        {activeTab === 'profile' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <User className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5 hidden md:flex" />
                 {language === 'sw' ? 'Taarifa za Wasifu' : 'Profile Information'}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
@@ -272,11 +308,19 @@ const SettingsPage = () => {
         )}
 
         {/* Password Tab */}
-        {activeTab === 'password' && (
+        {activeTab === 'password' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <Lock className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Lock className="w-5 h-5" />
+                <Lock className="w-5 h-5 hidden md:flex" />
                 {language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password'}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
@@ -331,11 +375,19 @@ const SettingsPage = () => {
         )}
 
         {/* Store Tab */}
-        {activeTab === 'store' && (
+        {activeTab === 'store' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <Store className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Store className="w-5 h-5" />
+                <Store className="w-5 h-5 hidden md:flex" />
                 {language === 'sw' ? 'Taarifa za Duka' : 'Store Information'}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
@@ -429,11 +481,19 @@ const SettingsPage = () => {
         )}
 
         {/* Notifications Tab */}
-        {activeTab === 'notifications' && (
+        {activeTab === 'notifications' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <Bell className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 hidden md:flex" />
                 {language === 'sw' ? 'Arifa' : 'Notifications'}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
@@ -461,11 +521,19 @@ const SettingsPage = () => {
         )}
 
         {/* Appearance Tab */}
-        {activeTab === 'appearance' && (
+        {activeTab === 'appearance' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <Palette className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Palette className="w-5 h-5" />
+                <Palette className="w-5 h-5 hidden md:flex" />
                 {language === 'sw' ? 'Muonekano' : 'Appearance'}
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
