@@ -14,6 +14,7 @@ export const translations: Translations = {
   'nav.home': { sw: 'Nyumbani', en: 'Home' },
   'nav.about': { sw: 'Kuhusu', en: 'About' },
   'nav.contact': { sw: 'Wasiliana', en: 'Contact' },
+  'nav.packages': { sw: 'Vifurushi', en: 'Packages' },
   'nav.pos': { sw: 'Mfumo wa Mauzo', en: 'POS System' },
   'nav.login': { sw: 'Ingia', en: 'Login' },
   'nav.getStarted': { sw: 'Anza Sasa', en: 'Get Started' },

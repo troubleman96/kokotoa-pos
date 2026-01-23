@@ -17,6 +17,7 @@ import StockHistory from "./pages/StockHistory";
 import SalesHistory from "./pages/SalesHistory";
 import Users from "./pages/management/Users";
 import CreateStore from "./pages/management/CreateStore";
+import Subscription from "./pages/Subscription";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import VerifyOTP from "./pages/auth/VerifyOTP";
@@ -41,9 +42,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+import ScrollToHashElement from "@/components/ScrollToHashElement";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
+      <ScrollToHashElement />
       <LanguageProvider>
         <AuthProvider>
           <TooltipProvider>
@@ -63,6 +67,7 @@ const App = () => (
               <Route path="/stock-history" element={<ProtectedRoute><StockHistory /></ProtectedRoute>} />
               <Route path="/sales-history" element={<ProtectedRoute><SalesHistory /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
               <Route path="/create-store" element={<ProtectedRoute><CreateStore /></ProtectedRoute>} />

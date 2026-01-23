@@ -23,6 +23,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         { path: '/stock-history', icon: History, label: language === 'sw' ? 'Logi ya Bidhaa' : 'Stock History' },
         { path: '/sales-history', icon: Receipt, label: language === 'sw' ? 'Miamala' : 'Transactions' },
         { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
+        { path: '/subscription', icon: Package, label: language === 'sw' ? 'Usajili' : 'Subscription' },
         { path: '/users', icon: Users, label: language === 'sw' ? 'Wafanyakazi' : 'Staff' },
         { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
     ];
