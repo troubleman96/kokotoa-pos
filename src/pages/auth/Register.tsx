@@ -54,11 +54,33 @@ const Register = () => {
           ? 'Hongera! Umepewa siku 7 za kujaribu mfumo bure. Thibitisha namba yako kuanza.'
           : 'Congratulations! You have been granted a 7-day free trial. Verify your number to start.',
       });
-    } catch (error: unknown) {
-      const err = error as { message?: string };
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      let errorMessage = language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again';
+
+      if (error?.errors) {
+        if (error.errors.phone) {
+          errorMessage = error.errors.phone[0];
+        } else if (error.errors.non_field_errors) {
+          errorMessage = error.errors.non_field_errors[0];
+        } else if (error.errors.detail) {
+          errorMessage = error.errors.detail;
+        } else {
+          // Generalize for other fields
+          const firstError = Object.values(error.errors)[0];
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0] as string;
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          }
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
-        description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

@@ -26,11 +26,36 @@ const Login = () => {
         title: language === 'sw' ? 'Karibu tena!' : 'Welcome back!',
         description: language === 'sw' ? 'Umeshotumia kwa mafanikio.' : 'You have logged in successfully.',
       });
-    } catch (error: unknown) {
-      const err = error as { message?: string };
+    } catch (error: any) {
+      console.error('Login failed:', error);
+
+      let errorMessage = language === 'sw' ? 'Imeshindikana kuingia' : 'Login failed';
+
+      // Check for specific error structure from backend
+      if (error?.errors) {
+        // Handle field-specific errors
+        if (error.errors.detail) {
+          errorMessage = error.errors.detail;
+        } else if (error.errors.non_field_errors) {
+          errorMessage = error.errors.non_field_errors[0];
+        } else if (typeof error.errors === 'string') {
+          errorMessage = error.errors;
+        } else {
+          // Try to find the first error message from any field
+          const firstError = Object.values(error.errors)[0];
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0] as string;
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          }
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
-        description: err.message || (language === 'sw' ? 'Namba ya simu au nenosiri si sahihi' : 'Invalid phone number or password'),
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

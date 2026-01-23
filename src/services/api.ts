@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api-pos.kokotoa.online/api';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -174,7 +174,8 @@ class ApiService {
       console.log(`[API] Response Data:`, data);
       if (!response.ok) {
         console.error(`[API] Error Response:`, data);
-        throw new Error(data.message || 'An error occurred');
+        // Throw the entire data object so we can access 'errors' property
+        throw data;
       }
       return data;
     }

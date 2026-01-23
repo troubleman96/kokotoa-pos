@@ -11,7 +11,7 @@ interface TrialBannerProps {
 const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
     const { language } = useLanguage();
 
-    if (subscriptionStatus.status !== 'TRIAL') return null;
+    if (!subscriptionStatus || subscriptionStatus.status !== 'TRIAL') return null;
 
     const daysLeft = subscriptionStatus.days_remaining || 0;
     const isUrgent = daysLeft <= 3;

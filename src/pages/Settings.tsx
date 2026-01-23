@@ -43,15 +43,22 @@ const SettingsPage = () => {
 
 
   // Sync profile data with user context when it changes
+  // Sync profile data with user context when it changes
   useEffect(() => {
     if (user) {
+      console.log('Settings Page: Syncing user data', user);
       setProfileData({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
-        phone: user.phone || '',
+        phone: user.phone || '', // Using phone from user object directly
       });
     }
   }, [user]);
+
+  // Force refresh user data on mount to ensure accuracy
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const handleUpdateProfile = async () => {
     if (!profileData.first_name || !profileData.last_name) {
