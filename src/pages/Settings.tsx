@@ -54,7 +54,7 @@ const SettingsPage = () => {
   }, [user]);
 
   const handleUpdateProfile = async () => {
-    if (!profileData.first_name || !profileData.last_name || !profileData.phone) {
+    if (!profileData.first_name || !profileData.last_name) {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
         description: language === 'sw' ? 'Tafadhali jaza taarifa zote' : 'Please fill all fields',
@@ -65,10 +65,9 @@ const SettingsPage = () => {
 
     setIsLoading(true);
     try {
-      await accountsApi.updateProfile({
+      await accountsApi.changeName({
         first_name: profileData.first_name,
         last_name: profileData.last_name,
-        phone: profileData.phone
       });
 
       await refreshUser();
@@ -310,9 +309,12 @@ const SettingsPage = () => {
                 </label>
                 <Input
                   value={profileData.phone}
-                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                  className="bg-background"
+                  disabled
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Namba haiwezi kubadilishwa
+                </p>
               </div>
 
               <div className="flex justify-end pt-4">
