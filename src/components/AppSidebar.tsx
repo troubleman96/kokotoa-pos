@@ -33,14 +33,14 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
             <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
                 <div className="flex flex-col h-full">
                     <div className="p-4 border-b border-border">
-                        <div className="flex flex-col items-center justify-center mb-2 relative">
+                        <div className="flex items-center justify-between mb-2">
                             <Link to="/" className="flex items-center gap-2">
                                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
                                     <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                                 </div>
-                                <span className="font-display font-bold text-2xl text-foreground">KOKOTOA</span>
+                                <span className="font-display font-bold text-lg text-foreground">KOKOTOA</span>
                             </Link>
-                            <button onClick={onClose} className="lg:hidden absolute right-0 top-1 text-muted-foreground">
+                            <button onClick={onClose} className="lg:hidden text-muted-foreground">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
