@@ -86,7 +86,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (phone: string, password: string) => {
+    console.log('[AuthContext] login called for phone:', phone);
     const response = await authApi.login({ phone, password });
+    console.log('[AuthContext] Login response received:', response);
     api.setAccessToken(response.data.access_token);
     api.setRefreshToken(response.data.refresh_token);
     setUser(response.data.user);

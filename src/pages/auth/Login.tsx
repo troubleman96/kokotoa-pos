@@ -20,6 +20,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('[Login] Attempting login with phone:', formData.phone);
     try {
       await login(formData.phone, formData.password);
       toast({
