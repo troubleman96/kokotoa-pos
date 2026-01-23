@@ -259,6 +259,9 @@ export const accountsApi = {
 
   getCurrentUser: () =>
     api.get<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/'),
+
+  updateProfile: (data: Partial<User>) =>
+    api.patch<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/', data),
 };
 
 export const subscriptionApi = {

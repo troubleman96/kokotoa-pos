@@ -14,7 +14,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
   const [showMobileMenu, setShowMobileMenu] = useState(true);
@@ -41,8 +41,20 @@ const SettingsPage = () => {
   } | null>(null);
 
 
+
+  // Sync profile data with user context when it changes
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user]);
+
   const handleUpdateProfile = async () => {
-    if (!profileData.first_name || !profileData.last_name) {
+    if (!profileData.first_name || !profileData.last_name || !profileData.phone) {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
         description: language === 'sw' ? 'Tafadhali jaza taarifa zote' : 'Please fill all fields',
@@ -53,10 +65,14 @@ const SettingsPage = () => {
 
     setIsLoading(true);
     try {
-      await accountsApi.changeName({
+      await accountsApi.updateProfile({
         first_name: profileData.first_name,
         last_name: profileData.last_name,
+        phone: profileData.phone
       });
+
+      await refreshUser();
+
       toast({
         title: language === 'sw' ? 'Imefanikiwa!' : 'Success!',
         description: language === 'sw' ? 'Taarifa zimesasishwa' : 'Profile updated successfully',
@@ -292,10 +308,11 @@ const SettingsPage = () => {
                 <label className="text-sm font-medium text-foreground mb-2 block">
                   {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
                 </label>
-                <Input value={profileData.phone} disabled className="bg-muted" />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {language === 'sw' ? 'Namba haiwezi kubadilishwa' : 'Phone number cannot be changed'}
-                </p>
+                <Input
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                  className="bg-background"
+                />
               </div>
 
               <div className="flex justify-end pt-4">
