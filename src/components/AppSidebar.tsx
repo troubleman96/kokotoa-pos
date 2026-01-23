@@ -32,8 +32,8 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         <>
             <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
                 <div className="flex flex-col h-full">
-                    <div className="p-4 border-b border-border">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="p-4 border-b border-border space-y-2">
+                        <div className="flex items-center justify-between w-full">
                             <Link to="/" className="flex items-center gap-2">
                                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
                                     <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
@@ -44,8 +44,8 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <p className="text-sm text-foreground text-center mt-2 font-bold uppercase tracking-wider mx-auto w-fit max-w-full truncate">
-                            {user?.store_name || 'My Store'}
+                        <p className="text-sm text-foreground font-semibold truncate max-w-full px-1">
+                            {user?.store_name || (language === 'sw' ? 'Msimamizi' : 'Administrator')}
                         </p>
                     </div>
 
