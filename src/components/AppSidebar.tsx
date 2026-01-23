@@ -44,7 +44,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <p className="text-xs text-muted-foreground text-center mt-1 font-medium bg-muted/50 py-1 px-3 rounded-full mx-auto w-fit max-w-full truncate">
+                        <p className="text-sm text-foreground text-center mt-2 font-bold uppercase tracking-wider mx-auto w-fit max-w-full truncate">
                             {user?.store_name || 'My Store'}
                         </p>
                     </div>
