@@ -117,6 +117,11 @@ class ApiService {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
+    // Add cache control headers
+    headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    headers['Pragma'] = 'no-cache';
+    headers['Expires'] = '0';
+
     return headers;
   }
 

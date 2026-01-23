@@ -14,7 +14,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout, refreshUser, updateUser } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
   const [showMobileMenu, setShowMobileMenu] = useState(true);
@@ -65,12 +65,13 @@ const SettingsPage = () => {
 
     setIsLoading(true);
     try {
-      await accountsApi.changeName({
+      const response = await accountsApi.changeName({
         first_name: profileData.first_name,
         last_name: profileData.last_name,
       });
 
-      await refreshUser();
+      // Update local context immediately with returned data
+      updateUser(response.data);
 
       toast({
         title: language === 'sw' ? 'Imefanikiwa!' : 'Success!',
