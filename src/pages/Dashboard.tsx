@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import {
   ShoppingCart, Package, BarChart3, Settings,
   TrendingUp, AlertTriangle, DollarSign,
-  ArrowUpRight
+  ArrowUpRight, TrendingDown, Users, ArrowRight, Calendar
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { graphsApi } from '@/services/api';
+import { api, graphsApi, subscriptionApi, SubscriptionStatus } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import TrialBanner from '@/components/subscription/TrialBanner';
+import UpgradeModal from '@/components/subscription/UpgradeModal';
 
 const Dashboard = () => {
   const { language } = useLanguage();
@@ -26,6 +28,10 @@ const Dashboard = () => {
   } | null>(null);
   const [salesTrend, setSalesTrend] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Subscription State
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -52,8 +58,27 @@ const Dashboard = () => {
         setIsLoading(false);
       }
     };
-    fetchDashboard();
-  }, [language]);
+
+    const fetchSubscription = async () => {
+      try {
+        const subRes = await subscriptionApi.getStatus();
+        if (subRes.success) {
+          setSubscriptionStatus(subRes.data);
+          // Auto-show upgrade modal if expired
+          if (subRes.data.status === 'EXPIRED') {
+            setShowUpgradeModal(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+      }
+    };
+
+    if (user) {
+      fetchDashboard();
+      fetchSubscription();
+    }
+  }, [language, user]);
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
@@ -95,6 +120,14 @@ const Dashboard = () => {
       notificationCount={dashboardData?.inventory.low_stock_count || 0}
       notifications={notifications}
     >
+      {/* Messages */}
+      {subscriptionStatus && (
+        <TrialBanner
+          subscriptionStatus={subscriptionStatus}
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
+      )}
+
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
           <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -337,6 +370,12 @@ const Dashboard = () => {
           </Card>
         </>
       )}
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        subscriptionInfo={subscriptionStatus || undefined}
+      />
     </DashboardLayout>
   );
 };

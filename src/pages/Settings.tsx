@@ -2,21 +2,23 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi, storesApi, accountsApi } from '@/services/api';
+import { authApi, storesApi, accountsApi, subscriptionApi, SubscriptionStatus } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Lock, Bell, Palette, Save, Store, Edit2, ChevronRight
+  User, Lock, Bell, Palette, Save, Store, Edit2, ChevronRight, CreditCard
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
+import SubscriptionSettings from '@/components/subscription/SubscriptionSettings';
+import UpgradeModal from '@/components/subscription/UpgradeModal';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
   const { user, logout } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'notifications' | 'appearance'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
   const [showMobileMenu, setShowMobileMenu] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,6 +41,10 @@ const SettingsPage = () => {
     phone_number: string;
     details: string;
   } | null>(null);
+
+  // Subscription State
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleUpdateProfile = async () => {
     if (!profileData.first_name || !profileData.last_name) {
@@ -115,7 +121,7 @@ const SettingsPage = () => {
     }
   };
 
-  // Fetch store data on component mount
+  // Fetch store data and subscription status on component mount
   useEffect(() => {
     const fetchStoreData = async () => {
       if (!user?.store) return;
@@ -136,7 +142,19 @@ const SettingsPage = () => {
       }
     };
 
+    const fetchSubscription = async () => {
+      try {
+        const response = await subscriptionApi.getStatus();
+        if (response.success) {
+          setSubscriptionStatus(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching subscription status:', error);
+      }
+    };
+
     fetchStoreData();
+    fetchSubscription();
   }, [user?.store]);
 
   const handleUpdateStore = async () => {
@@ -177,6 +195,7 @@ const SettingsPage = () => {
     { id: 'profile', label: language === 'sw' ? 'Wasifu' : 'Profile', icon: User },
     { id: 'password', label: language === 'sw' ? 'Nenosiri' : 'Password', icon: Lock },
     { id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store },
+    { id: 'subscription', label: language === 'sw' ? 'Usajili' : 'Subscription', icon: CreditCard },
     { id: 'notifications', label: language === 'sw' ? 'Arifa' : 'Notifications', icon: Bell },
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
   ];
@@ -480,6 +499,24 @@ const SettingsPage = () => {
           </Card>
         )}
 
+        {/* Subscription Tab */}
+        {activeTab === 'subscription' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
+          <div className="space-y-6">
+            <div className="md:hidden mb-4">
+              <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                <span className="flex items-center gap-1 text-primary font-bold">
+                  <CreditCard className="w-4 h-4" />
+                  {language === 'sw' ? 'Back' : 'Back'}
+                </span>
+              </Button>
+            </div>
+            <SubscriptionSettings
+              subscriptionStatus={subscriptionStatus}
+              onUpgrade={() => setShowUpgradeModal(true)}
+            />
+          </div>
+        )}
+
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
@@ -566,6 +603,12 @@ const SettingsPage = () => {
           </Card>
         )}
       </div>
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        subscriptionInfo={subscriptionStatus || undefined}
+      />
     </DashboardLayout>
   );
 };

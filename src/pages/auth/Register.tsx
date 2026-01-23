@@ -50,7 +50,9 @@ const Register = () => {
       await register(formData);
       toast({
         title: language === 'sw' ? 'Akaunti imeundwa!' : 'Account created!',
-        description: language === 'sw' ? 'Tafadhali thibitisha namba yako ya simu' : 'Please verify your phone number',
+        description: language === 'sw'
+          ? 'Hongera! Umepewa siku 7 za kujaribu mfumo bure. Thibitisha namba yako kuanza.'
+          : 'Congratulations! You have been granted a 7-day free trial. Verify your number to start.',
       });
     } catch (error: unknown) {
       const err = error as { message?: string };

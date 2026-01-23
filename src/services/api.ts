@@ -20,6 +20,39 @@ interface AuthResponse {
   errors: any;
 }
 
+
+interface SubscriptionPackage {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  price_display: string;
+  duration_days: number;
+  max_stores: number;
+  max_users_per_store: number;
+  max_products: number;
+  has_analytics: boolean;
+  has_multi_store: boolean;
+  has_sms_notifications?: boolean;
+}
+
+interface SubscriptionStatus {
+  status: 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'BLOCKED';
+  status_display: string;
+  has_access: boolean;
+  trial_start: string;
+  trial_end: string;
+  subscription_activated: string | null;
+  days_remaining?: number;
+  subscription?: {
+    package: SubscriptionPackage;
+    expires_at: string;
+    payment_reference: string;
+    granted_at?: string;
+  };
+  message?: string; // For error/info cases
+}
+
 interface User {
   id: number;
   phone: string;
@@ -33,6 +66,13 @@ interface User {
   is_store_created: boolean;
   is_profile_complete: boolean;
   created_at: string;
+  // Subscription fields
+  subscription_status?: 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'BLOCKED';
+  subscription_status_display?: string;
+  has_access?: boolean;
+  trial_start_date?: string;
+  trial_end_date?: string;
+  subscription_activated_at?: string;
 }
 
 class ApiService {
@@ -219,6 +259,14 @@ export const accountsApi = {
 
   getCurrentUser: () =>
     api.get<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/'),
+};
+
+export const subscriptionApi = {
+  getPackages: () =>
+    api.get<{ success: boolean; message: string; data: SubscriptionPackage[]; errors: any }>('/accounts/packages/'),
+
+  getStatus: () =>
+    api.get<{ success: boolean; message: string; data: SubscriptionStatus; errors: any }>('/accounts/subscription-status/'),
 };
 
 export const storesApi = {
@@ -534,4 +582,4 @@ export interface DailySummaryReport {
   }>;
 }
 
-export type { User, AuthResponse, ApiResponse };
+export type { User, AuthResponse, ApiResponse, SubscriptionPackage, SubscriptionStatus };
