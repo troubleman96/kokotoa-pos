@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search, Plus, Edit2, Trash2, Package,
   AlertTriangle, Save, XCircle, Image as ImageIcon,
@@ -22,6 +23,7 @@ import ProductDetailsModal from '@/components/ProductDetailsModal';
 const Inventory = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -464,7 +466,7 @@ const Inventory = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={(e) => { e.stopPropagation(); window.open(`/stock-history?search=${product.sku}`, '_blank'); }}
+                                onClick={(e) => { e.stopPropagation(); navigate(`/stock-history?search=${product.sku}`); }}
                                 className="hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/20"
                                 title={language === 'sw' ? 'Historia' : 'Stock History'}
                               >
@@ -568,7 +570,7 @@ const Inventory = () => {
                             variant="secondary"
                             size="sm"
                             className="h-9 px-3 bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20"
-                            onClick={(e) => { e.stopPropagation(); window.open(`/stock-history?search=${product.sku}`, '_blank'); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/stock-history?search=${product.sku}`); }}
                           >
                             <History className="w-3.5 h-3.5 mr-1.5" />
                             {language === 'sw' ? 'Historia' : 'Logs'}
