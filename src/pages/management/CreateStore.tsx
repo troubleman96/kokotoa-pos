@@ -127,16 +127,16 @@ const CreateStore = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Header */}
-        <div className="mb-6 text-left">
-          <div className="flex items-center gap-4 mb-3">
+        <div className="mb-6 text-center">
+          <div className="flex flex-col items-center gap-3 mb-3">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
               <Store className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="font-display text-3xl font-bold text-foreground leading-tight">
+            <h1 className="font-display text-3xl font-bold text-foreground leading-tight text-center">
               {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
             </h1>
           </div>
-          <p className="text-muted-foreground text-sm pl-0">
+          <p className="text-muted-foreground text-sm text-center">
             {language === 'sw'
               ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
               : 'Congratulations! Create your first store to start doing business.'
