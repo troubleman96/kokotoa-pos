@@ -64,7 +64,7 @@ const CreateStore = () => {
       // but the redirection logic `if (user.is_profile_complete) navigate('/dashboard')` implies this is for the FIRST store setup.
       // So we likely don't need to block them here for the *first* store unless trial is expired and we block *all* access.
 
-      if (subscriptionStatus.status === 'EXPIRED') {
+      if (subscriptionStatus.has_access === false) {
         setShowUpgradeModal(true);
         return;
       }
@@ -144,18 +144,25 @@ const CreateStore = () => {
 
         <Card className="card-kokotoa">
           <CardContent className="pt-6">
-            {/* Show warning if expired */}
-            {subscriptionStatus?.status === 'EXPIRED' && (
+            {/* Show warning if no access */}
+            {subscriptionStatus && subscriptionStatus.has_access === false && (
               <div className="mb-6 bg-destructive/10 p-4 rounded-xl border border-destructive/20 flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-medium text-destructive mb-1">
-                    {language === 'sw' ? 'Usajili Umeisha' : 'Subscription Expired'}
+                    {subscriptionStatus.status === 'EXPIRED'
+                      ? (language === 'sw' ? 'Usajili Umeisha' : 'Subscription Expired')
+                      : (language === 'sw' ? 'Ufikiaji Umezuiwa' : 'Access Restricted')
+                    }
                   </h4>
                   <p className="text-sm text-foreground/80 mb-2">
-                    {language === 'sw'
-                      ? 'Tafadhali lipia kifurushi ili kuendelea kuunda duka.'
-                      : 'Please renew your subscription to proceed with store creation.'
+                    {subscriptionStatus.status === 'EXPIRED'
+                      ? (language === 'sw'
+                        ? 'Tafadhali lipia kifurushi ili kuendelea kuunda duka.'
+                        : 'Please renew your subscription to proceed with store creation.')
+                      : (language === 'sw'
+                        ? 'Huna ruhusa ya kuunda duka kwa sasa.'
+                        : 'You do not have permission to create a store at this time.')
                     }
                   </p>
                   <Button
@@ -163,7 +170,7 @@ const CreateStore = () => {
                     size="sm"
                     onClick={() => setShowUpgradeModal(true)}
                   >
-                    {language === 'sw' ? 'Lipia Sasa' : 'Pay Now'}
+                    {language === 'sw' ? 'Boresha Sasa' : 'Upgrade Now'}
                   </Button>
                 </div>
               </div>
@@ -253,7 +260,7 @@ const CreateStore = () => {
                 </ul>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-14 text-lg" disabled={isLoading || subscriptionStatus?.status === 'EXPIRED'}>
+              <Button type="submit" className="w-full btn-kokotoa h-14 text-lg" disabled={isLoading || (subscriptionStatus !== null && subscriptionStatus.has_access === false)}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
