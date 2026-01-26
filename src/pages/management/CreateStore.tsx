@@ -12,7 +12,7 @@ import UpgradeModal from '@/components/subscription/UpgradeModal';
 
 const CreateStore = () => {
   const { language } = useLanguage();
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, updateUser, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -84,12 +84,12 @@ const CreateStore = () => {
       });
 
       if (response.success) {
-        // Update user in localStorage
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        userData.is_profile_complete = true;
-        userData.store = response.data.id;
-        userData.store_name = response.data.name;
-        localStorage.setItem('user', JSON.stringify(userData));
+        // Update user context immediately to trigger state sync and redirect
+        updateUser({
+          is_profile_complete: true,
+          store: response.data.id,
+          store_name: response.data.name,
+        });
 
         toast({
           title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',

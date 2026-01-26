@@ -168,7 +168,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateEmail = async (email: string) => {
     const response = await accountsApi.updateEmail({ email });
     if (user) {
-      const updatedUser = { ...user, email: response.data.email };
+      // The API now returns the full updated User object
+      const updatedUser = response.data;
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
     }

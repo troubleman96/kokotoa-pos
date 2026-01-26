@@ -19,6 +19,48 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
     const [isLoading, setIsLoading] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const fallbackPackages: SubscriptionPackage[] = [
+        {
+            id: 1,
+            name: language === 'sw' ? 'Kifurushi cha Majaribio' : 'Free Trial',
+            price: 0,
+            price_display: '0 TZS',
+            duration_days: 7,
+            max_stores: 1,
+            max_users_per_store: 1,
+            max_products: 100,
+            has_analytics: false,
+            has_multi_store: false,
+            has_sms_notifications: false
+        },
+        {
+            id: 2,
+            name: language === 'sw' ? 'Kifurushi cha Kawaida' : 'Basic Package',
+            price: 15000,
+            price_display: '15,000 TZS',
+            duration_days: 30,
+            max_stores: 1,
+            max_users_per_store: 2,
+            max_products: 1000,
+            has_analytics: true,
+            has_multi_store: false,
+            has_sms_notifications: false
+        },
+        {
+            id: 3,
+            name: language === 'sw' ? 'Kifurushi cha Premium' : 'Premium Package',
+            price: 22000,
+            price_display: '22,000 TZS',
+            duration_days: 30,
+            max_stores: 3,
+            max_users_per_store: 10,
+            max_products: 5000,
+            has_analytics: true,
+            has_multi_store: true,
+            has_sms_notifications: true
+        }
+    ];
+
     useEffect(() => {
         if (isOpen) {
             loadPackages();
@@ -31,11 +73,14 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
         try {
             setIsLoading(true);
             const response = await subscriptionApi.getPackages();
-            if (response.success) {
+            if (response.success && response.data && response.data.length > 0) {
                 setPackages(response.data);
+            } else {
+                setPackages(fallbackPackages);
             }
         } catch (error) {
             console.error('Error loading packages:', error);
+            setPackages(fallbackPackages);
         } finally {
             setIsLoading(false);
         }
