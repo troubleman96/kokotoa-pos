@@ -162,6 +162,19 @@ const SettingsPage = () => {
     }
   };
 
+  const handleStorePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!storeData) return;
+    let value = e.target.value;
+    if (!value.startsWith('+255')) {
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setStoreData({ ...storeData, phone_number: value });
+  };
+
   // Fetch store data and subscription status on component mount
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -174,7 +187,7 @@ const SettingsPage = () => {
             id: response.data.id,
             name: response.data.name,
             location: response.data.location,
-            phone_number: response.data.phone_number,
+            phone_number: response.data.phone_number.startsWith('+255') ? response.data.phone_number : `+255${response.data.phone_number.replace(/^\+/, '')}`,
             details: response.data.details || '',
           });
         }
@@ -513,9 +526,12 @@ const SettingsPage = () => {
                     </label>
                     <Input
                       value={storeData.phone_number}
-                      onChange={(e) => setStoreData({ ...storeData, phone_number: e.target.value })}
+                      onChange={handleStorePhoneChange}
                       className="bg-background"
                     />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
+                    </p>
                   </div>
 
                   <div>

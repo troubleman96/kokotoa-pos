@@ -19,10 +19,24 @@ const Register = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    phone: '',
+    phone: '+255',
     password: '',
     password_confirm: '',
   });
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Always ensure +255 is at the start
+    if (!value.startsWith('+255')) {
+      // If they tried to delete part of it, put it back
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setFormData({ ...formData, phone: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,11 +182,14 @@ const Register = () => {
                     type="tel"
                     placeholder="+255xxxxxxxxx"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={handlePhoneChange}
                     className="pl-12 h-12 bg-background"
                     required
                   />
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {language === 'sw' ? 'Anza na +255 (Mfano: +255712345678)' : 'Start with +255 (e.g., +255712345678)'}
+                </p>
               </div>
 
               <div>

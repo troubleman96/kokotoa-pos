@@ -15,7 +15,19 @@ const Login = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ phone: '', password: '' });
+  const [formData, setFormData] = useState({ phone: '+255', password: '' });
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (!value.startsWith('+255')) {
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setFormData({ ...formData, phone: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,11 +112,14 @@ const Login = () => {
                     type="tel"
                     placeholder="+255xxxxxxxxx"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={handlePhoneChange}
                     className="pl-12 h-12 bg-background"
                     required
                   />
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
+                </p>
               </div>
 
               <div>

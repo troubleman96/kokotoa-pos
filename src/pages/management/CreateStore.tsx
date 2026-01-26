@@ -19,9 +19,21 @@ const CreateStore = () => {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    phone_number: '',
+    phone_number: '+255',
     details: '',
   });
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (!value.startsWith('+255')) {
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setFormData({ ...formData, phone_number: value });
+  };
 
   // Subscription State
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
@@ -221,10 +233,13 @@ const CreateStore = () => {
                     type="tel"
                     placeholder="+255xxxxxxxxx"
                     value={formData.phone_number}
-                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                    onChange={handlePhoneChange}
                     className="pl-12 h-11 bg-background"
                   />
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
+                </p>
               </div>
 
               <div>

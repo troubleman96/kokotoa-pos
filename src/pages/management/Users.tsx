@@ -60,18 +60,31 @@ const Users = () => {
     fetchUsers();
   }, []);
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (!value.startsWith('+255')) {
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setFormData({ ...formData, phone: value });
+  };
+
   const openAddModal = () => {
     setEditingUser(null);
-    setFormData({ first_name: '', last_name: '', phone: '', password: '', role: 'STAFF' });
+    setFormData({ first_name: '', last_name: '', phone: '+255', password: '', role: 'STAFF' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (user: User) => {
     setEditingUser(user);
+    const phone = user.phone.startsWith('+255') ? user.phone : `+255${user.phone.replace(/^\+/, '')}`;
     setFormData({
       first_name: user.first_name,
       last_name: user.last_name,
-      phone: user.phone.replace('+', ''),
+      phone: phone,
       password: '',
       role: user.role,
     });
@@ -364,7 +377,10 @@ const Users = () => {
               <label className="text-sm font-medium text-muted-foreground mb-2 block">
                 {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
               </label>
-              <Input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="bg-background" required disabled={!!editingUser} />
+              <Input type="tel" value={formData.phone} onChange={handlePhoneChange} className="bg-background" required disabled={!!editingUser} />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
+              </p>
             </div>
 
             {!editingUser && (

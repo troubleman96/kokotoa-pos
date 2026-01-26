@@ -159,7 +159,7 @@ const POS = () => {
           setCart([]);
           // Reset fields
           setCustomerName('');
-          setCustomerPhone('');
+          setCustomerPhone('+255');
           setPaymentRef('');
           setSaleNotes('');
         }
@@ -454,6 +454,18 @@ const CheckoutModal = ({
 }: CheckoutModalProps) => {
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (!value.startsWith('+255')) {
+      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
+        value = '+255';
+      } else {
+        value = '+255' + value.replace(/^\+?\d*/, '');
+      }
+    }
+    setCustomerPhone(value);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md bg-card border-border">
@@ -493,10 +505,13 @@ const CheckoutModal = ({
               </label>
               <Input
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder={language === 'sw' ? 'Hiari' : 'Optional'}
+                onChange={handlePhoneChange}
+                placeholder="+255xxxxxxxxx"
                 className="bg-background"
               />
+              <p className="text-[9px] text-muted-foreground mt-0.5">
+                {language === 'sw' ? 'Anza na +255' : 'Start with +255'}
+              </p>
             </div>
             {paymentMethod !== 'CASH' && (
               <div className="space-y-2">
