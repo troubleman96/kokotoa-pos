@@ -131,7 +131,7 @@ class ApiService {
     const response = await fetch(url, options);
 
     // Auto-refresh logic on 401 (but don't retry if the refresh request itself fails)
-    if (response.status === 401 && retry && endpoint !== '/accounts/auth/token/refresh/') {
+    if (response.status === 401 && retry && endpoint !== '/auth/token/refresh/') {
       const refreshToken = this.getRefreshToken();
       if (refreshToken) {
         try {
@@ -274,7 +274,7 @@ export const accountsApi = {
     api.patch<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/', data),
 
   updateEmail: (data: { email: string }) =>
-    api.put<{ success: boolean; message: string; data: { email: string }; errors: any }>('/accounts/update-email/', data),
+    api.put<{ success: boolean; message: string; data: { email: string }; errors: any }>('/profile/update-email/', data),
 };
 
 export const subscriptionApi = {
