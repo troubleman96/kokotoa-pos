@@ -160,18 +160,9 @@ const Login = () => {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    {language === 'sw' ? 'Inaingia...' : 'Signing in...'}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {language === 'sw' ? 'Ingia' : 'Sign In'}
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                )}
+              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
+                {language === 'sw' ? 'Ingia' : 'Sign In'}
+                {!isLoading && <ArrowRight className="w-5 h-5" />}
               </Button>
             </form>
 

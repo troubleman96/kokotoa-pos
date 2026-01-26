@@ -389,9 +389,9 @@ const SettingsPage = () => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button onClick={handleUpdateProfile} className="btn-kokotoa w-full sm:w-auto" disabled={isLoading}>
+                <Button onClick={handleUpdateProfile} className="btn-kokotoa w-full sm:w-auto" isLoading={isLoading}>
                   <Save className="w-4 h-4 mr-2" />
-                  {isLoading ? (language === 'sw' ? 'Inahifadhi...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
+                  {isLoading ? (language === 'sw' ? 'Inahifadh...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
                 </Button>
               </div>
             </CardContent>
@@ -547,7 +547,7 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="flex justify-end pt-4">
-                    <Button onClick={handleUpdateStore} className="btn-kokotoa w-full sm:w-auto" disabled={isLoading}>
+                    <Button onClick={handleUpdateStore} className="btn-kokotoa w-full sm:w-auto" isLoading={isLoading}>
                       <Edit2 className="w-4 h-4 mr-2" />
                       {isLoading ? (language === 'sw' ? 'Inahifadhi...' : 'Saving...') : (language === 'sw' ? 'Hifadhi Mabadiliko' : 'Save Changes')}
                     </Button>

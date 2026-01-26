@@ -412,7 +412,7 @@ const Users = () => {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               {language === 'sw' ? 'Ghairi' : 'Cancel'}
             </Button>
-            <Button onClick={handleSubmit} className="btn-kokotoa">
+            <Button onClick={handleSubmit} className="btn-kokotoa" isLoading={isLoading}>
               {editingUser ? (language === 'sw' ? 'Hifadhi' : 'Save') : (language === 'sw' ? 'Ongeza' : 'Add')}
             </Button>
           </DialogFooter>

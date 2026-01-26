@@ -276,18 +276,9 @@ const Register = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    {language === 'sw' ? 'Inajiregister...' : 'Registering...'}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {language === 'sw' ? 'Jisajili' : 'Register'}
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                )}
+              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
+                {language === 'sw' ? 'Jisajili' : 'Register'}
+                {!isLoading && <ArrowRight className="w-5 h-5" />}
               </Button>
             </form>
 

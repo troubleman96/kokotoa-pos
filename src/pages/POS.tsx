@@ -384,19 +384,11 @@ const POS = () => {
             <Button
               onClick={() => openCheckout('CASH')}
               className="w-full btn-kokotoa h-14 text-lg"
-              disabled={cart.length === 0 || isProcessing}
+              isLoading={isProcessing}
+              disabled={cart.length === 0}
             >
-              {isProcessing ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  {language === 'sw' ? 'Inashughulikia...' : 'Processing...'}
-                </span>
-              ) : (
-                <span className="relative z-10 flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5" />
-                  {language === 'sw' ? 'Maliza Mauzo' : 'Complete Sale'}
-                </span>
-              )}
+              <ShoppingCart className="w-5 h-5" />
+              {language === 'sw' ? 'Maliza Mauzo' : 'Complete Sale'}
             </Button>
           </div>
         </div>
@@ -550,13 +542,9 @@ const CheckoutModal = ({
           <Button
             className="flex-2 btn-kokotoa shadow-lg"
             onClick={onConfirm}
-            disabled={isProcessing}
+            isLoading={isProcessing}
           >
-            {isProcessing ? (
-              <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-            ) : (
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-            )}
+            <CheckCircle2 className="w-4 h-4 mr-2" />
             {language === 'sw' ? 'Kamilisha Mauzo' : 'Complete Sale'}
           </Button>
         </DialogFooter>

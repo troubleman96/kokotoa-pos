@@ -275,18 +275,9 @@ const CreateStore = () => {
                 </ul>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg shadow-lg shadow-primary/20" disabled={isLoading || (subscriptionStatus !== null && subscriptionStatus.has_access === false)}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    {language === 'sw' ? 'Inaunda...' : 'Creating...'}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {language === 'sw' ? 'Unda Duka' : 'Create Store'}
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                )}
+              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg shadow-lg" isLoading={isLoading}>
+                {language === 'sw' ? 'Tengeneza Duka' : 'Create Store'}
+                {!isLoading && <ArrowRight className="w-5 h-5" />}
               </Button>
             </form>
           </CardContent>

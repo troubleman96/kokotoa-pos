@@ -199,4 +199,31 @@
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  @keyframes math-flicker {
+    0% { content: '+'; opacity: 1; }
+    25% { content: '−'; opacity: 0.7; }
+    50% { content: '×'; opacity: 1; }
+    75% { content: '÷'; opacity: 0.7; }
+    100% { content: '='; opacity: 1; }
+  }
+
+  .animate-math-flicker::after {
+    display: inline-block;
+    content: '+';
+    animation: math-flicker 0.6s infinite step-end;
+    font-family: monospace;
+    font-weight: bold;
+    width: 1ch;
+    text-align: center;
+  }
+
+  @keyframes calculating-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+
+  .animate-calculating {
+    animation: calculating-pulse 1s ease-in-out infinite;
+  }
 }

@@ -32,14 +32,38 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+  ({ className, variant, size, asChild = false, isLoading = false, children, ...props }, ref) => {
+    if (asChild) {
+      return (
+        <Slot className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
+    return (
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={isLoading || props.disabled}
+        ref={ref}
+        {...props}
+      >
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white/20 animate-math-flicker" />
+            <span className="opacity-70">{children}</span>
+          </div>
+        ) : (
+          children
+        )}
+      </button>
+    );
   },
 );
 Button.displayName = "Button";
