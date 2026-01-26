@@ -121,7 +121,7 @@ const Dashboard = () => {
       notifications={notifications}
     >
       {/* Messages */}
-      {subscriptionStatus && (
+      {(user?.role === 'OWNER' && subscriptionStatus) && (
         <TrialBanner
           subscriptionStatus={subscriptionStatus}
           onUpgrade={() => setShowUpgradeModal(true)}
@@ -135,28 +135,30 @@ const Dashboard = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <Card className="card-kokotoa">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}
-                </CardTitle>
-                <DollarSign className="w-4 h-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-display font-bold text-foreground">
-                  {formatPrice(dashboardData?.today.sales || 0)}
-                </div>
-                <div className="flex items-center gap-1 mt-1">
-                  <ArrowUpRight className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary">
-                    {dashboardData?.today.transactions || 0}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {language === 'sw' ? 'miamala' : 'transactions'}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}
+                  </CardTitle>
+                  <DollarSign className="w-4 h-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">
+                    {formatPrice(dashboardData?.today.sales || 0)}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <ArrowUpRight className="w-4 h-4 text-primary" />
+                    <span className="text-sm text-primary">
+                      {dashboardData?.today.transactions || 0}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {language === 'sw' ? 'miamala' : 'transactions'}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="card-kokotoa">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -175,22 +177,24 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="card-kokotoa">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {language === 'sw' ? 'Mauzo ya Mwezi' : 'This Month'}
-                </CardTitle>
-                <TrendingUp className="w-4 h-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-display font-bold text-foreground">
-                  {formatPrice(dashboardData?.this_month.sales || 0)}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
-                </div>
-              </CardContent>
-            </Card>
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Mauzo ya Mwezi' : 'This Month'}
+                  </CardTitle>
+                  <TrendingUp className="w-4 h-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">
+                    {formatPrice(dashboardData?.this_month.sales || 0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className={`card-kokotoa ${(dashboardData?.inventory.low_stock_count || 0) > 0 ? 'border-destructive/50' : ''}`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -291,46 +295,48 @@ const Dashboard = () => {
             </Card>
 
             {/* Quick Summary / Status */}
-            <Card className="card-kokotoa overflow-hidden">
-              <CardHeader>
-                <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
-                    <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa overflow-hidden">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
+                      <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary animate-pulse"
+                        style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary animate-pulse"
-                      style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
-                    <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
+                      <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-foreground"
+                        style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-foreground"
-                      style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
-                    />
-                  </div>
-                </div>
 
-                <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {language === 'sw'
-                      ? 'Utendaji wa biashara yako unaonyesha mwelekeo chanya. Endelea kufuatilia mapato yako!'
-                      : 'Your business performance shows a positive trend. Keep tracking your revenue!'}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {language === 'sw'
+                        ? 'Utendaji wa biashara yako unaonyesha mwelekeo chanya. Endelea kufuatilia mapato yako!'
+                        : 'Your business performance shows a positive trend. Keep tracking your revenue!'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <Card className="card-kokotoa">
@@ -353,12 +359,14 @@ const Dashboard = () => {
                     {language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}
                   </span>
                 </Link>
-                <Link to="/reports" className="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors">
-                  <BarChart3 className="w-8 h-8 text-primary" />
-                  <span className="text-sm font-medium text-foreground">
-                    {language === 'sw' ? 'Tazama Ripoti' : 'View Reports'}
-                  </span>
-                </Link>
+                {user?.role === 'OWNER' && (
+                  <Link to="/reports" className="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors">
+                    <BarChart3 className="w-8 h-8 text-primary" />
+                    <span className="text-sm font-medium text-foreground">
+                      {language === 'sw' ? 'Tazama Ripoti' : 'View Reports'}
+                    </span>
+                  </Link>
+                )}
                 <Link to="/settings" className="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors">
                   <Settings className="w-8 h-8 text-primary" />
                   <span className="text-sm font-medium text-foreground">
