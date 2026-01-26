@@ -126,26 +126,24 @@ const CreateStore = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <div className="flex flex-col items-center gap-3 mb-3">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Store className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="font-display text-3xl font-bold text-foreground leading-tight text-center">
-              {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
-            </h1>
-          </div>
-          <p className="text-muted-foreground text-sm text-center">
-            {language === 'sw'
-              ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
-              : 'Congratulations! Create your first store to start doing business.'
-            }
-          </p>
-        </div>
-
         <Card className="card-kokotoa">
-          <CardContent className="pt-6">
+          <CardHeader className="pb-2 pt-6 text-center">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-transparent shrink-0">
+                <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+              </div>
+              <CardTitle className="font-display text-2xl font-bold text-foreground leading-tight">
+                {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
+              </CardTitle>
+            </div>
+            <CardDescription className="text-sm">
+              {language === 'sw'
+                ? 'Hongera! Unda duka lako la kwanza ili kuanza kufanya biashara.'
+                : 'Congratulations! Create your first store to start doing business.'
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
             {/* Show warning if no access */}
             {subscriptionStatus && subscriptionStatus.has_access === false && (
               <div className="mb-6 bg-destructive/10 p-4 rounded-xl border border-destructive/20 flex items-start gap-3">
@@ -285,7 +283,7 @@ const CreateStore = () => {
         onClose={() => setShowUpgradeModal(false)}
         subscriptionInfo={subscriptionStatus || undefined}
       />
-    </div>
+    </div >
   );
 };
 
