@@ -236,7 +236,7 @@ const SettingsPage = () => {
   const tabs = [
     { id: 'profile', label: language === 'sw' ? 'Wasifu' : 'Profile', icon: User },
     { id: 'password', label: language === 'sw' ? 'Nenosiri' : 'Password', icon: Lock },
-    { id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store },
+    ...(user?.role === 'OWNER' ? [{ id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store }] : []),
     { id: 'notifications', label: language === 'sw' ? 'Arifa' : 'Notifications', icon: Bell },
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
   ];
@@ -597,8 +597,10 @@ const SettingsPage = () => {
             <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
               {[
                 { key: 'low_stock', sw: 'Arifa za bidhaa zinazokwisha', en: 'Low stock alerts' },
-                { key: 'sales', sw: 'Arifa za mauzo', en: 'Sales notifications' },
-                { key: 'reports', sw: 'Ripoti za kila siku', en: 'Daily reports' },
+                ...(user?.role === 'OWNER' ? [
+                  { key: 'sales', sw: 'Arifa za mauzo', en: 'Sales notifications' },
+                  { key: 'reports', sw: 'Ripoti za kila siku', en: 'Daily reports' },
+                ] : []),
               ].map((item) => (
                 <div key={item.key} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl gap-4">
                   <span className="font-medium text-sm sm:text-base leading-tight">
