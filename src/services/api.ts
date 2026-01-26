@@ -274,7 +274,7 @@ export const accountsApi = {
     api.patch<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/', data),
 
   updateEmail: (data: { email: string }) =>
-    api.put<{ success: boolean; message: string; data: { email: string }; errors: any }>('/profile/update-email/', data),
+    api.put<{ success: boolean; message: string; data: { email: string }; errors: any }>('/accounts/update-email/', data),
 };
 
 export const subscriptionApi = {
