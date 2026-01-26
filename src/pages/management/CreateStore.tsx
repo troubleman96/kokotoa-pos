@@ -127,14 +127,16 @@ const CreateStore = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Store className="w-10 h-10 text-primary" />
+        <div className="mb-6 text-left">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Store className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="font-display text-3xl font-bold text-foreground leading-tight">
+              {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
+            </h1>
           </div>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
-          </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm pl-0">
             {language === 'sw'
               ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
               : 'Congratulations! Create your first store to start doing business.'
@@ -176,9 +178,9 @@ const CreateStore = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
                   {language === 'sw' ? 'Jina la Duka *' : 'Store Name *'}
                 </label>
                 <div className="relative">
@@ -188,14 +190,14 @@ const CreateStore = () => {
                     placeholder={language === 'sw' ? 'Mfano: Mama Maria Shop' : 'e.g., Mama Maria Shop'}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="pl-12 h-12 bg-background"
+                    className="pl-12 h-11 bg-background"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
                   {language === 'sw' ? 'Mahali *' : 'Location *'}
                 </label>
                 <div className="relative">
@@ -205,14 +207,14 @@ const CreateStore = () => {
                     placeholder={language === 'sw' ? 'Mfano: Kariakoo, Dar es Salaam' : 'e.g., Kariakoo, Dar es Salaam'}
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="pl-12 h-12 bg-background"
+                    className="pl-12 h-11 bg-background"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
                   {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
                 </label>
                 <div className="relative">
@@ -222,45 +224,45 @@ const CreateStore = () => {
                     placeholder="+255xxxxxxxxx"
                     value={formData.phone_number}
                     onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                    className="pl-12 h-12 bg-background"
+                    className="pl-12 h-11 bg-background"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">
                   {language === 'sw' ? 'Maelezo (si lazima)' : 'Description (optional)'}
                 </label>
                 <textarea
                   placeholder={language === 'sw' ? 'Maelezo mafupi kuhusu duka lako' : 'Brief description about your store'}
                   value={formData.details}
                   onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                  className="w-full h-24 px-4 py-3 rounded-xl border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full h-20 px-4 py-3 rounded-xl border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary text-sm font-normal"
                 />
               </div>
 
-              <div className="bg-muted/30 rounded-xl p-4">
-                <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" />
+              <div className="bg-muted/30 rounded-xl p-3">
+                <h4 className="font-medium text-foreground mb-1 flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
                   {language === 'sw' ? 'Ushirikiano wa moja kwa moja' : 'What you get'}
                 </h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    {language === 'sw' ? 'Mfumo wa mauzo (POS) wa kushika' : 'Touch-friendly POS system'}
+                <ul className="grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                  <li className="flex items-center gap-2 font-medium">
+                    <span className="w-1 h-1 rounded-full bg-primary" />
+                    {language === 'sw' ? 'Mfumo wa mauzo (POS) wa kisasa' : 'Modern POS system'}
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    {language === 'sw' ? 'Usimamizi wa hesabu wa wakati halisi' : 'Real-time inventory management'}
+                  <li className="flex items-center gap-2 font-medium">
+                    <span className="w-1 h-1 rounded-full bg-primary" />
+                    {language === 'sw' ? 'Usimamizi wa bidhaa rahisi' : 'Easy inventory management'}
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <li className="flex items-center gap-2 font-medium">
+                    <span className="w-1 h-1 rounded-full bg-primary" />
                     {language === 'sw' ? 'Ripoti za kina na takwimu' : 'Detailed reports and analytics'}
                   </li>
                 </ul>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-14 text-lg" disabled={isLoading || (subscriptionStatus !== null && subscriptionStatus.has_access === false)}>
+              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg shadow-lg shadow-primary/20" disabled={isLoading || (subscriptionStatus !== null && subscriptionStatus.has_access === false)}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
