@@ -32,7 +32,7 @@ const ProductDetailsModal = ({ isOpen, onClose, onAdjustStock, product }: Produc
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-card border-border max-w-2xl">
+            <DialogContent className="bg-card border-border max-w-2xl px-4 sm:px-6 max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <DialogTitle className="font-display text-xl">
@@ -44,19 +44,19 @@ const ProductDetailsModal = ({ isOpen, onClose, onAdjustStock, product }: Produc
                     </div>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
-                    {/* Product Image */}
-                    <div className="flex flex-col md:flex-row gap-6">
-                        <div className="w-full md:w-1/3">
+                <div className="space-y-6 py-2 sm:py-4">
+                    {/* Product Image and Info Section */}
+                    <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+                        <div className="w-full md:w-1/3 flex justify-center md:block">
                             {product.image_url ? (
                                 <img
                                     src={product.image_url}
                                     alt={product.name}
-                                    className="w-full aspect-square rounded-lg object-cover border border-border"
+                                    className="w-48 h-48 md:w-full md:aspect-square rounded-lg object-cover border border-border"
                                 />
                             ) : (
-                                <div className="w-full aspect-square rounded-lg bg-primary/10 flex items-center justify-center border border-border">
-                                    <span className="text-primary font-semibold text-6xl">
+                                <div className="w-48 h-48 md:w-full md:aspect-square rounded-lg bg-primary/10 flex items-center justify-center border border-border">
+                                    <span className="text-primary font-semibold text-5xl md:text-6xl">
                                         {product.category.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
@@ -64,17 +64,17 @@ const ProductDetailsModal = ({ isOpen, onClose, onAdjustStock, product }: Produc
                         </div>
 
                         {/* Product Info */}
-                        <div className="flex-1 space-y-4">
+                        <div className="flex-1 space-y-4 text-center md:text-left">
                             <div>
-                                <h3 className="font-display text-2xl font-bold text-foreground mb-1">
+                                <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1">
                                     {product.name}
                                 </h3>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-xs sm:text-sm text-muted-foreground">
                                     {language === 'sw' ? 'SKU' : 'SKU'}: {product.sku}
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
                                 <div>
                                     <p className="text-sm text-muted-foreground mb-1">
                                         {language === 'sw' ? 'Aina' : 'Category'}
@@ -131,15 +131,15 @@ const ProductDetailsModal = ({ isOpen, onClose, onAdjustStock, product }: Produc
 
                     {/* QR Code Section */}
                     {product.qr_code_url && (
-                        <div className="border-t border-border pt-6">
-                            <div className="bg-muted/30 rounded-xl p-6">
-                                <div className="flex flex-col md:flex-row gap-6 items-center">
+                        <div className="border-t border-border pt-4 sm:pt-6">
+                            <div className="bg-muted/30 rounded-xl p-4 sm:p-6">
+                                <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-center">
                                     <div className="flex-shrink-0">
-                                        <div className="bg-white p-4 rounded-lg border-2 border-primary/20">
+                                        <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-primary/20">
                                             <img
                                                 src={product.qr_code_url}
                                                 alt={`QR Code for ${product.name}`}
-                                                className="w-48 h-48"
+                                                className="w-32 h-32 sm:w-48 sm:h-48"
                                             />
                                         </div>
                                     </div>
