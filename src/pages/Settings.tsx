@@ -14,7 +14,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
-  const { user, logout, refreshUser, updateUser } = useAuth();
+  const { user, logout, refreshUser, updateUser, updateEmail } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
   const [showMobileMenu, setShowMobileMenu] = useState(true);
@@ -24,6 +24,7 @@ const SettingsPage = () => {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     phone: user?.phone || '',
+    email: user?.email || '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -50,7 +51,8 @@ const SettingsPage = () => {
       setProfileData({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
-        phone: user.phone || '', // Using phone from user object directly
+        phone: user.phone || '',
+        email: user.email || '',
       });
     }
   }, [user]);
@@ -89,6 +91,27 @@ const SettingsPage = () => {
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
         description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateEmail = async () => {
+    if (!profileData.email) return;
+
+    setIsLoading(true);
+    try {
+      await updateEmail(profileData.email);
+      toast({
+        title: language === 'sw' ? 'Imefanikiwa!' : 'Success!',
+        description: language === 'sw' ? 'Barua pepe imesasishwa' : 'Email updated successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: error.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
         variant: 'destructive',
       });
     } finally {
@@ -323,6 +346,33 @@ const SettingsPage = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Namba haiwezi kubadilishwa
                 </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  {language === 'sw' ? 'Barua Pepe' : 'Email Address'}
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="email@example.com"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    className="bg-background flex-1"
+                  />
+                  <Button onClick={handleUpdateEmail} variant="outline" disabled={isLoading || profileData.email === user?.email}>
+                    {language === 'sw' ? 'Sasisha' : 'Update'}
+                  </Button>
+                </div>
+                {!user?.email && (
+                  <div className="mt-4 bg-primary/10 p-4 rounded-xl border border-primary/20">
+                    <p className="text-xs text-primary leading-relaxed">
+                      {language === 'sw'
+                        ? 'Weka barua pepe yako ili uanze kupokea ripoti za mauzo na arifa za bidhaa zinazokwisha kila siku.'
+                        : 'Add your email to receive daily sales reports and low stock alerts directly in your inbox.'}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end pt-4">

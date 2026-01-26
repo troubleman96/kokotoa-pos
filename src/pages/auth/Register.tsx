@@ -49,10 +49,10 @@ const Register = () => {
     try {
       await register(formData);
       toast({
-        title: language === 'sw' ? 'Akaunti imeundwa!' : 'Account created!',
+        title: language === 'sw' ? 'Mnakaribishwa KOKOTOA!' : 'Welcome to KOKOTOA!',
         description: language === 'sw'
-          ? 'Hongera! Umepewa siku 7 za kujaribu mfumo bure. Thibitisha namba yako kuanza.'
-          : 'Congratulations! You have been granted a 7-day free trial. Verify your number to start.',
+          ? 'Hongera! Akaunti yako imeundwa na umepewa siku 7 za kujaribu mfumo bure. Hebu tuanzishe duka lako!'
+          : 'Congratulations! Your account has been created and you have a 7-day free trial. Let\'s set up your store!',
       });
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -173,9 +173,6 @@ const Register = () => {
                     required
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {language === 'sw' ? 'Tutakutumia OTP kuhakiki namba yako' : 'We will send an OTP to verify your number'}
-                </p>
               </div>
 
               <div>

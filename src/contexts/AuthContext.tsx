@@ -8,11 +8,13 @@ interface AuthContextType {
   isLoading: boolean;
   login: (phone: string, password: string) => Promise<void>;
   register: (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) => Promise<void>;
-  verifyOtp: (phone: string, otpCode: string) => Promise<{ can_create_store: boolean }>;
+  verifyOtp: (phone: string, otpCode: string) => Promise<{ can_create_store: boolean; subscription_status?: string }>;
+  requestPhoneVerification: (phone: string) => Promise<void>;
   resendOtp: (phone: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
+  updateEmail: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,25 +89,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (phone: string, password: string) => {
     console.log('[AuthContext] login called for phone:', phone);
-    const response = await authApi.login({ phone, password });
-    console.log('[AuthContext] Login response received:', response);
-    api.setAccessToken(response.data.access_token);
-    api.setRefreshToken(response.data.refresh_token);
-    setUser(response.data.user);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    // Profile completion logic
-    if (response.data.user.is_profile_complete) {
-      navigate('/dashboard');
-    } else if (response.data.user.is_phone_verified) {
-      navigate('/create-store');
-    } else {
-      navigate('/verify-otp', { state: { phone, isRegistration: false } });
+    try {
+      const response = await authApi.login({ phone, password });
+      console.log('[AuthContext] Login response received:', response);
+      api.setAccessToken(response.data.access_token);
+      api.setRefreshToken(response.data.refresh_token);
+      setUser(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // Profile completion logic
+      if (response.data.user.is_profile_complete) {
+        navigate('/dashboard');
+      } else {
+        navigate('/create-store');
+      }
+    } catch (error: any) {
+      if (error?.errors?.requires_phone_verification) {
+        navigate('/verify-phone', { state: { phone } });
+      }
+      throw error;
     }
   };
 
   const register = async (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) => {
-    await authApi.register(data);
-    navigate('/verify-otp', { state: { phone: data.phone, isRegistration: true } });
+    const response = await authApi.register(data);
+    api.setAccessToken(response.data.access_token);
+    api.setRefreshToken(response.data.refresh_token);
+    setUser(response.data.user);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    navigate('/create-store');
+  };
+
+  const requestPhoneVerification = async (phone: string) => {
+    await authApi.requestPhoneVerification({ phone });
   };
 
   const verifyOtp = async (phone: string, otpCode: string) => {
@@ -149,8 +165,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateEmail = async (email: string) => {
+    const response = await accountsApi.updateEmail({ email });
+    if (user) {
+      const updatedUser = { ...user, email: response.data.email };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, verifyOtp, resendOtp, logout, refreshUser, updateUser }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      register,
+      verifyOtp,
+      requestPhoneVerification,
+      resendOtp,
+      logout,
+      refreshUser,
+      updateUser,
+      updateEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );

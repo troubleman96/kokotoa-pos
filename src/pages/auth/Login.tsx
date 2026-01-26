@@ -30,6 +30,11 @@ const Login = () => {
     } catch (error: any) {
       console.error('Login failed:', error);
 
+      // If it's a redirection case (handled in AuthContext), don't show generic error toast
+      if (error?.errors?.requires_phone_verification) {
+        return;
+      }
+
       let errorMessage = language === 'sw' ? 'Imeshindikana kuingia' : 'Login failed';
 
       // Check for specific error structure from backend

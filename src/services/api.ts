@@ -56,6 +56,7 @@ interface SubscriptionStatus {
 interface User {
   id: number;
   phone: string;
+  email?: string;
   first_name: string;
   last_name: string;
   role: 'OWNER' | 'CASHIER' | 'STAFF' | string;
@@ -235,28 +236,31 @@ export const api = new ApiService();
 
 export const authApi = {
   register: (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) =>
-    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean }; errors: any }>('/accounts/auth/register/', data),
+    api.post<AuthResponse & { errors: any }>('/auth/register/', data),
 
   verifyOtp: (data: { phone: string; otp_code: string }) =>
-    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean; can_create_store: boolean; is_profile_complete: boolean }; errors: any }>('/accounts/auth/verify-otp/', data),
+    api.post<{ success: boolean; message: string; data: { user_id: number; phone: string; is_phone_verified: boolean; can_create_store: boolean; is_profile_complete: boolean; subscription_status?: string }; errors: any }>('/auth/verify-otp/', data),
+
+  requestPhoneVerification: (data: { phone: string }) =>
+    api.post<{ success: boolean; message: string; data: { phone: string; otp_sent: boolean }; errors: any }>('/auth/request-phone-verification/', data),
 
   resendOtp: (data: { phone: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/resend-otp/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/auth/resend-otp/', data),
 
   login: (data: { phone: string; password: string }) =>
-    api.post<AuthResponse & { errors: any }>('/accounts/auth/login/', data),
+    api.post<AuthResponse & { errors: any }>('/auth/login/', data),
 
   refreshToken: (refresh: string) =>
-    api.post<{ access: string; refresh: string; token_type: string; success: boolean; message: string; errors: any }>('/accounts/auth/token/refresh/', { refresh }),
+    api.post<{ access: string; refresh: string; token_type: string; success: boolean; message: string; errors: any }>('/auth/token/refresh/', { refresh }),
 
   requestPasswordReset: (data: { phone: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/reset/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/reset/', data),
 
   resetPassword: (data: { phone: string; otp_code: string; new_password: string; new_password_confirm: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/reset/confirm/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/reset/confirm/', data),
 
   changePassword: (data: { old_password: string; new_password: string; new_password_confirm: string }) =>
-    api.post<{ success: boolean; message: string; errors: any }>('/accounts/auth/password/change/', data),
+    api.post<{ success: boolean; message: string; errors: any }>('/auth/password/change/', data),
 };
 
 export const accountsApi = {
@@ -268,6 +272,9 @@ export const accountsApi = {
 
   updateProfile: (data: Partial<User>) =>
     api.patch<{ success: boolean; message: string; data: User; errors: any }>('/accounts/profile/', data),
+
+  updateEmail: (data: { email: string }) =>
+    api.put<{ success: boolean; message: string; data: { email: string }; errors: any }>('/accounts/update-email/', data),
 };
 
 export const subscriptionApi = {
@@ -280,7 +287,7 @@ export const subscriptionApi = {
 
 export const storesApi = {
   create: (data: { name: string; location: string; details?: string; phone_number: string }) =>
-    api.post<{ success: boolean; message: string; data: Store; errors: any }>('/accounts/stores/', data), // api.post uses getHeaders() which now always sends JWT
+    api.post<{ success: boolean; message: string; data: Store; errors: any }>('/accounts/stores/', data),
 
   list: () =>
     api.get<{ success: boolean; message: string; data: Store[]; errors: any }>('/accounts/stores/'),
