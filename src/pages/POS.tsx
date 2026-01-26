@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
+import MathLoader from '@/components/ui/MathLoader';
 
 interface CartItem extends Product {
   quantity: number;
@@ -218,7 +219,7 @@ const POS = () => {
 
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">

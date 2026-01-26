@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { usersApi } from '@/services/api';
 import type { User } from '@/services/api';
+import MathLoader from '@/components/ui/MathLoader';
 
 const Users = () => {
   const { language } = useLanguage();
@@ -194,8 +195,8 @@ const Users = () => {
 
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
           {isLoading ? (
-            <div className="text-center py-12">
-              <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto block" />
+            <div className="flex text-center py-12 justify-center">
+              <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
             </div>
           ) : users.length > 0 ? (
             <Card className="card-kokotoa">

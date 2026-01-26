@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Package, ArrowLeft, Smartphone, RefreshCw } from 'lucide-react';
+import { Package, ArrowLeft, Smartphone, RefreshCw, Clock } from 'lucide-react';
 
 const VerifyOTP = () => {
   const { language, t } = useLanguage();
@@ -136,7 +136,7 @@ const VerifyOTP = () => {
             </div>
             <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Thibitisha Namba' : 'Verify Number'}</CardTitle>
             <CardDescription>
-              {language === 'sw' 
+              {language === 'sw'
                 ? `Tumetumia OTP kwa namba ${phone}. Angalia simu yako.`
                 : `We sent an OTP to ${phone}. Check your phone.`
               }
@@ -173,7 +173,7 @@ const VerifyOTP = () => {
                 >
                   {!canResend ? (
                     <span className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <Clock className="w-4 h-4" />
                       {language === 'sw' ? `Subiri ${countdown}s` : `Wait ${countdown}s`}
                     </span>
                   ) : (
@@ -185,15 +185,8 @@ const VerifyOTP = () => {
                 </Button>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    {language === 'sw' ? 'Inathibitisha...' : 'Verifying...'}
-                  </span>
-                ) : (
-                  language === 'sw' ? 'Thibitisha' : 'Verify'
-                )}
+              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
+                {language === 'sw' ? 'Thibitisha' : 'Verify'}
               </Button>
 
               <div className="text-center">

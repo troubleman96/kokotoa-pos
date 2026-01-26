@@ -19,6 +19,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
+import MathLoader from '@/components/ui/MathLoader';
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -382,7 +383,7 @@ const Inventory = () => {
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="space-y-4">
@@ -912,13 +913,9 @@ const Inventory = () => {
             <Button
               className="btn-kokotoa"
               onClick={handleAdjustStock}
-              disabled={isAdjusting}
+              isLoading={isAdjusting}
             >
-              {isAdjusting ? (
-                <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
+              {!isAdjusting && <Save className="w-4 h-4 mr-2" />}
               {language === 'sw' ? 'Hifadhi' : 'Save Adjustment'}
             </Button>
           </DialogFooter>

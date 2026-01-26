@@ -244,13 +244,9 @@ const SaleDetailsModal = ({ isOpen, onClose, sale, onReturnSuccess, onViewReceip
                         <Button
                             variant="destructive"
                             onClick={handleReturn}
-                            disabled={isReturning}
+                            isLoading={isReturning}
                         >
-                            {isReturning ? (
-                                <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                                <RefreshCcw className="w-4 h-4 mr-2" />
-                            )}
+                            {!isReturning && <RefreshCcw className="w-4 h-4 mr-2" />}
                             {language === 'sw' ? 'Kamilisha' : 'Process Return'}
                         </Button>
                     </DialogFooter>

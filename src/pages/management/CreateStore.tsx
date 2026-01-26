@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Package, Store, MapPin, Phone, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react';
 import UpgradeModal from '@/components/subscription/UpgradeModal';
+import MathLoader from '@/components/ui/MathLoader';
 
 const CreateStore = () => {
   const { language } = useLanguage();
@@ -130,7 +131,7 @@ const CreateStore = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <MathLoader size="xl" />
       </div>
     );
   }

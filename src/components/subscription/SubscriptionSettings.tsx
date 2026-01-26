@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, CreditCard, Store, CheckCircle, AlertTriangle } from 'lucide-react';
+import MathLoader from '@/components/ui/MathLoader';
 
 interface SubscriptionSettingsProps {
     subscriptionStatus: SubscriptionStatus | null;
@@ -16,7 +17,7 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
     if (!subscriptionStatus) {
         return (
             <div className="flex justify-center p-8">
-                <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <MathLoader size="lg" />
             </div>
         );
     }

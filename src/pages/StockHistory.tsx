@@ -7,6 +7,7 @@ import {
     History, ArrowUpCircle, ArrowDownCircle, RefreshCcw, Filter, Calendar,
     Search, Package, User, Info, FileStack
 } from 'lucide-react';
+import MathLoader from '@/components/ui/MathLoader';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
@@ -119,8 +120,8 @@ const StockHistory = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button variant="outline" onClick={fetchMovements}>
-                                <RefreshCcw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                            <Button variant="outline" onClick={fetchMovements} isLoading={isLoading}>
+                                {!isLoading && <RefreshCcw className="w-4 h-4 mr-2" />}
                                 {language === 'sw' ? 'Sasisha' : 'Refresh'}
                             </Button>
                         </div>
@@ -145,8 +146,7 @@ const StockHistory = () => {
                     <CardContent>
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-20">
-                                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-                                <p className="text-muted-foreground">{language === 'sw' ? 'Yukupata kumbukumbu...' : 'Loading history...'}</p>
+                                <MathLoader size="lg" text={language === 'sw' ? 'Yukupata kumbukumbu...' : 'Loading history...'} />
                             </div>
                         ) : filteredMovements.length > 0 ? (
                             <div className="space-y-4">

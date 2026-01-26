@@ -15,6 +15,7 @@ import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import MathLoader from '@/components/ui/MathLoader';
 
 const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -398,8 +399,8 @@ const Reports = () => {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="text-center py-8">
-                  <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto block" />
+                <div className="flex text-center py-8 justify-center">
+                  <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
                 </div>
               ) : salesData?.sales.length ? (
                 <div className="space-y-4">
@@ -492,8 +493,8 @@ const Reports = () => {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="text-center py-8">
-                  <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto block" />
+                <div className="flex text-center py-8 justify-center">
+                  <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
                 </div>
               ) : inventoryData?.products.length ? (
                 <div className="space-y-4">

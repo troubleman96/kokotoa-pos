@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Phone, Mail, MessageCircle, Copy, Check } from 'lucide-react';
 import PackageSelection from './PackageSelection';
+import MathLoader from '@/components/ui/MathLoader';
 
 interface UpgradeModalProps {
     isOpen: boolean;
@@ -116,7 +117,7 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                     <div className="py-4">
                         {isLoading ? (
                             <div className="flex justify-center py-12">
-                                <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                <MathLoader size="lg" />
                             </div>
                         ) : (
                             <PackageSelection

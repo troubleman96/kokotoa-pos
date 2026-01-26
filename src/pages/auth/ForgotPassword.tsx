@@ -136,15 +136,8 @@ const ForgotPassword = () => {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" disabled={isLoading}>
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      {language === 'sw' ? 'Inatuma...' : 'Sending...'}
-                    </span>
-                  ) : (
-                    language === 'sw' ? 'Tuma OTP' : 'Send OTP'
-                  )}
+                <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
+                  {language === 'sw' ? 'Tuma OTP' : 'Send OTP'}
                 </Button>
               </form>
             ) : (
@@ -231,15 +224,8 @@ const ForgotPassword = () => {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" disabled={isLoading}>
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      {language === 'sw' ? 'Inabadilisha...' : 'Changing...'}
-                    </span>
-                  ) : (
-                    language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password'
-                  )}
+                <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
+                  {language === 'sw' ? 'Badilisha Nenosiri' : 'Change Password'}
                 </Button>
               </form>
             )}

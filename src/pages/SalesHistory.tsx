@@ -18,6 +18,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import SaleDetailsModal from '@/components/SaleDetailsModal';
 import ReceiptModal from '@/components/ReceiptModal';
 import { useToast } from '@/hooks/use-toast';
+import MathLoader from '@/components/ui/MathLoader';
 
 const SalesHistory = () => {
     const { language } = useLanguage();
@@ -189,8 +190,8 @@ const SalesHistory = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button variant="outline" onClick={fetchSales} className="border-primary/20 hover:bg-primary/5">
-                                <RefreshCcw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                            <Button variant="outline" onClick={fetchSales} className="border-primary/20 hover:bg-primary/5" isLoading={isLoading}>
+                                {!isLoading && <RefreshCcw className="w-4 h-4 mr-2" />}
                                 {language === 'sw' ? 'Sasisha' : 'Refresh'}
                             </Button>
                         </div>
@@ -215,8 +216,7 @@ const SalesHistory = () => {
                     <CardContent className="p-0">
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-20 bg-background">
-                                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-                                <p className="text-muted-foreground">{language === 'sw' ? 'Inatafuta miamala...' : 'Loading transactions...'}</p>
+                                <MathLoader size="lg" text={language === 'sw' ? 'Inatafuta miamala...' : 'Loading transactions...'} />
                             </div>
                         ) : filteredSales.length > 0 ? (
                             <div className="space-y-4">

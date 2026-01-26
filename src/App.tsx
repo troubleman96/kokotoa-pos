@@ -24,6 +24,7 @@ import VerifyOTP from "./pages/auth/VerifyOTP";
 import PhoneVerification from "./pages/auth/PhoneVerification";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import MathLoader from "@/components/ui/MathLoader";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +36,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background text-primary">
-        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <MathLoader size="xl" />
       </div>
     );
   }
