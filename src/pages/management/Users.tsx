@@ -29,6 +29,7 @@ const Users = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -149,6 +150,7 @@ const Users = () => {
 
   const handleDelete = async () => {
     if (!userToDelete) return;
+    setIsDeleting(true);
     try {
       await usersApi.delete(userToDelete.id);
       toast({
@@ -165,6 +167,8 @@ const Users = () => {
         description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
         variant: 'destructive',
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -447,12 +451,26 @@ const Users = () => {
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)} disabled={isDeleting}>
               {language === 'sw' ? 'Ghairi' : 'Cancel'}
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              {language === 'sw' ? 'Futa' : 'Delete'}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="relative"
+            >
+              {isDeleting ? (
+                <>
+                  <Plus className="w-4 h-4 mr-2 animate-spin rotate-45" />
+                  {language === 'sw' ? 'Inafuta...' : 'Deleting...'}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {language === 'sw' ? 'Futa' : 'Delete'}
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

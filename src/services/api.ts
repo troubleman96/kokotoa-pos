@@ -169,10 +169,16 @@ class ApiService {
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
+    // Handle 204 No Content and empty responses for successful status codes
+    if (response.status === 204) {
+      return { success: true, message: 'Operation successful' } as unknown as T;
+    }
+
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       const data = await response.json();
       console.log(`[API] Response Data:`, data);
+
       if (!response.ok) {
         console.error(`[API] Error Response:`, data);
         // Throw the entire data object so we can access 'errors' property
@@ -180,8 +186,20 @@ class ApiService {
       }
       return data;
     }
+
+    // Handle other successful responses that might not be JSON
+    if (response.ok) {
+      const text = await response.text();
+      try {
+        // Fallback for cases where content-type might be missing but body is JSON
+        return JSON.parse(text) as T;
+      } catch {
+        return { success: true, message: text || 'Operation successful' } as unknown as T;
+      }
+    }
+
     const text = await response.text();
-    console.error(`[API] Non-JSON Response:`, text);
+    console.error(`[API] Non-JSON Error Response:`, text);
     throw new Error(text || 'An error occurred');
   }
 

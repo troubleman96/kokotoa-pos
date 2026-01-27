@@ -46,6 +46,7 @@ const Inventory = () => {
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [productToAdjust, setProductToAdjust] = useState<Product | null>(null);
   const [isAdjusting, setIsAdjusting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [adjustData, setAdjustData] = useState({
     movement_type: 'IN',
     quantity: 1,
@@ -311,6 +312,7 @@ const Inventory = () => {
 
   const handleDelete = async () => {
     if (!productToDelete) return;
+    setIsDeleting(true);
     try {
       await productsApi.delete(productToDelete.id);
       toast({
@@ -327,6 +329,8 @@ const Inventory = () => {
         description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
         variant: 'destructive',
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -803,12 +807,26 @@ const Inventory = () => {
           )}
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)} disabled={isDeleting}>
               {language === 'sw' ? 'Ghairi' : 'Cancel'}
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              {language === 'sw' ? 'Futa' : 'Delete'}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="relative"
+            >
+              {isDeleting ? (
+                <>
+                  <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
+                  {language === 'sw' ? 'Inafuta...' : 'Deleting...'}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {language === 'sw' ? 'Futa' : 'Delete'}
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
