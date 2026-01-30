@@ -45,7 +45,10 @@ const Dashboard = () => {
         ]);
 
         if (dashRes?.data) {
+          console.log('[Dashboard] Dashboard data:', dashRes.data);
           setDashboardData(dashRes.data);
+        } else if (dashRes === null) {
+          console.warn('[Dashboard] Dashboard API returned null');
         }
 
         if (salesRes?.data) {
@@ -57,11 +60,14 @@ const Dashboard = () => {
         }
 
         if (profitRes?.data) {
+          console.log('[Dashboard] Profit trend data:', profitRes.data);
           const transformedProfit = profitRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
             profit: profitRes.data.data[index]
           }));
           setProfitTrend(transformedProfit);
+        } else if (profitRes === null) {
+          console.warn('[Dashboard] Daily profit API returned null - endpoint may not be available');
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);

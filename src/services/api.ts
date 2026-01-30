@@ -420,7 +420,7 @@ export const reportsApi = {
     if (params?.date_from) queryParams.append('date_from', params.date_from);
     if (params?.date_to) queryParams.append('date_to', params.date_to);
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: SalesReport; errors: any }>(`/reports/sales/${query ? `?${query}` : ''}`);
+    return api.get<{ success: boolean; message: string; data: SalesReport; errors: any }>(`/reports/sales${query ? `?${query}` : ''}`);
   },
 
   getProfit: (params?: { date_from?: string; date_to?: string }) => {
@@ -428,7 +428,7 @@ export const reportsApi = {
     if (params?.date_from) queryParams.append('date_from', params.date_from);
     if (params?.date_to) queryParams.append('date_to', params.date_to);
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: ProfitReport; errors: any }>(`/reports/profit/${query ? `?${query}` : ''}`);
+    return api.get<{ success: boolean; message: string; data: ProfitReport; errors: any }>(`/reports/profit${query ? `?${query}` : ''}`);
   },
 
   getInventory: () =>
@@ -466,7 +466,7 @@ export const graphsApi = {
     api.get<{ success: boolean; message: string; data: { today: { sales: number; profit?: number; transactions: number }; this_month: { sales: number; profit?: number; transactions: number }; inventory: { low_stock_count: number; total_products: number }; store: { name: string } }; errors: any }>('/graphs/dashboard/'),
 
   getDailyProfit: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; transaction_count: number; average_profit_per_sale: number } }; errors: any }>(`/graphs/daily-profit/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; transaction_count: number; average_profit_per_sale: number } }; errors: any }>(`/graphs/daily-profit/${days ? `?days=${days}` : ''}`),
 
   getMonthlyProfit: (months?: number) =>
     api.get<{ success: boolean; message: string; data: { data: Array<{ month: string; profit: number; sales: number; count: number }>; summary: { total_profit: number; total_sales: number } }; errors: any }>(`/graphs/monthly-profit/${months ? `?months=${months}` : ''}`),
@@ -583,6 +583,10 @@ export interface SalesReport {
 }
 
 export interface ProfitReport {
+  period?: {
+    start: string;
+    end: string;
+  };
   summary: {
     total_profit: number;
     total_sales: number;

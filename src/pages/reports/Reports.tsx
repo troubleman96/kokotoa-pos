@@ -105,7 +105,12 @@ const Reports = () => {
         if (sales?.data) setSalesData(sales.data);
         if (inventory?.data) setInventoryData(inventory.data);
         if (dailyRec?.data) setDailySummary(dailyRec.data);
-        if (profit?.data) setProfitReport(profit.data);
+        if (profit?.data) {
+          console.log('[Reports] Profit report data:', profit.data);
+          setProfitReport(profit.data);
+        } else if (profit === null) {
+          console.warn('[Reports] Profit report API returned null - endpoint may not be available');
+        }
 
         // Fetch Analytics specifically if tab is active or just as extra data
         if (activeTab === 'analytics' || activeTab === 'profit') {
@@ -809,7 +814,40 @@ const Reports = () => {
 
                 {/* Profit Trend & Category Profit */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {dailyProfitTrend.length > 0 && (
+                  {profitReport.daily_profit && profitReport.daily_profit.length > 0 ? (
+                    <Card className="card-kokotoa">
+                      <CardHeader>
+                        <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                        <CardDescription>
+                          {language === 'sw' ? 'Faida ya kila siku katika kipindi hiki' : 'Daily profit over the selected period'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={profitReport.daily_profit.map((dp) => ({
+                            name: new Date(dp.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+                            profit: dp.profit,
+                            sales: dp.sales
+                          }))}>
+                            <defs>
+                              <linearGradient id="colorProfitReport" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                            <Tooltip
+                              contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                              formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
+                            />
+                            <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfitReport)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  ) : dailyProfitTrend.length > 0 ? (
                     <Card className="card-kokotoa">
                       <CardHeader>
                         <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
@@ -838,7 +876,7 @@ const Reports = () => {
                         </ResponsiveContainer>
                       </CardContent>
                     </Card>
-                  )}
+                  ) : null}
 
                   {profitReport.category_profit && profitReport.category_profit.length > 0 && (
                     <Card className="card-kokotoa">
