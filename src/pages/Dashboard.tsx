@@ -39,16 +39,16 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         const [dashRes, salesRes, profitRes] = await Promise.all([
-          graphsApi.getDashboard(),
-          graphsApi.getDailySales(30), // Long term sales trend
-          graphsApi.getDailyProfit(30), // Long term profit trend
+          graphsApi.getDashboard().catch(() => null),
+          graphsApi.getDailySales(30).catch(() => null), // Long term sales trend
+          graphsApi.getDailyProfit(30).catch(() => null), // Long term profit trend
         ]);
 
-        if (dashRes.data) {
+        if (dashRes?.data) {
           setDashboardData(dashRes.data);
         }
 
-        if (salesRes.data) {
+        if (salesRes?.data) {
           const transformed = salesRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
             sales: salesRes.data.data[index]
@@ -56,7 +56,7 @@ const Dashboard = () => {
           setSalesTrend(transformed);
         }
 
-        if (profitRes.data) {
+        if (profitRes?.data) {
           const transformedProfit = profitRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
             profit: profitRes.data.data[index]
@@ -318,7 +318,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Profit Trend */}
-            {user?.role === 'OWNER' && (
+            {user?.role === 'OWNER' && profitTrend.length > 0 && (
               <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>

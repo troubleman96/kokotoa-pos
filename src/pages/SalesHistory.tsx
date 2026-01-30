@@ -41,13 +41,17 @@ const SalesHistory = () => {
             const response = await salesApi.list();
             if (response.success) {
                 setSales(response.data.sales);
+                // Calculate profit from individual sales if summary doesn't have it
                 const calculatedProfit = response.data.sales.reduce((acc, sale) => {
-                    const profitValue = typeof sale.total_profit === 'string'
-                        ? parseFloat(sale.total_profit)
-                        : typeof sale.total_profit === 'number'
-                            ? sale.total_profit
-                            : 0;
-                    return acc + (isNaN(profitValue) ? 0 : profitValue);
+                    if (sale.total_profit !== undefined && sale.total_profit !== null) {
+                        const profitValue = typeof sale.total_profit === 'string'
+                            ? parseFloat(sale.total_profit)
+                            : typeof sale.total_profit === 'number'
+                                ? sale.total_profit
+                                : 0;
+                        return acc + (isNaN(profitValue) ? 0 : profitValue);
+                    }
+                    return acc;
                 }, 0);
 
                 setSummary({
