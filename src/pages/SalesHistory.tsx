@@ -60,7 +60,7 @@ const SalesHistory = () => {
                 setSummary({
                     total_sales: summary.total_sales || 0,
                     transaction_count: summary.transaction_count || 0,
-                    total_profit: summary.total_profit ?? calculatedProfit,
+                    total_profit: calculatedProfit, // Calculate from individual sales since API doesn't return it in summary
                 });
             }
         } catch (error: any) {

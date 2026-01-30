@@ -396,7 +396,7 @@ export const salesApi = {
     if (params?.payment_method) queryParams.append('payment_method', params.payment_method);
     if (params?.is_returned !== undefined) queryParams.append('is_returned', String(params.is_returned));
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: { sales: Sale[]; summary: { total_sales: number; transaction_count: number; total_profit?: number } }; errors: any }>(`/pos/sales/${query ? `?${query}` : ''}`);
+    return api.get<{ success: boolean; message: string; data: { sales: Sale[]; summary: { total_sales: number; transaction_count: number } }; errors: any }>(`/pos/sales${query ? `?${query}` : ''}`);
   },
 
   create: (data: { items: Array<{ product_id: number; quantity: number; unit_price: number; discount_percent?: number }>; payment_method: string; payment_reference?: string; customer_phone?: string; customer_name?: string; notes?: string; discount_amount?: number; tax_amount?: number }) =>
@@ -435,29 +435,29 @@ export const reportsApi = {
     api.get<{ success: boolean; message: string; data: InventoryReport; errors: any }>('/reports/inventory/'),
 
   getDailySummary: (date?: string) =>
-    api.get<{ success: boolean; message: string; data: DailySummaryReport; errors: any }>(`/reports/daily-summary/${date ? `?date=${date}` : ''}`),
+    api.get<{ success: boolean; message: string; data: DailySummaryReport; errors: any }>(`/reports/daily-summary${date ? `?date=${date}` : ''}`),
 };
 
 export const graphsApi = {
   getDailySales: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number; average_sale: number } }; errors: any }>(`/graphs/daily-sales/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number; average_sale: number } }; errors: any }>(`/graphs/daily-sales${days ? `?days=${days}` : ''}`),
 
   getTopProducts: (params?: { limit?: number; days?: number }) => {
     const queryParams = new URLSearchParams();
     if (params?.limit) queryParams.append('limit', String(params.limit));
     if (params?.days) queryParams.append('days', String(params.days));
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: { data: Array<{ rank: number; sku: string; name: string; quantity_sold: number; revenue: number; profit: number; transactions: number }>; period: { start: string; end: string; days: number }; summary: { total_items_sold: number } }; errors: any }>(`/graphs/top-products/${query ? `?${query}` : ''}`);
+    return api.get<{ success: boolean; message: string; data: { data: Array<{ rank: number; sku: string; name: string; quantity_sold: number; revenue: number; profit: number; transactions: number }>; period: { start: string; end: string; days: number }; summary: { total_items_sold: number } }; errors: any }>(`/graphs/top-products${query ? `?${query}` : ''}`);
   },
 
   getLowStock: () =>
     api.get<{ success: boolean; message: string; data: { data: Array<{ id: number; sku: string; name: string; category: string; current_stock: number; minimum_stock: number; unit: string; status: string }>; count: number; message: string }; errors: any }>('/graphs/low-stock/'),
 
   getPaymentMethods: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number } }; errors: any }>(`/graphs/payment-methods/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number } }; errors: any }>(`/graphs/payment-methods${days ? `?days=${days}` : ''}`),
 
   getSalesByHour: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number; peak_hour: string } }; errors: any }>(`/graphs/sales-by-hour/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number; peak_hour: string } }; errors: any }>(`/graphs/sales-by-hour${days ? `?days=${days}` : ''}`),
 
   getInventoryValue: () =>
     api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_cost_value: number; total_retail_value: number; potential_profit: number; item_count: number } }; errors: any }>('/graphs/inventory-value/'),
@@ -466,10 +466,10 @@ export const graphsApi = {
     api.get<{ success: boolean; message: string; data: { today: { sales: number; profit?: number; transactions: number }; this_month: { sales: number; profit?: number; transactions: number }; inventory: { low_stock_count: number; total_products: number }; store: { name: string } }; errors: any }>('/graphs/dashboard/'),
 
   getDailyProfit: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; transaction_count: number; average_profit_per_sale: number } }; errors: any }>(`/graphs/daily-profit/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; transaction_count: number; average_profit_per_sale: number } }; errors: any }>(`/graphs/daily-profit${days ? `?days=${days}` : ''}`),
 
   getMonthlyProfit: (months?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: Array<{ month: string; profit: number; sales: number; count: number }>; summary: { total_profit: number; total_sales: number } }; errors: any }>(`/graphs/monthly-profit/${months ? `?months=${months}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: Array<{ month: string; profit: number; sales: number; count: number }>; summary: { total_profit: number; total_sales: number } }; errors: any }>(`/graphs/monthly-profit${months ? `?months=${months}` : ''}`),
 };
 
 export interface Store {
