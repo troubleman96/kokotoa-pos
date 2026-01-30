@@ -22,12 +22,13 @@ const Dashboard = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<{
-    today: { sales: number; transactions: number };
-    this_month: { sales: number; transactions: number };
+    today: { sales: number; profit?: number; transactions: number };
+    this_month: { sales: number; profit?: number; transactions: number };
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);
   const [salesTrend, setSalesTrend] = useState<any[]>([]);
+  const [profitTrend, setProfitTrend] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Subscription State
@@ -37,9 +38,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [dashRes, salesRes] = await Promise.all([
+        const [dashRes, salesRes, profitRes] = await Promise.all([
           graphsApi.getDashboard(),
-          graphsApi.getDailySales(30) // Long term trend as requested
+          graphsApi.getDailySales(30), // Long term sales trend
+          graphsApi.getDailyProfit(30), // Long term profit trend
         ]);
 
         if (dashRes.data) {
@@ -52,6 +54,14 @@ const Dashboard = () => {
             sales: salesRes.data.data[index]
           }));
           setSalesTrend(transformed);
+        }
+
+        if (profitRes.data) {
+          const transformedProfit = profitRes.data.labels.map((label: string, index: number) => ({
+            name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            profit: profitRes.data.data[index]
+          }));
+          setProfitTrend(transformedProfit);
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -148,6 +158,12 @@ const Dashboard = () => {
                   <div className="text-2xl font-display font-bold text-foreground">
                     {formatPrice(dashboardData?.today.sales || 0)}
                   </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}:{' '}
+                    <span className="font-semibold text-primary">
+                      {formatPrice(dashboardData?.today.profit || 0)}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-1 mt-1">
                     <ArrowUpRight className="w-4 h-4 text-primary" />
                     <span className="text-sm text-primary">
@@ -189,6 +205,12 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="text-2xl font-display font-bold text-foreground">
                     {formatPrice(dashboardData?.this_month.sales || 0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {language === 'sw' ? 'Faida ya Mwezi' : 'Profit This Month'}:{' '}
+                    <span className="font-semibold text-primary">
+                      {formatPrice(dashboardData?.this_month.profit || 0)}
+                    </span>
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
                     {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
@@ -294,6 +316,69 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+
+            {/* Profit Trend */}
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                    <CardDescription>
+                      {language === 'sw' ? 'Mwenendo wa faida kwa muda mrefu' : 'Long-term profit trend'}
+                    </CardDescription>
+                  </div>
+                  <div className="p-2 rounded-lg bg-emerald-500/10">
+                    <TrendingUp className="w-5 h-5 text-emerald-500" />
+                  </div>
+                </CardHeader>
+                <CardContent className="h-80 pt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={profitTrend}>
+                      <defs>
+                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        tickFormatter={(value) => `TSh ${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          borderColor: 'hsl(var(--border))',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                        }}
+                        itemStyle={{ color: '#10B981', fontWeight: 'bold' }}
+                        formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Faida' : 'Profit']}
+                        labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="profit"
+                        stroke="#10B981"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorProfit)"
+                        animationDuration={1500}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Quick Summary / Status */}
             {user?.role === 'OWNER' && (

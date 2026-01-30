@@ -24,7 +24,7 @@ const SalesHistory = () => {
     const { language } = useLanguage();
     const { toast } = useToast();
     const [sales, setSales] = useState<Sale[]>([]);
-    const [summary, setSummary] = useState({ total_sales: 0, transaction_count: 0 });
+    const [summary, setSummary] = useState({ total_sales: 0, transaction_count: 0, total_profit: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterMethod, setFilterMethod] = useState<string>('all');
@@ -41,7 +41,20 @@ const SalesHistory = () => {
             const response = await salesApi.list();
             if (response.success) {
                 setSales(response.data.sales);
-                setSummary(response.data.summary);
+                const calculatedProfit = response.data.sales.reduce((acc, sale) => {
+                    const profitValue = typeof sale.total_profit === 'string'
+                        ? parseFloat(sale.total_profit)
+                        : typeof sale.total_profit === 'number'
+                            ? sale.total_profit
+                            : 0;
+                    return acc + (isNaN(profitValue) ? 0 : profitValue);
+                }, 0);
+
+                setSummary({
+                    total_sales: response.data.summary.total_sales,
+                    transaction_count: response.data.summary.transaction_count,
+                    total_profit: response.data.summary.total_profit ?? calculatedProfit,
+                });
             }
         } catch (error: any) {
             console.error('Error fetching sales:', error);
@@ -120,7 +133,13 @@ const SalesHistory = () => {
                                 {formatPrice(summary.total_sales)}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {language === 'sw' ? 'Mtaji na Faida' : 'Revenue across all methods'}
+                                {language === 'sw' ? 'Mtaji na Mauzo yote' : 'Revenue across all methods'}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {language === 'sw' ? 'Jumla ya Faida' : 'Total Profit'}:{' '}
+                                <span className="font-semibold text-primary">
+                                    {formatPrice(summary.total_profit)}
+                                </span>
                             </p>
                         </CardContent>
                     </Card>

@@ -396,7 +396,7 @@ export const salesApi = {
     if (params?.payment_method) queryParams.append('payment_method', params.payment_method);
     if (params?.is_returned !== undefined) queryParams.append('is_returned', String(params.is_returned));
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: { sales: Sale[]; summary: { total_sales: number; transaction_count: number } }; errors: any }>(`/pos/sales/${query ? `?${query}` : ''}`);
+    return api.get<{ success: boolean; message: string; data: { sales: Sale[]; summary: { total_sales: number; transaction_count: number; total_profit?: number } }; errors: any }>(`/pos/sales/${query ? `?${query}` : ''}`);
   },
 
   create: (data: { items: Array<{ product_id: number; quantity: number; unit_price: number; discount_percent?: number }>; payment_method: string; payment_reference?: string; customer_phone?: string; customer_name?: string; notes?: string; discount_amount?: number; tax_amount?: number }) =>
@@ -421,6 +421,14 @@ export const reportsApi = {
     if (params?.date_to) queryParams.append('date_to', params.date_to);
     const query = queryParams.toString();
     return api.get<{ success: boolean; message: string; data: SalesReport; errors: any }>(`/reports/sales/${query ? `?${query}` : ''}`);
+  },
+
+  getProfit: (params?: { date_from?: string; date_to?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.date_from) queryParams.append('date_from', params.date_from);
+    if (params?.date_to) queryParams.append('date_to', params.date_to);
+    const query = queryParams.toString();
+    return api.get<{ success: boolean; message: string; data: ProfitReport; errors: any }>(`/reports/profit/${query ? `?${query}` : ''}`);
   },
 
   getInventory: () =>
@@ -455,7 +463,13 @@ export const graphsApi = {
     api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_cost_value: number; total_retail_value: number; potential_profit: number; item_count: number } }; errors: any }>('/graphs/inventory-value/'),
 
   getDashboard: () =>
-    api.get<{ success: boolean; message: string; data: { today: { sales: number; transactions: number }; this_month: { sales: number; transactions: number }; inventory: { low_stock_count: number; total_products: number }; store: { name: string } }; errors: any }>('/graphs/dashboard/'),
+    api.get<{ success: boolean; message: string; data: { today: { sales: number; profit?: number; transactions: number }; this_month: { sales: number; profit?: number; transactions: number }; inventory: { low_stock_count: number; total_products: number }; store: { name: string } }; errors: any }>('/graphs/dashboard/'),
+
+  getDailyProfit: (days?: number) =>
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; transaction_count: number; average_profit_per_sale: number } }; errors: any }>(`/graphs/daily-profit/${days ? `?days=${days}` : ''}`),
+
+  getMonthlyProfit: (months?: number) =>
+    api.get<{ success: boolean; message: string; data: { data: Array<{ month: string; profit: number; sales: number; count: number }>; summary: { total_profit: number; total_sales: number } }; errors: any }>(`/graphs/monthly-profit/${months ? `?months=${months}` : ''}`),
 };
 
 export interface Store {
@@ -524,6 +538,7 @@ export interface Sale {
   is_returned: boolean;
   returned_at: string | null;
   formatted_total: string;
+  total_profit?: string;
   has_receipt: boolean;
   created_at: string;
   updated_at: string;
@@ -565,6 +580,24 @@ export interface SalesReport {
     total_tax: number;
     average_sale: number;
   };
+}
+
+export interface ProfitReport {
+  summary: {
+    total_profit: number;
+    total_sales: number;
+    profit_margin: number;
+  };
+  daily_profit: Array<{
+    date: string;
+    profit: number;
+    sales: number;
+  }>;
+  category_profit: Array<{
+    category: string;
+    profit: number;
+    revenue: number;
+  }>;
 }
 
 export interface InventoryReport {

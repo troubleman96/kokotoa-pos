@@ -21,7 +21,7 @@ const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#E
 
 const Reports = () => {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics' | 'profit'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [salesData, setSalesData] = useState<{
     sales: Array<{
@@ -60,8 +60,8 @@ const Reports = () => {
     };
   } | null>(null);
   const [dashboardData, setDashboardData] = useState<{
-    today: { sales: number; transactions: number };
-    this_month: { sales: number; transactions: number };
+    today: { sales: number; profit?: number; transactions: number };
+    this_month: { sales: number; profit?: number; transactions: number };
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);
@@ -72,8 +72,15 @@ const Reports = () => {
   const [salesByHour, setSalesByHour] = useState<any[]>([]);
   const [inventoryValue, setInventoryValue] = useState<any[]>([]);
   const [dailyTrend, setDailyTrend] = useState<any[]>([]);
+  const [dailyProfitTrend, setDailyProfitTrend] = useState<any[]>([]);
 
   const [dailySummary, setDailySummary] = useState<any>(null);
+
+  const [profitReport, setProfitReport] = useState<{
+    summary: { total_profit: number; total_sales: number; profit_margin: number };
+    daily_profit: Array<{ date: string; profit: number; sales: number }>;
+    category_profit: Array<{ category: string; profit: number; revenue: number }>;
+  } | null>(null);
 
   const [dateRange, setDateRange] = useState('7');
 
@@ -86,26 +93,29 @@ const Reports = () => {
       const dateFrom = format(subDays(new Date(), days), 'yyyy-MM-dd');
 
       try {
-        const [dashboard, sales, inventory, dailyRec] = await Promise.all([
+        const [dashboard, sales, inventory, dailyRec, profit] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
           reportsApi.getSales({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
           reportsApi.getInventory().catch(() => null),
           reportsApi.getDailySummary().catch(() => null),
+          reportsApi.getProfit({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
         ]);
 
         if (dashboard?.data) setDashboardData(dashboard.data);
         if (sales?.data) setSalesData(sales.data);
         if (inventory?.data) setInventoryData(inventory.data);
         if (dailyRec?.data) setDailySummary(dailyRec.data);
+        if (profit?.data) setProfitReport(profit.data);
 
         // Fetch Analytics specifically if tab is active or just as extra data
-        if (activeTab === 'analytics') {
-          const [daily, top, methods, hours, value] = await Promise.all([
+        if (activeTab === 'analytics' || activeTab === 'profit') {
+          const [daily, top, methods, hours, value, dailyProfit] = await Promise.all([
             graphsApi.getDailySales(days).catch(() => null),
             graphsApi.getTopProducts({ limit: 5, days }).catch(() => null),
             graphsApi.getPaymentMethods(days).catch(() => null),
             graphsApi.getSalesByHour(days).catch(() => null),
             graphsApi.getInventoryValue().catch(() => null),
+            graphsApi.getDailyProfit(days).catch(() => null),
           ]);
 
           if (daily?.data) {
@@ -118,6 +128,12 @@ const Reports = () => {
           if (methods?.data) setSalesByMethod(methods.data.labels.map((l, i) => ({ name: l, value: methods.data.data[i] })));
           if (hours?.data) setSalesByHour(hours.data.labels.map((l, i) => ({ name: l, sales: hours.data.data[i] })));
           if (value?.data) setInventoryValue(value.data.labels.map((l, i) => ({ name: l, value: value.data.data[i] })));
+          if (dailyProfit?.data) {
+            setDailyProfitTrend(dailyProfit.data.labels.map((l, i) => ({
+              name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+              profit: dailyProfit.data.data[i],
+            })));
+          }
         }
       } catch (error) {
         console.error('Error fetching reports:', error);
@@ -186,6 +202,7 @@ const Reports = () => {
     { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview' },
     { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics' },
     { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales' },
+    { id: 'profit', label: language === 'sw' ? 'Faida' : 'Profit' },
     { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory' },
   ];
 
@@ -334,6 +351,12 @@ const Reports = () => {
                   <p className="text-sm text-muted-foreground">
                     {dashboardData?.today.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
                   </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}:{' '}
+                    <span className="font-semibold text-primary">
+                      {formatPrice(dashboardData?.today.profit || 0)}
+                    </span>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -348,6 +371,12 @@ const Reports = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'sw' ? 'Faida ya Mwezi' : 'Profit This Month'}:{' '}
+                    <span className="font-semibold text-primary">
+                      {formatPrice(dashboardData?.this_month.profit || 0)}
+                    </span>
                   </p>
                 </CardContent>
               </Card>
@@ -721,6 +750,111 @@ const Reports = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Profit Tab */}
+        {activeTab === 'profit' && (
+          <div className="space-y-6">
+            {/* Profit Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Card className="card-kokotoa border-emerald-500/20">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Jumla ya Faida' : 'Total Profit'}
+                  </CardTitle>
+                  <DollarSign className="w-4 h-4 text-emerald-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">
+                    {formatPrice(profitReport?.summary.total_profit || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa border-primary/10">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Mauzo kwa Kipindi' : 'Sales for Period'}
+                  </CardTitle>
+                  <TrendingUp className="w-4 h-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">
+                    {formatPrice(profitReport?.summary.total_sales || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa border-primary/10">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Asilimia ya Faida' : 'Profit Margin'}
+                  </CardTitle>
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">
+                    {(profitReport?.summary.profit_margin || 0).toFixed(1)}%
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Profit Trend & Category Profit */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Faida ya kila siku katika kipindi hiki' : 'Daily profit over the selected period'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={dailyProfitTrend}>
+                      <defs>
+                        <linearGradient id="colorProfitReport" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
+                      />
+                      <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfitReport)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Faida kwa Aina ya Bidhaa' : 'Profit by Category'}</CardTitle>
+                  <CardDescription>
+                    {language === 'sw' ? 'Mchanganuo wa faida kwa makundi ya bidhaa' : 'Profit distribution across product categories'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={profitReport?.category_profit?.map((c) => ({ name: c.category, profit: c.profit })) || []}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
+                      />
+                      <Bar dataKey="profit" fill="#10B981" radius={[4, 4, 0, 0]} barSize={40} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>
