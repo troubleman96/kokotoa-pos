@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate('/create-store');
       }
     } catch (error: any) {
-      if (error?.errors?.requires_phone_verification) {
+      if (error?.errors?.requires_phone_verification || error?.requires_phone_verification) {
         navigate('/verify-phone', { state: { phone } });
       }
       throw error;
@@ -113,10 +113,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) => {
     const response = await authApi.register(data);
-    api.setAccessToken(response.data.access_token);
-    api.setRefreshToken(response.data.refresh_token);
-    setUser(response.data.user);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
+
+    // New flow: Registration returns tokens directly
+    if (response.data.access_token) {
+      api.setAccessToken(response.data.access_token);
+      api.setRefreshToken(response.data.refresh_token);
+      setUser(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+
     navigate('/create-store');
   };
 

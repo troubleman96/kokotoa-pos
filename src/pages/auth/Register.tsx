@@ -66,8 +66,9 @@ const Register = () => {
         title: language === 'sw' ? 'Mnakaribishwa KOKOTOA!' : 'Welcome to KOKOTOA!',
         description: language === 'sw'
           ? 'Hongera! Akaunti yako imeundwa na umepewa siku 7 za kujaribu mfumo bure. Hebu tuanzishe duka lako!'
-          : 'Congratulations! Your account has been created and you have a 7-day free trial. Let\'s set up your store!',
+          : 'Congratulations! Your 7-day free trial has started. Let\'s set up your store!',
       });
+      // Navigation is handled in AuthContext (redirects to /create-store)
     } catch (error: any) {
       console.error('Registration error:', error);
       let errorMessage = language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again';

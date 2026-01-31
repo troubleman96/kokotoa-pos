@@ -51,11 +51,18 @@ const Login = () => {
 
       // Check for specific error structure from backend
       if (error?.errors) {
+        if (error.errors.requires_phone_verification) {
+          navigate('/verify-phone', { state: { phone: formData.phone } });
+          return;
+        }
+
         // Handle field-specific errors
         if (error.errors.detail) {
           errorMessage = error.errors.detail;
         } else if (error.errors.non_field_errors) {
           errorMessage = error.errors.non_field_errors[0];
+        } else if (error.errors.subscription) {
+          errorMessage = error.errors.subscription[0];
         } else if (typeof error.errors === 'string') {
           errorMessage = error.errors;
         } else {
