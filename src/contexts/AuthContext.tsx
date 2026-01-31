@@ -88,10 +88,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (phone: string, password: string) => {
-    console.log('[AuthContext] login called for phone:', phone);
+    console.log('[AuthContext] login called for phone:', phone, 'password length:', password.length);
     try {
+      console.log('[AuthContext] Sending login request to API...');
       const response = await authApi.login({ phone, password });
-      console.log('[AuthContext] Login response received:', response);
+      console.log('[AuthContext] Login response received:', JSON.stringify(response, null, 2));
+      console.log('[AuthContext] Setting tokens...');
       api.setAccessToken(response.data.access_token);
       api.setRefreshToken(response.data.refresh_token);
       setUser(response.data.user);
@@ -104,7 +106,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate('/create-store');
       }
     } catch (error: any) {
+      console.error('[AuthContext] Login error caught:', error);
       if (error?.errors?.requires_phone_verification || error?.requires_phone_verification) {
+        console.log('[AuthContext] Redirecting to phone verification');
         navigate('/verify-phone', { state: { phone } });
       }
       throw error;

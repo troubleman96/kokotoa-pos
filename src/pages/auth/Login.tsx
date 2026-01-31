@@ -34,13 +34,16 @@ const Login = () => {
     setIsLoading(true);
     console.log('[Login] Attempting login with phone:', formData.phone);
     try {
+      console.log('[Login] Calling login function...');
       await login(formData.phone, formData.password);
+      console.log('[Login] Login function completed successfully');
       toast({
         title: language === 'sw' ? 'Karibu tena!' : 'Welcome back!',
         description: language === 'sw' ? 'Umeshotumia kwa mafanikio.' : 'You have logged in successfully.',
       });
     } catch (error: any) {
-      console.error('Login failed:', error);
+      console.error('[Login] Login failed with error:', error);
+      console.error('[Login] Error structure:', JSON.stringify(error, null, 2));
 
       // If it's a redirection case (handled in AuthContext), don't show generic error toast
       if (error?.errors?.requires_phone_verification) {
