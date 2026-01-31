@@ -468,10 +468,10 @@ export const graphsApi = {
 
 
   getDailyProfit: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; profit_margin: number } }; errors: any }>(`/graphs/daily-profit/${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; profit_margin: number } }; errors: any }>(`/graphs/daily-profit${days ? `?days=${days}` : ''}`),
 
   getMonthlyProfit: (months?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; average_monthly_profit: number } }; errors: any }>(`/graphs/monthly-profit/${months ? `?months=${months}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; average_monthly_profit: number } }; errors: any }>(`/graphs/monthly-profit${months ? `?months=${months}` : ''}`),
 };
 
 export interface Store {
@@ -540,7 +540,7 @@ export interface Sale {
   is_returned: boolean;
   returned_at: string | null;
   formatted_total: string;
-  total_profit: number; // Changed to number to match API response example
+  total_profit: number | string; // Changed to match API response/type flexibility
   has_receipt: boolean;
   created_at: string;
   updated_at: string;
@@ -557,7 +557,7 @@ export interface SaleItem {
   discount_percent: string;
   discount_amount: string;
   line_total: string;
-  profit: string;
+  profit: string | number;
 }
 
 export interface SalesReport {
