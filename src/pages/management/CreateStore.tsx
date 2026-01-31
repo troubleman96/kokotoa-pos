@@ -46,7 +46,7 @@ const CreateStore = () => {
       }
       // Use fetch directly to get status and data
       const accessToken = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/accounts/stores/`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api-pos.kokotoa.online/api'}/accounts/stores/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
