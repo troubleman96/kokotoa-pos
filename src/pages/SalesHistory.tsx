@@ -42,7 +42,7 @@ const SalesHistory = () => {
             if (response.success && response.data) {
                 const sales = response.data.sales || [];
                 setSales(sales);
-                
+
                 // Calculate profit from individual sales if summary doesn't have it
                 const calculatedProfit = sales.reduce((acc, sale) => {
                     if (sale.total_profit !== undefined && sale.total_profit !== null) {
@@ -56,7 +56,7 @@ const SalesHistory = () => {
                     return acc;
                 }, 0);
 
-                const summary = response.data.summary || {};
+                const summary = response.data.summary || { total_sales: 0, transaction_count: 0 };
                 setSummary({
                     total_sales: summary.total_sales || 0,
                     transaction_count: summary.transaction_count || 0,
@@ -255,6 +255,7 @@ const SalesHistory = () => {
                                                 <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
                                                 <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mteja' : 'Customer'}</th>
                                                 <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Faida' : 'Profit'}</th>
                                                 <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                                                 <th className="p-4 text-center"></th>
                                             </tr>
@@ -297,6 +298,16 @@ const SalesHistory = () => {
                                                                     {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
                                                                 </span>
                                                             )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="font-semibold text-emerald-600">
+                                                                {formatPrice(sale.total_profit || 0)}
+                                                            </span>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {((Number(sale.total_profit || 0) / Number(sale.net_amount || 1)) * 100).toFixed(1)}%
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-right">
@@ -364,6 +375,9 @@ const SalesHistory = () => {
                                                 <div className="text-right">
                                                     <p className={`text-base font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
                                                         {sale.formatted_total}
+                                                    </p>
+                                                    <p className="text-xs font-medium text-emerald-500">
+                                                        {formatPrice(sale.total_profit || 0)}
                                                     </p>
                                                 </div>
                                             </div>

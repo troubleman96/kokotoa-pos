@@ -658,6 +658,34 @@ const Reports = () => {
                 </CardContent>
               </Card>
 
+              {/* Daily Profit Trend */}
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                  <CardDescription>{language === 'sw' ? `Mwenendo wa faida kwa muda mrefu` : `Profit trend over the selected period`}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={dailyProfitTrend}>
+                      <defs>
+                        <linearGradient id="colorProfitDetailed" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
+                      />
+                      <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfitDetailed)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
               {/* Payment Methods Breakdown */}
               <Card className="card-kokotoa">
                 <CardHeader>

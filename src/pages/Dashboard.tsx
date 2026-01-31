@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   ShoppingCart, Package, BarChart3, Settings,
   TrendingUp, AlertTriangle, DollarSign,
-  ArrowUpRight, TrendingDown, Users, ArrowRight, Calendar
+  ArrowUpRight, TrendingDown, Users, ArrowRight, Calendar, PiggyBank, BarChart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar, Legend
 } from 'recharts';
 import TrialBanner from '@/components/subscription/TrialBanner';
 import UpgradeModal from '@/components/subscription/UpgradeModal';
@@ -22,13 +22,15 @@ const Dashboard = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<{
-    today: { sales: number; profit?: number; transactions: number };
-    this_month: { sales: number; profit?: number; transactions: number };
+    today: { sales: number; profit: number; transactions: number; profit_margin: number };
+    this_month: { sales: number; profit: number; transactions: number; profit_margin: number };
     inventory: { low_stock_count: number; total_products: number };
     store: { name: string };
   } | null>(null);
   const [salesTrend, setSalesTrend] = useState<any[]>([]);
-  const [profitTrend, setProfitTrend] = useState<any[]>([]);
+  const [dailyProfitTrend, setDailyProfitTrend] = useState<any[]>([]);
+  const [monthlyProfitTrend, setMonthlyProfitTrend] = useState<any[]>([]);
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Subscription State
@@ -38,10 +40,11 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [dashRes, salesRes, profitRes] = await Promise.all([
+        const [dashRes, salesRes, profitRes, monthlyRes] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
-          graphsApi.getDailySales(30).catch(() => null), // Long term sales trend
-          graphsApi.getDailyProfit(30).catch(() => null), // Long term profit trend
+          graphsApi.getDailySales(7).catch(() => null),
+          graphsApi.getDailyProfit(7).catch(() => null),
+          graphsApi.getMonthlyProfit(6).catch(() => null),
         ]);
 
         if (dashRes?.data) {
@@ -51,24 +54,26 @@ const Dashboard = () => {
           console.warn('[Dashboard] Dashboard API returned null');
         }
 
-        if (salesRes?.data) {
-          const transformed = salesRes.data.labels.map((label: string, index: number) => ({
+        // Process Daily Data for Comparison
+        if (salesRes?.data && profitRes?.data) {
+          const combinedData = salesRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-            sales: salesRes.data.data[index]
+            sales: salesRes.data.data[index] || 0,
+            profit: profitRes.data.data[index] || 0
           }));
-          setSalesTrend(transformed);
+          setComparisonData(combinedData);
+          setSalesTrend(combinedData);
+          setDailyProfitTrend(combinedData);
         }
 
-        if (profitRes?.data) {
-          console.log('[Dashboard] Profit trend data:', profitRes.data);
-          const transformedProfit = profitRes.data.labels.map((label: string, index: number) => ({
-            name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-            profit: profitRes.data.data[index]
+        if (monthlyRes?.data) {
+          const monthlyData = monthlyRes.data.labels.map((label: string, index: number) => ({
+            name: label,
+            profit: monthlyRes.data.data[index] || 0
           }));
-          setProfitTrend(transformedProfit);
-        } else if (profitRes === null) {
-          console.warn('[Dashboard] Daily profit API returned null - endpoint may not be available');
+          setMonthlyProfitTrend(monthlyData);
         }
+
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -204,6 +209,30 @@ const Dashboard = () => {
               <Card className="card-kokotoa">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}
+                  </CardTitle>
+                  <PiggyBank className="w-4 h-4 text-emerald-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-emerald-600">
+                    {formatPrice(dashboardData?.today.profit || 0)}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm font-medium text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                      {dashboardData?.today.profit_margin?.toFixed(1) || '0.0'}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {language === 'sw' ? 'margin' : 'margin'}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
                     {language === 'sw' ? 'Mauzo ya Mwezi' : 'This Month'}
                   </CardTitle>
                   <TrendingUp className="w-4 h-4 text-primary" />
@@ -213,13 +242,16 @@ const Dashboard = () => {
                     {formatPrice(dashboardData?.this_month.sales || 0)}
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Faida ya Mwezi' : 'Profit This Month'}:{' '}
-                    <span className="font-semibold text-primary">
+                    {language === 'sw' ? 'Faida' : 'Profit'}:{' '}
+                    <span className="font-semibold text-emerald-500">
                       {formatPrice(dashboardData?.this_month.profit || 0)}
                     </span>
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Margin:{' '}
+                    <span className="font-semibold text-emerald-500">
+                      {dashboardData?.this_month.profit_margin?.toFixed(1) || '0.0'}%
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -323,27 +355,31 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Profit Trend */}
-            {user?.role === 'OWNER' && profitTrend.length > 0 && (
+            {/* Sales vs Profit Comparison Chart */}
+            {user?.role === 'OWNER' && (
               <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                    <CardTitle>{language === 'sw' ? 'Mauzo vs Faida' : 'Sales vs Profit'}</CardTitle>
                     <CardDescription>
-                      {language === 'sw' ? 'Mwenendo wa faida kwa muda mrefu' : 'Long-term profit trend'}
+                      {language === 'sw' ? 'Mulinganisho wa mauzo na faida kwa siku 7 zilizopita' : 'Sales vs Profit comparison for the last 7 days'}
                     </CardDescription>
                   </div>
-                  <div className="p-2 rounded-lg bg-emerald-500/10">
-                    <TrendingUp className="w-5 h-5 text-emerald-500" />
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <BarChart className="w-5 h-5 text-blue-500" />
                   </div>
                 </CardHeader>
                 <CardContent className="h-80 pt-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={profitTrend}>
+                    <AreaChart data={comparisonData}>
                       <defs>
-                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                        <linearGradient id="colorSalesComp" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorProfitComp" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
@@ -367,20 +403,83 @@ const Dashboard = () => {
                           borderRadius: '12px',
                           boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                         }}
-                        itemStyle={{ color: '#10B981', fontWeight: 'bold' }}
-                        formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Faida' : 'Profit']}
                         labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                      />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="sales"
+                        name={language === 'sw' ? 'Mauzo' : 'Sales'}
+                        stroke="#3b82f6"
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#colorSalesComp)"
                       />
                       <Area
                         type="monotone"
                         dataKey="profit"
-                        stroke="#10B981"
-                        strokeWidth={3}
+                        name={language === 'sw' ? 'Faida' : 'Profit'}
+                        stroke="#10b981"
+                        strokeWidth={2}
                         fillOpacity={1}
-                        fill="url(#colorProfit)"
-                        animationDuration={1500}
+                        fill="url(#colorProfitComp)"
                       />
                     </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Monthly Profit Bar Chart */}
+            {user?.role === 'OWNER' && monthlyProfitTrend.length > 0 && (
+              <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida (Miezi 6)' : 'Profit Trend (6 Months)'}</CardTitle>
+                    <CardDescription>
+                      {language === 'sw' ? 'Faida iliyopatikana kila mwezi' : 'Monthly profit performance'}
+                    </CardDescription>
+                  </div>
+                  <div className="p-2 rounded-lg bg-purple-500/10">
+                    <TrendingUp className="w-5 h-5 text-purple-500" />
+                  </div>
+                </CardHeader>
+                <CardContent className="h-80 pt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart data={monthlyProfitTrend}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        tickFormatter={(value) => `TSh ${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
+                      />
+                      <Tooltip
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          borderColor: 'hsl(var(--border))',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                        }}
+                        itemStyle={{ color: '#a855f7', fontWeight: 'bold' }}
+                        formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Faida' : 'Profit']}
+                        labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                      />
+                      <Bar
+                        dataKey="profit"
+                        fill="#a855f7"
+                        radius={[4, 4, 0, 0]}
+                        barSize={40}
+                      />
+                    </RechartsBarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
