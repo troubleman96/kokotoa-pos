@@ -78,6 +78,7 @@ const Reports = () => {
   const [dailySummary, setDailySummary] = useState<any>(null);
 
   const [profitReport, setProfitReport] = useState<any | null>(null);
+  const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
 
   const [dateRange, setDateRange] = useState('7');
 
@@ -111,13 +112,14 @@ const Reports = () => {
 
         // Fetch Analytics specifically if tab is active or just as extra data
         if (activeTab === 'analytics' || activeTab === 'profit') {
-          const [daily, top, methods, hours, value, dailyProfit] = await Promise.all([
+          const [daily, top, methods, hours, value, dailyProfit, lowStock] = await Promise.all([
             graphsApi.getDailySales(days).catch(() => null),
             graphsApi.getTopProducts({ limit: 5, days }).catch(() => null),
             graphsApi.getPaymentMethods(days).catch(() => null),
             graphsApi.getSalesByHour(days).catch(() => null),
             graphsApi.getInventoryValue().catch(() => null),
             graphsApi.getDailyProfit(days).catch(() => null),
+            graphsApi.getLowStock().catch(() => null),
           ]);
 
           if (daily?.data) {
@@ -135,6 +137,9 @@ const Reports = () => {
               name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
               profit: dailyProfit.data.data[i],
             })));
+          }
+          if (lowStock?.data) {
+            setLowStockProducts(lowStock.data.data || []);
           }
         }
       } catch (error) {
@@ -856,6 +861,39 @@ const Reports = () => {
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+
+              {/* Low Stock Analysis */}
+              {lowStockProducts.length > 0 && (
+                <Card className="card-kokotoa border-red-100 dark:border-red-900/30">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div>
+                      <CardTitle className="text-red-500 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        {language === 'sw' ? 'Bidhaa Chache (Low Stock)' : 'Low Stock Analysis'}
+                      </CardTitle>
+                      <CardDescription>
+                        {language === 'sw' ? 'Bidhaa zilizofikia kiwango cha chini' : 'Products below minimum threshold'}
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2">
+                      {lowStockProducts.map((p) => (
+                        <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+                          <div>
+                            <p className="text-sm font-bold">{p.name}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase">{p.category} • SKU: {p.sku}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-red-500">{p.current_stock} {p.unit}</p>
+                            <p className="text-[10px] text-muted-foreground">Min: {p.minimum_stock}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Category Value Breakdown */}
@@ -1122,7 +1160,7 @@ const Reports = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </DashboardLayout >
   );
 };
 
