@@ -275,13 +275,13 @@ const Reports = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {tabs.map((tab) => (
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? 'default' : 'outline'}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`whitespace-nowrap flex-shrink-0 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
+              className={`whitespace-nowrap flex-shrink-0 shrink-0 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
               size="sm"
             >
               {tab.label}
@@ -386,7 +386,7 @@ const Reports = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 overflow-hidden">
               <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
                   <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Leo' : "Today"}</CardTitle>
@@ -443,7 +443,7 @@ const Reports = () => {
                   <AlertTriangle className="w-4 h-4 text-destructive opacity-50" />
                 </CardHeader>
                 <CardContent className="pb-3 sm:pb-6">
-                  <div className="text-lg sm:text-2xl font-black text-destructive leading-tight">
+                  <div className="text-base sm:text-2xl font-black text-destructive leading-tight truncate">
                     {dashboardData?.inventory.low_stock_count || 0}
                   </div>
                   <div className="mt-1">
@@ -465,10 +465,10 @@ const Reports = () => {
             ) : salesData ? (
               <>
                 {/* Sales Summary */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <Card className="card-kokotoa border-primary/20">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 overflow-hidden">
+                  <Card className="card-kokotoa border-primary/20 overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider truncate">
                         {language === 'sw' ? 'Mauzo' : 'Sales'}
                       </CardTitle>
                       <DollarSign className="w-4 h-4 text-primary opacity-50" />
@@ -720,8 +720,8 @@ const Reports = () => {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4 sm:space-y-6 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Daily Sales Trend */}
               <Card className="card-kokotoa">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -846,12 +846,12 @@ const Reports = () => {
                   <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Bidhaa Zinazouzika' : 'Top Selling Products'}</CardTitle>
                   <CardDescription className="text-xs">{language === 'sw' ? 'Bidhaa zilizouzwa zaidi kwa idadi' : 'Best performing products by quantity'}</CardDescription>
                 </CardHeader>
-                <CardContent className="h-64 sm:h-80">
+                <CardContent className="h-64 sm:h-80 pb-6">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topProducts} layout="vertical" margin={{ left: 40 }}>
+                    <BarChart data={topProducts} layout="vertical" margin={{ left: 10, right: 10, top: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.1} />
                       <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis dataKey="name" type="category" fontSize={10} width={100} tickLine={false} axisLine={false} />
+                      <YAxis dataKey="name" type="category" fontSize={10} width={80} tickLine={false} axisLine={false} hide={language !== 'en'} />
                       <Tooltip
                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
                       />
@@ -918,7 +918,7 @@ const Reports = () => {
             </div>
 
             {/* Category Value Breakdown */}
-            <Card className="card-kokotoa lg:col-span-2">
+            <Card className="card-kokotoa lg:col-span-2 overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Thamani ya Bidhaa kwa Aina' : 'Inventory Value by Category'}</CardTitle>
                 <CardDescription className="text-xs">{language === 'sw' ? 'Thamani ya bidhaa zilizopo ghala kwa sasa' : 'Total retail value distribution across categories'}</CardDescription>
@@ -951,7 +951,7 @@ const Reports = () => {
             ) : profitReport ? (
               <>
                 {/* Profit Summary */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 overflow-hidden">
                   <Card className="card-kokotoa border-emerald-500/20 overflow-hidden relative">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
                       <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
