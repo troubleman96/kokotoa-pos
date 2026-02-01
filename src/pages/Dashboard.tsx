@@ -285,15 +285,15 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
             {/* Sales Chart */}
             <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
                   <CardTitle>{language === 'sw' ? 'Mwenendo wa Mauzo' : 'Sales Trend'}</CardTitle>
                   <CardDescription>
                     {language === 'sw' ? 'Mwenendo wa mauzo kwa muda mrefu' : 'Long-term sales trend'}
                   </CardDescription>
                 </div>
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <TrendingUp className="w-5 h-5 text-primary" />
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <TrendingUp className="w-5 h-5 text-blue-500" />
                 </div>
               </CardHeader>
               <CardContent className="h-80 pt-4">
@@ -301,8 +301,8 @@ const Dashboard = () => {
                   <AreaChart data={salesTrend}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
@@ -326,14 +326,14 @@ const Dashboard = () => {
                         borderRadius: '12px',
                         boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                       }}
-                      itemStyle={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}
+                      itemStyle={{ color: '#3B82F6', fontWeight: 'bold' }}
                       formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Mauzo' : 'Sales']}
                       labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
                     />
                     <Area
                       type="monotone"
                       dataKey="sales"
-                      stroke="hsl(var(--primary))"
+                      stroke="#3B82F6"
                       strokeWidth={3}
                       fillOpacity={1}
                       fill="url(#colorSales)"
@@ -354,11 +354,11 @@ const Dashboard = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
-                      <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
+                      <span className="font-bold text-blue-500">{formatPrice(dashboardData?.today.sales || 0)}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary animate-pulse"
+                        className="h-full bg-blue-500 animate-pulse"
                         style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
                       />
                     </div>
@@ -367,11 +367,11 @@ const Dashboard = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
-                      <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
+                      <span className="font-bold text-blue-500">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-foreground"
+                        className="h-full bg-blue-500"
                         style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
                       />
                     </div>
