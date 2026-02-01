@@ -198,6 +198,19 @@ const Reports = () => {
     exportToCSV(exportData, 'inventory_report');
   };
 
+  const handleProfitExport = () => {
+    if (!profitReport?.profit_transactions) return;
+    const exportData = profitReport.profit_transactions.map((tx: any) => ({
+      Transaction: tx.transaction_number,
+      Date: format(new Date(tx.date), 'yyyy-MM-dd HH:mm'),
+      'Net Amount': tx.net_amount,
+      'Total Profit': tx.total_profit,
+      'Profit Margin': `${tx.profit_margin.toFixed(1)}%`,
+      Cashier: tx.cashier
+    }));
+    exportToCSV(exportData, 'profit_report');
+  };
+
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
   const tabs = [
@@ -951,6 +964,10 @@ const Reports = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>{language === 'sw' ? 'Mchanganuo wa Faida kwa Muamala' : 'Profit Breakdown by Transaction'}</CardTitle>
+                      <Button variant="outline" size="sm" onClick={handleProfitExport} disabled={!profitReport?.profit_transactions.length}>
+                        <Download className="w-4 h-4 mr-2" />
+                        {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
