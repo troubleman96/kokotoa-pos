@@ -28,9 +28,10 @@ const HeroSection = () => {
 
             {/* Title */}
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="text-foreground">{t('hero.title').split(' ').slice(0, -2).join(' ')}</span>
-              <span className="inline-block px-3 py-1 ml-2 bg-primary text-primary-foreground rounded-lg -rotate-1 transform transition-transform hover:rotate-0">
-                {t('hero.title').split(' ').slice(-2).join(' ')}
+              <span className="text-foreground">{t('hero.title').split(' ').slice(0, 4).join(' ')}</span>
+              <br className="md:hidden" />
+              <span className="inline-block px-3 py-1 md:ml-2 bg-primary text-primary-foreground rounded-lg -rotate-1 transform transition-transform hover:rotate-0 mt-2 md:mt-0">
+                {t('hero.title').split(' ').slice(4).join(' ')}
               </span>
             </h1>
 
@@ -40,21 +41,21 @@ const HeroSection = () => {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <Link to="/login">
-                <Button size="lg" className="btn-kokotoa text-primary-foreground px-8 h-14 text-lg">
-                  <span className="relative z-10 flex items-center gap-2">
+            <div className="flex flex-row items-center gap-3 sm:gap-4 overflow-x-visible">
+              <Link to="/login" className="flex-1 sm:flex-initial">
+                <Button size="lg" className="btn-kokotoa text-primary-foreground w-full h-12 md:h-14 px-4 sm:px-8 text-sm md:text-lg">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
                     {t('hero.cta')}
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                   </span>
                 </Button>
               </Link>
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 px-8 text-lg border-border hover:bg-muted"
+                className="flex-1 sm:flex-initial h-12 md:h-14 px-4 sm:px-8 text-sm md:text-lg border-border hover:bg-muted"
               >
-                <Play className="w-5 h-5 mr-2" />
+                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                 {t('hero.demo')}
               </Button>
             </div>
