@@ -4,7 +4,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const splitIndex = language === 'en' ? 3 : 4;
 
   return (
     <section className="relative min-h-screen flex items-center hero-pattern overflow-hidden">
@@ -28,10 +30,10 @@ const HeroSection = () => {
 
             {/* Title */}
             <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="text-foreground">{t('hero.title').split(' ').slice(0, 4).join(' ')}</span>
+              <span className="text-foreground">{t('hero.title').split(' ').slice(0, splitIndex).join(' ')}</span>
               <br className="md:hidden" />
               <span className="inline-block px-3 py-1 md:ml-2 bg-primary text-primary-foreground rounded-lg -rotate-1 transform transition-transform hover:rotate-0 mt-2 md:mt-0">
-                {t('hero.title').split(' ').slice(4).join(' ')}
+                {t('hero.title').split(' ').slice(splitIndex).join(' ')}
               </span>
             </h1>
 
