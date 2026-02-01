@@ -468,7 +468,7 @@ export const graphsApi = {
 
 
   getDailyProfit: (days?: number) =>
-    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; profit_margin: number } }; errors: any }>(`/graphs/daily-profit${days ? `?days=${days}` : ''}`),
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_profit: number; total_sales: number; transaction_count: number; average_profit: number; profit_margin: number } }; errors: any }>(`/graphs/daily-profit${days ? `?days=${days}` : ''}`),
 
   getMonthlyProfit: (months?: number) =>
     api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; average_monthly_profit: number } }; errors: any }>(`/graphs/monthly-profit${months ? `?months=${months}` : ''}`),

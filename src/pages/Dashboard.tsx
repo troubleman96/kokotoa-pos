@@ -56,19 +56,24 @@ const Dashboard = () => {
           console.warn('[Dashboard] Dashboard API returned null');
         }
 
-        // Process Daily Data
+        // Process Daily Sales Data
         if (salesRes?.data) {
+          console.log('[Dashboard] Daily Sales Labels:', salesRes.data.labels);
+          console.log('[Dashboard] Daily Sales Data:', salesRes.data.data);
           const salesData = salesRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-            sales: salesRes.data.data[index] || 0
+            sales: Number(salesRes.data.data[index] || 0)
           }));
           setSalesTrend(salesData);
         }
 
+        // Process Daily Profit Data
         if (profitRes?.data) {
+          console.log('[Dashboard] Daily Profit Labels:', profitRes.data.labels);
+          console.log('[Dashboard] Daily Profit Data:', profitRes.data.data);
           const profitData = profitRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-            profit: profitRes.data.data[index] || 0
+            profit: Number(profitRes.data.data[index] || 0)
           }));
           setDailyProfitTrend(profitData);
         }
@@ -325,7 +330,7 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={salesTrend}>
                     <defs>
-                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient id="colorSalesArea" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
                         <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                       </linearGradient>
@@ -361,7 +366,7 @@ const Dashboard = () => {
                       stroke="#3B82F6"
                       strokeWidth={3}
                       fillOpacity={1}
-                      fill="url(#colorSales)"
+                      fill="url(#colorSalesArea)"
                       animationDuration={1500}
                     />
                   </AreaChart>
@@ -431,7 +436,7 @@ const Dashboard = () => {
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={dailyProfitTrend}>
                       <defs>
-                        <linearGradient id="colorProfitMain" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id="colorProfitArea" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
                           <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                         </linearGradient>
@@ -467,7 +472,7 @@ const Dashboard = () => {
                         stroke="hsl(var(--primary))"
                         strokeWidth={3}
                         fillOpacity={1}
-                        fill="url(#colorProfitMain)"
+                        fill="url(#colorProfitArea)"
                         animationDuration={1500}
                       />
                     </AreaChart>
