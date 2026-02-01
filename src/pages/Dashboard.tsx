@@ -257,34 +257,26 @@ const Dashboard = () => {
               </Card>
             )}
 
-            <Card className={`card-kokotoa ${(dashboardData?.inventory.low_stock_count || 0) > 0 ? 'border-destructive/50' : ''}`}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {language === 'sw' ? 'Bidhaa Zinakwisha' : 'Low Stock Alert'}
-                </CardTitle>
-                <AlertTriangle className={`w-4 h-4 ${(dashboardData?.inventory.low_stock_count || 0) > 0 ? 'text-destructive' : 'text-primary'}`} />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-display font-bold ${(dashboardData?.inventory.low_stock_count || 0) > 0 ? 'text-destructive' : 'text-foreground'}`}>
-                  {dashboardData?.inventory.low_stock_count || 0}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {language === 'sw' ? 'zinahitaji kuongezwa' : 'need restocking'}
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
 
           {(dashboardData?.inventory.low_stock_count || 0) > 0 && (
             <Card className="card-kokotoa mb-6 border-destructive/30">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-destructive">
-                    <AlertTriangle className="w-5 h-5" />
-                    {language === 'sw'
-                      ? `Tahadhari: Bidhaa ${dashboardData?.inventory.low_stock_count} zinahitaji kuongezwa!`
-                      : `Warning: ${dashboardData?.inventory.low_stock_count} products need restocking!`}
-                  </CardTitle>
+                  <div className="flex flex-col gap-1">
+                    <CardTitle className="flex items-center gap-2 text-destructive text-lg">
+                      <AlertTriangle className="w-5 h-5" />
+                      {language === 'sw' ? 'Tahadhari' : 'Warning'}
+                    </CardTitle>
+                    <p className="text-sm font-medium text-destructive/80 pl-7 leading-snug">
+                      {language === 'sw' ? (
+                        <>Bidhaa <span className="font-bold text-foreground">{dashboardData?.inventory.low_stock_count || 0}</span> <br />zinahitaji kuongezwa!</>
+                      ) : (
+                        <><span className="font-bold text-foreground">{dashboardData?.inventory.low_stock_count || 0}</span> products <br />need restocking!</>
+                      )}
+                    </p>
+                  </div>
                   <Link to="/inventory?low_stock=true">
                     <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive">
                       {language === 'sw' ? 'Tazama Zote' : 'View All'}
