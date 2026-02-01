@@ -169,7 +169,7 @@ const Login = () => {
               </Button>
             </form>
 
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+            <div className="mt-6 flex items-center justify-center gap-4 text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="rounded border-border" />
                 <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
