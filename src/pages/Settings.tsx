@@ -18,7 +18,7 @@ const SettingsPage = () => {
   const { settings, updateSetting } = useSettings();
   const { user, logout, refreshUser, updateUser, updateEmail } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'sales' | 'appearance'>('profile');
   const [showMobileMenu, setShowMobileMenu] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -240,6 +240,7 @@ const SettingsPage = () => {
     { id: 'password', label: language === 'sw' ? 'Nenosiri' : 'Password', icon: Lock },
     ...(user?.role === 'OWNER' ? [{ id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store }] : []),
     { id: 'notifications', label: language === 'sw' ? 'Arifa' : 'Notifications', icon: Bell },
+    { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales', icon: CreditCard },
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
   ];
 
@@ -614,30 +615,49 @@ const SettingsPage = () => {
                   </label>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        )}
 
-              <div className="pt-4 border-t border-border/50">
-                <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4 tracking-wider">
-                  {language === 'sw' ? 'Mipangilio ya Mauzo' : 'Sales Settings'}
-                </h4>
-                <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-xl gap-4">
-                  <div>
-                    <span className="font-bold text-sm sm:text-base leading-tight block">
-                      {language === 'sw' ? 'Onyesha Risiti Baada ya Mauzo' : 'Show Receipt After Sale'}
-                    </span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">
-                      {language === 'sw' ? 'Fungua dirisha la risiti kiotomatiki mauzo yanapokamilika' : 'Automatically open receipt modal when sale is complete'}
-                    </span>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={settings.showReceiptAfterSale}
-                      onChange={(e) => updateSetting('showReceiptAfterSale', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                  </label>
+        {/* Sales Tab */}
+        {activeTab === 'sales' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
+          <Card className="card-kokotoa">
+            <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
+              <div className="flex items-center gap-3 mb-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
+                  <span className="flex items-center gap-1 text-primary font-bold">
+                    <CreditCard className="w-4 h-4" />
+                    {language === 'sw' ? 'Back' : 'Back'}
+                  </span>
+                </Button>
+              </div>
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <CreditCard className="w-5 h-5 hidden md:flex" />
+                {language === 'sw' ? 'Mipangilio ya Mauzo' : 'Sales Settings'}
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                {language === 'sw' ? 'Dhibiti jinsi mfumo wa mauzo unavyofanya kazi' : 'Manage how the POS system functions'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
+              <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-xl gap-4">
+                <div>
+                  <span className="font-bold text-sm sm:text-base leading-tight block">
+                    {language === 'sw' ? 'Onyesha Risiti Baada ya Mauzo' : 'Show Receipt After Sale'}
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">
+                    {language === 'sw' ? 'Fungua dirisha la risiti kiotomatiki mauzo yanapokamilika' : 'Automatically open receipt modal when sale is complete'}
+                  </span>
                 </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={settings.showReceiptAfterSale}
+                    onChange={(e) => updateSetting('showReceiptAfterSale', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                </label>
               </div>
             </CardContent>
           </Card>
