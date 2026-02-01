@@ -123,21 +123,16 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
-              <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-display font-bold text-3xl text-foreground">KOKOTOA</span>
-          </Link>
-          <p className="text-muted-foreground mt-2">{language === 'sw' ? 'Mfumo wa kisasa wa mauzo' : 'Modern POS System'}</p>
-        </div>
 
         <Card className="card-kokotoa">
           <CardHeader className="text-center pb-2">
-            <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Jisajili Sasa' : 'Create Account'}</CardTitle>
-            <CardDescription>{language === 'sw' ? 'Fungua akaunti yako ya KOKOTOA' : 'Open your KOKOTOA account'}</CardDescription>
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
+                <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+              </div>
+              <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Jisajili Sasa' : 'Create Account'}</CardTitle>
+            </div>
+            <CardDescription className="mt-2">{language === 'sw' ? 'Fungua akaunti yako ya KOKOTOA' : 'Open your KOKOTOA account'}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

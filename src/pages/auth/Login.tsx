@@ -97,7 +97,7 @@ const Login = () => {
 
         <Card className="card-kokotoa">
           <CardHeader className="text-center pb-2">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center">
               <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
                 <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
               </div>
@@ -106,7 +106,7 @@ const Login = () => {
             <CardDescription>{language === 'sw' ? 'Ingia kwenye akaunti yako ya Kokotoa' : 'Log in to your Kokotoa account'}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 mt-6">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
                   {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
@@ -128,9 +128,14 @@ const Login = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {language === 'sw' ? 'Nenosiri' : 'Password'}
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-foreground block">
+                    {language === 'sw' ? 'Nenosiri' : 'Password'}
+                  </label>
+                  <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                    {language === 'sw' ? 'Umesahau nenosiri?' : 'Forgot password?'}
+                  </Link>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -155,15 +160,6 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="rounded border-border" />
-                  <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
-                </label>
-                <Link to="/forgot-password" className="text-primary hover:underline">
-                  {language === 'sw' ? 'Umesahau nenosiri?' : 'Forgot password?'}
-                </Link>
-              </div>
 
               <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
                 {language === 'sw' ? 'Ingia' : 'Sign In'}
@@ -172,6 +168,12 @@ const Login = () => {
             </form>
 
             <div className="mt-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input type="checkbox" className="rounded border-border" />
+                  <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
+                </label>
+              </div>
               <p className="text-muted-foreground">
                 {language === 'sw' ? 'Huna akaunti?' : "Don't have an account?"}{' '}
                 <Link to="/register" className="text-primary font-medium hover:underline">

@@ -18,6 +18,8 @@ export const translations: Translations = {
   'nav.pos': { sw: 'Mfumo wa Mauzo', en: 'POS System' },
   'nav.login': { sw: 'Ingia', en: 'Login' },
   'nav.getStarted': { sw: 'Anza Sasa', en: 'Get Started' },
+  'nav.terms': { sw: 'Masharti', en: 'Terms' },
+  'nav.privacy': { sw: 'Sera ya Faragha', en: 'Privacy' },
 
   // Hero Section
   'hero.title': { sw: 'Mfumo wa Kisasa wa Mauzo na Hesabu', en: 'Modern POS & Inventory System' },
