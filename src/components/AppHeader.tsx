@@ -7,9 +7,10 @@ interface AppHeaderProps {
     onMenuToggle: () => void;
     onNotificationClick: () => void;
     notificationCount?: number;
+    headerActions?: React.ReactNode;
 }
 
-const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notificationCount = 0 }: AppHeaderProps) => {
+const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notificationCount = 0, headerActions }: AppHeaderProps) => {
     return (
         <header className="bg-card border-b border-border p-4 lg:p-6">
             <div className="flex items-center justify-between">
@@ -29,11 +30,12 @@ const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notific
                     </div>
                 </div>
 
-                <div className="relative">
-                    <Button variant="outline" size="icon" className="relative" onClick={onNotificationClick}>
+                <div className="flex items-center gap-2 relative">
+                    {headerActions}
+                    <Button variant="outline" size="icon" className="relative transition-all hover:bg-primary/5 border-primary/10" onClick={onNotificationClick}>
                         <Bell className="w-5 h-5" />
                         {notificationCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card">
                                 {notificationCount}
                             </span>
                         )}

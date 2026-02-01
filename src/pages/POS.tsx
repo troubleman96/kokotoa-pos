@@ -193,6 +193,24 @@ const POS = () => {
         month: 'long',
         day: 'numeric'
       })}
+      headerActions={
+        cart.length > 0 && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="lg:hidden relative transition-all hover:bg-primary/5 border-primary/10"
+            onClick={() => {
+              const element = document.getElementById('cart-section');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <ShoppingCart className="w-5 h-5 text-primary" />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card animate-in zoom-in">
+              {cart.length}
+            </span>
+          </Button>
+        )
+      }
     >
       <div className="flex flex-col lg:flex-row gap-4 h-full">
         {/* Products Section */}
@@ -278,7 +296,7 @@ const POS = () => {
         </div>
 
         {/* Cart Section */}
-        <div className="w-full lg:w-96 bg-card border border-border rounded-xl flex flex-col">
+        <div id="cart-section" className="w-full lg:w-96 bg-card border border-border rounded-xl flex flex-col scroll-mt-20">
           <div className="p-4 lg:p-6 border-b border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">

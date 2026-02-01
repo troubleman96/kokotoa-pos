@@ -16,6 +16,7 @@ interface DashboardLayoutProps {
         time: string;
         read: boolean;
     }>;
+    headerActions?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -23,7 +24,8 @@ const DashboardLayout = ({
     title,
     subtitle,
     notificationCount = 0,
-    notifications = []
+    notifications = [],
+    headerActions
 }: DashboardLayoutProps) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -44,6 +46,7 @@ const DashboardLayout = ({
                     onMenuToggle={() => setIsSidebarOpen(true)}
                     onNotificationClick={() => setIsNotificationOpen(true)}
                     notificationCount={notificationCount}
+                    headerActions={headerActions}
                 />
 
                 <main className="flex-1 p-4 lg:p-6 overflow-auto">
