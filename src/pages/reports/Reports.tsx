@@ -5,7 +5,8 @@ import { reportsApi, graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package, AlertTriangle, CreditCard
+  DollarSign, TrendingUp, Calendar, Download, BarChart3, Package, AlertTriangle, CreditCard,
+  PiggyBank, Percent
 } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -76,11 +77,7 @@ const Reports = () => {
 
   const [dailySummary, setDailySummary] = useState<any>(null);
 
-  const [profitReport, setProfitReport] = useState<{
-    summary: { total_profit: number; total_sales: number; profit_margin: number };
-    daily_profit: Array<{ date: string; profit: number; sales: number }>;
-    category_profit: Array<{ category: string; profit: number; revenue: number }>;
-  } | null>(null);
+  const [profitReport, setProfitReport] = useState<any | null>(null);
 
   const [dateRange, setDateRange] = useState('7');
 
@@ -826,18 +823,21 @@ const Reports = () => {
             ) : profitReport ? (
               <>
                 {/* Profit Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <Card className="card-kokotoa border-emerald-500/20">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                       <CardTitle className="text-sm font-medium text-muted-foreground">
                         {language === 'sw' ? 'Jumla ya Faida' : 'Total Profit'}
                       </CardTitle>
-                      <DollarSign className="w-4 h-4 text-emerald-500" />
+                      <PiggyBank className="w-4 h-4 text-emerald-500" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-display font-bold text-foreground">
                         {formatPrice(profitReport.summary?.total_profit || 0)}
                       </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {profitReport.summary?.total_transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -846,7 +846,7 @@ const Reports = () => {
                       <CardTitle className="text-sm font-medium text-muted-foreground">
                         {language === 'sw' ? 'Mauzo kwa Kipindi' : 'Sales for Period'}
                       </CardTitle>
-                      <TrendingUp className="w-4 h-4 text-primary" />
+                      <DollarSign className="w-4 h-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-display font-bold text-foreground">
@@ -860,52 +860,119 @@ const Reports = () => {
                       <CardTitle className="text-sm font-medium text-muted-foreground">
                         {language === 'sw' ? 'Asilimia ya Faida' : 'Profit Margin'}
                       </CardTitle>
-                      <BarChart3 className="w-4 h-4 text-primary" />
+                      <Percent className="w-4 h-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-display font-bold text-foreground">
-                        {(profitReport.summary?.profit_margin || 0).toFixed(1)}%
+                        {(profitReport.summary?.average_profit_margin || 0).toFixed(1)}%
                       </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === 'sw' ? 'Wastani wa margin' : 'Average margin'}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa border-primary/10">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {language === 'sw' ? 'Wastani wa Faida' : 'Average Profit'}
+                      </CardTitle>
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-display font-bold text-foreground">
+                        {formatPrice(profitReport.summary?.average_profit || 0)}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === 'sw' ? 'Kwa kila muamala' : 'Per transaction'}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Profit Trend & Category Profit */}
+                {/* Profit Transaction Table */}
+                <Card className="card-kokotoa">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{language === 'sw' ? 'Mchanganuo wa Faida kwa Muamala' : 'Profit Breakdown by Transaction'}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {profitReport.profit_transactions?.length ? (
+                      <div className="space-y-4">
+                        {/* Desktop View */}
+                        <div className="hidden md:block overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b border-border bg-muted/30">
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mauzo' : 'Sales'}</th>
+                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Faida' : 'Profit'}</th>
+                                <th className="text-center p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Margin' : 'Margin'}</th>
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Keshia' : 'Cashier'}</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/50">
+                              {profitReport.profit_transactions.slice(0, 20).map((tx: any) => (
+                                <tr key={tx.id} className="hover:bg-muted/20 transition-colors">
+                                  <td className="p-4 font-mono text-xs font-bold text-foreground">{tx.transaction_number}</td>
+                                  <td className="p-4">
+                                    <div className="text-sm">
+                                      <p className="font-medium">{new Date(tx.date).toLocaleDateString()}</p>
+                                      <p className="text-[10px] text-muted-foreground">{new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                  </td>
+                                  <td className="p-4 text-right font-medium">{formatPrice(tx.net_amount)}</td>
+                                  <td className="p-4 text-right font-bold text-emerald-500">{formatPrice(tx.total_profit)}</td>
+                                  <td className="p-4 text-center">
+                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-bold">
+                                      {tx.profit_margin.toFixed(1)}%
+                                    </span>
+                                  </td>
+                                  <td className="p-4 text-sm text-muted-foreground">{tx.cashier}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Mobile View */}
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                          {profitReport.profit_transactions.slice(0, 15).map((tx: any) => (
+                            <div key={tx.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
+                                  {tx.transaction_number}
+                                </div>
+                                <div className="text-xs font-bold text-emerald-500">
+                                  +{formatPrice(tx.total_profit)}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                <div className="text-[10px] text-muted-foreground">
+                                  {tx.cashier} • {new Date(tx.date).toLocaleDateString()}
+                                </div>
+                                <div className="text-[10px] font-bold bg-muted px-2 py-0.5 rounded-full">
+                                  {tx.profit_margin.toFixed(1)}% margin
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                        <p className="text-muted-foreground">{language === 'sw' ? 'Hakuna miamala ya faida' : 'No profit transactions'}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Profit Trend Chart Re-added for visual analysis */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {profitReport.daily_profit && profitReport.daily_profit.length > 0 ? (
-                    <Card className="card-kokotoa">
-                      <CardHeader>
-                        <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
-                        <CardDescription>
-                          {language === 'sw' ? 'Faida ya kila siku katika kipindi hiki' : 'Daily profit over the selected period'}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={profitReport.daily_profit.map((dp) => ({
-                            name: new Date(dp.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-                            profit: dp.profit,
-                            sales: dp.sales
-                          }))}>
-                            <defs>
-                              <linearGradient id="colorProfitReport" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
-                            <Tooltip
-                              contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                              formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
-                            />
-                            <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfitReport)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </CardContent>
-                    </Card>
-                  ) : dailyProfitTrend.length > 0 ? (
+                  {dailyProfitTrend.length > 0 && (
                     <Card className="card-kokotoa">
                       <CardHeader>
                         <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
@@ -924,7 +991,7 @@ const Reports = () => {
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
                             <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
                             <Tooltip
                               contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
                               formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
@@ -934,32 +1001,41 @@ const Reports = () => {
                         </ResponsiveContainer>
                       </CardContent>
                     </Card>
-                  ) : null}
-
-                  {profitReport.category_profit && profitReport.category_profit.length > 0 && (
-                    <Card className="card-kokotoa">
-                      <CardHeader>
-                        <CardTitle>{language === 'sw' ? 'Faida kwa Aina ya Bidhaa' : 'Profit by Category'}</CardTitle>
-                        <CardDescription>
-                          {language === 'sw' ? 'Mchanganuo wa faida kwa makundi ya bidhaa' : 'Profit distribution across product categories'}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={profitReport.category_profit.map((c) => ({ name: c.category, profit: c.profit }))}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
-                            <Tooltip
-                              contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                              formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Faida' : 'Profit']}
-                            />
-                            <Bar dataKey="profit" fill="#10B981" radius={[4, 4, 0, 0]} barSize={40} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </CardContent>
-                    </Card>
                   )}
+
+                  {/* Profit Distribution via Analytics */}
+                  <Card className="card-kokotoa">
+                    <CardHeader>
+                      <CardTitle>{language === 'sw' ? 'Muhtasari wa Makundi' : 'Category Summary'}</CardTitle>
+                      <CardDescription>
+                        {language === 'sw' ? 'Mchanganuo wa mapato kwa kila aina' : 'Revenue distribution by category'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={inventoryValue}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {inventoryValue.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                            formatter={(v: number) => formatPrice(v)}
+                          />
+                          <Legend verticalAlign="bottom" height={36} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
                 </div>
               </>
             ) : (

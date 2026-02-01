@@ -588,25 +588,26 @@ export interface SalesReport {
 }
 
 export interface ProfitReport {
-  period?: {
+  profit_transactions: Array<{
+    id: number;
+    transaction_number: string;
+    date: string;
+    net_amount: number;
+    total_profit: number;
+    profit_margin: number;
+    cashier: string;
+  }>;
+  period: {
     start: string;
     end: string;
   };
   summary: {
-    total_profit: number;
     total_sales: number;
-    profit_margin: number;
+    total_profit: number;
+    total_transactions: number;
+    average_profit: number;
+    average_profit_margin: number;
   };
-  daily_profit: Array<{
-    date: string;
-    profit: number;
-    sales: number;
-  }>;
-  category_profit: Array<{
-    category: string;
-    profit: number;
-    revenue: number;
-  }>;
 }
 
 export interface InventoryReport {
