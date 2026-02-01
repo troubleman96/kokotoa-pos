@@ -258,7 +258,7 @@ const Reports = () => {
       title={language === 'sw' ? 'Ripoti na Takwimu' : 'Reports & Analytics'}
       subtitle={language === 'sw' ? 'Angalia utendaji wa biashara yako' : 'View your business performance'}
     >
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Date Range Selector */}
         <div className="flex justify-end">
           <Select value={dateRange} onValueChange={setDateRange}>
@@ -275,13 +275,14 @@ const Reports = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {tabs.map((tab) => (
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? 'default' : 'outline'}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={activeTab === tab.id ? 'btn-kokotoa' : ''}
+              className={`whitespace-nowrap flex-shrink-0 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
+              size="sm"
             >
               {tab.label}
             </Button>
@@ -290,34 +291,34 @@ const Reports = () => {
 
         {/* Overview Tab (Daily Summary) */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Today's Top Products */}
               <Card className="card-kokotoa">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <TrendingUp className="w-5 h-5 text-primary" />
                     {language === 'sw' ? 'Bidhaa Zinazoongoza Leo' : "Today's Top Products"}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs">
                     {language === 'sw' ? 'Bidhaa zenye mapato makubwa zaidi leo' : 'Highest revenue generating products today'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {dailySummary?.top_products?.length ? dailySummary.top_products.map((p: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-colors hover:bg-muted/80">
                         <div className="flex flex-col">
-                          <span className="font-medium">{p.product_name}</span>
-                          <span className="text-xs text-muted-foreground">{p.product_sku}</span>
+                          <span className="font-bold text-sm sm:text-base">{p.product_name}</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">{p.product_sku}</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-primary">{formatPrice(p.revenue)}</div>
-                          <div className="text-xs text-muted-foreground">{p.quantity} {language === 'sw' ? 'zimeuzwa' : 'sold'}</div>
+                          <div className="font-black text-primary text-sm sm:text-base">{formatPrice(p.revenue)}</div>
+                          <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{p.quantity} {language === 'sw' ? 'zimeuzwa' : 'sold'}</div>
                         </div>
                       </div>
                     )) : (
-                      <p className="text-center py-4 text-muted-foreground">
+                      <p className="text-center py-6 text-muted-foreground text-sm italic">
                         {language === 'sw' ? 'Hakuna mauzo bado' : 'No sales yet today'}
                       </p>
                     )}
@@ -327,30 +328,30 @@ const Reports = () => {
 
               {/* Low Stock Alerts Snapshot */}
               <Card className="card-kokotoa">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <AlertTriangle className="w-5 h-5 text-destructive" />
                     {language === 'sw' ? 'Tahadhari ya Bidhaa' : 'Stock Alerts'}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs">
                     {language === 'sw' ? 'Bidhaa zinazohitaji kuongezwa mara moja' : 'Items that need immediate restocking'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {dailySummary?.low_stock_alerts?.length ? dailySummary.low_stock_alerts.map((p: any, i: number) => (
                       <div key={i} className="flex items-center justify-between p-3 border border-destructive/20 rounded-lg bg-destructive/5">
                         <div>
-                          <span className="font-medium text-foreground">{p.name}</span>
-                          <span className="text-xs text-muted-foreground block">{p.sku}</span>
+                          <span className="font-bold text-sm sm:text-base text-foreground">{p.name}</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground block font-mono">{p.sku}</span>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-destructive">{p.quantity}</div>
-                          <div className="text-xs text-muted-foreground">{language === 'sw' ? 'Baki (Min: ' : 'Left (Min: '}{p.minimum_stock})</div>
+                          <div className="font-black text-destructive text-sm sm:text-base">{p.quantity}</div>
+                          <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{language === 'sw' ? 'Baki (Min: ' : 'Left (Min: '}{p.minimum_stock})</div>
                         </div>
                       </div>
                     )) : (
-                      <p className="text-center py-4 text-primary">
+                      <p className="text-center py-6 text-primary text-sm font-medium italic">
                         {language === 'sw' ? 'Bidhaa zote zipo katika hali nzuri' : 'All items are well stocked'}
                       </p>
                     )}
@@ -360,22 +361,22 @@ const Reports = () => {
 
               {/* Daily Sales Breakdown */}
               <Card className="card-kokotoa lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Mchanganuo wa Malipo ya Leo' : "Today's Payment Breakdown"}</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mchanganuo wa Malipo ya Leo' : "Today's Payment Breakdown"}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {dailySummary?.payment_methods && Object.entries(dailySummary.payment_methods).map(([method, data]: [string, any]) => (
-                      <div key={method} className="p-4 rounded-xl border border-border bg-muted/30 shadow-sm flex items-center justify-between">
+                      <div key={method} className="p-3 sm:p-4 rounded-xl border border-border bg-muted/30 shadow-sm flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wider">{method}</div>
-                          <div className="text-lg font-bold text-foreground">{formatPrice(data.total)}</div>
+                          <div className="text-[10px] text-muted-foreground mb-1 font-bold uppercase tracking-wider">{method}</div>
+                          <div className="text-base sm:text-lg font-black text-foreground">{formatPrice(data.total)}</div>
                         </div>
                         <div className="text-right">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
+                          <div className="w-8 h-8 sm:w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
                             <span className="text-primary font-bold text-xs">{data.count}</span>
                           </div>
-                          <div className="text-[10px] text-muted-foreground font-medium">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
+                          <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
                         </div>
                       </div>
                     ))}
@@ -385,76 +386,69 @@ const Reports = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="card-kokotoa border-primary/10">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</CardTitle>
-                  <DollarSign className="w-4 h-4 text-primary" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Leo' : "Today"}</CardTitle>
+                  <DollarSign className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-display font-bold text-foreground">
+                <CardContent className="pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-black text-foreground leading-tight">
                     {formatPrice(dashboardData?.today.sales || 0)}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {dashboardData?.today.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}:{' '}
-                    <span className="font-semibold text-primary">
-                      {formatPrice(dashboardData?.today.profit || 0)}
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="text-[10px] sm:text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                      {dashboardData?.today.transactions || 0} {language === 'sw' ? 'Miamala' : 'Tx'}
                     </span>
-                  </p>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="card-kokotoa border-primary/10">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{language === 'sw' ? 'Mauzo ya Mwezi' : 'This Month'}</CardTitle>
-                  <TrendingUp className="w-4 h-4 text-primary" />
+              <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Mweziu' : 'Month'}</CardTitle>
+                  <TrendingUp className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-display font-bold text-foreground">
+                <CardContent className="pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-black text-foreground leading-tight">
                     {formatPrice(dashboardData?.this_month.sales || 0)}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Faida ya Mwezi' : 'Profit This Month'}:{' '}
-                    <span className="font-semibold text-primary">
-                      {formatPrice(dashboardData?.this_month.profit || 0)}
+                  <div className="mt-1">
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground italic">
+                      {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'tx'}
                     </span>
-                  </p>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="card-kokotoa border-primary/10">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{language === 'sw' ? 'Jumla ya Bidhaa' : 'Total Products'}</CardTitle>
-                  <Package className="w-4 h-4 text-primary" />
+              <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</CardTitle>
+                  <Package className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-display font-bold text-foreground">
+                <CardContent className="pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-black text-foreground leading-tight">
                     {dashboardData?.inventory.total_products || 0}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'sw' ? 'katika hesabu' : 'in inventory'}
-                  </p>
+                  <div className="mt-1 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase">{language === 'sw' ? 'ghalani' : 'stock'}</span>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="card-kokotoa border-destructive/10">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{language === 'sw' ? 'Bidhaa Zinakwisha' : 'Low Stock'}</CardTitle>
-                  <Package className="w-4 h-4 text-destructive" />
+              <Card className="card-kokotoa border-destructive/10 overflow-hidden relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] sm:text-sm font-bold text-destructive/80 uppercase tracking-wider">{language === 'sw' ? 'Chini' : 'Low'}</CardTitle>
+                  <AlertTriangle className="w-4 h-4 text-destructive opacity-50" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-display font-bold text-destructive">
+                <CardContent className="pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-black text-destructive leading-tight">
                     {dashboardData?.inventory.low_stock_count || 0}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'sw' ? 'zinahitaji kuongezwa' : 'need restocking'}
-                  </p>
+                  <div className="mt-1">
+                    <span className="text-[10px] sm:text-xs text-destructive font-bold uppercase">{language === 'sw' ? 'zimebaki' : 'alerts'}</span>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -471,44 +465,44 @@ const Reports = () => {
             ) : salesData ? (
               <>
                 {/* Sales Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   <Card className="card-kokotoa border-primary/20">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Jumla ya Mauzo' : 'Total Sales'}
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Mauzo' : 'Sales'}
                       </CardTitle>
-                      <DollarSign className="w-4 h-4 text-primary" />
+                      <DollarSign className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {formatPrice(salesData.summary?.total_sales || 0)}
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="card-kokotoa border-primary/10">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Idadi ya Miamala' : 'Total Transactions'}
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Miamala' : 'Tx'}
                       </CardTitle>
-                      <BarChart3 className="w-4 h-4 text-primary" />
+                      <BarChart3 className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {salesData.summary?.total_transactions || 0}
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="card-kokotoa border-primary/10">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Wastani wa Mauzo' : 'Average Sale'}
+                  <Card className="card-kokotoa border-primary/10 col-span-2 sm:col-span-1">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Wastani' : 'Avg'}
                       </CardTitle>
-                      <TrendingUp className="w-4 h-4 text-primary" />
+                      <TrendingUp className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {formatPrice(salesData.summary?.average_sale || 0)}
                       </div>
                     </CardContent>
@@ -516,14 +510,14 @@ const Reports = () => {
                 </div>
 
                 <Card className="card-kokotoa">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
-                      <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length}>
-                        <Download className="w-4 h-4 mr-2" />
-                        {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
-                      </Button>
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
                     </div>
+                    <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length} className="w-full sm:w-auto">
+                      <Download className="w-4 h-4 mr-2" />
+                      {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+                    </Button>
                   </CardHeader>
                   <CardContent>
                     {salesData.sales.length ? (
@@ -614,14 +608,14 @@ const Reports = () => {
         {/* Inventory Tab */}
         {activeTab === 'inventory' && (
           <Card className="card-kokotoa">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{language === 'sw' ? 'Ripoti ya Hesabu' : 'Inventory Report'}</CardTitle>
-                <Button variant="outline" size="sm" onClick={handleInventoryExport} disabled={!inventoryData?.products.length}>
-                  <Download className="w-4 h-4 mr-2" />
-                  {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
-                </Button>
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Ripoti ya Hesabu' : 'Inventory Report'}</CardTitle>
               </div>
+              <Button variant="outline" size="sm" onClick={handleInventoryExport} disabled={!inventoryData?.products.length} className="w-full sm:w-auto">
+                <Download className="w-4 h-4 mr-2" />
+                {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+              </Button>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -732,14 +726,14 @@ const Reports = () => {
               <Card className="card-kokotoa">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <div>
-                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
-                    <CardDescription>{language === 'sw' ? `Mwenendo wa mauzo kwa muda mrefu` : `Revenue over the selected period`}</CardDescription>
+                    <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+                    <CardDescription className="text-xs">{language === 'sw' ? `Mwenendo wa mauzo kwa muda mrefu` : `Revenue over the selected period`}</CardDescription>
                   </div>
                   <div className="p-2 rounded-lg bg-primary/10">
                     <TrendingUp className="w-5 h-5 text-primary" />
                   </div>
                 </CardHeader>
-                <CardContent className="h-80 pt-4">
+                <CardContent className="h-64 sm:h-80 pt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={dailyTrend}>
                       <defs>
@@ -789,10 +783,10 @@ const Reports = () => {
               {/* Daily Profit Trend */}
               <Card className="card-kokotoa">
                 <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
-                  <CardDescription>{language === 'sw' ? `Mwenendo wa faida kwa muda mrefu` : `Profit trend over the selected period`}</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                  <CardDescription className="text-xs">{language === 'sw' ? `Mwenendo wa faida kwa muda mrefu` : `Profit trend over the selected period`}</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={dailyProfitTrend}>
                       <defs>
@@ -817,10 +811,10 @@ const Reports = () => {
               {/* Payment Methods Breakdown */}
               <Card className="card-kokotoa">
                 <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Njia za Malipo' : 'Payment Methods'}</CardTitle>
-                  <CardDescription>{language === 'sw' ? 'Mchanganuo wa malipo yaliyopokelewa' : 'Breakdown of sales by payment type'}</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Njia za Malipo' : 'Payment Methods'}</CardTitle>
+                  <CardDescription className="text-xs">{language === 'sw' ? 'Mchanganuo wa malipo yaliyopokelewa' : 'Breakdown of sales by payment type'}</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -849,10 +843,10 @@ const Reports = () => {
               {/* Top Products */}
               <Card className="card-kokotoa">
                 <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Bidhaa Zinazouzika' : 'Top Selling Products'}</CardTitle>
-                  <CardDescription>{language === 'sw' ? 'Bidhaa zilizouzwa zaidi kwa idadi' : 'Best performing products by quantity'}</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Bidhaa Zinazouzika' : 'Top Selling Products'}</CardTitle>
+                  <CardDescription className="text-xs">{language === 'sw' ? 'Bidhaa zilizouzwa zaidi kwa idadi' : 'Best performing products by quantity'}</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={topProducts} layout="vertical" margin={{ left: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.1} />
@@ -870,10 +864,10 @@ const Reports = () => {
               {/* Peak Sales Hours */}
               <Card className="card-kokotoa">
                 <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Saa za Biashara' : 'Peak Sales Hours'}</CardTitle>
-                  <CardDescription>{language === 'sw' ? 'Mchanganuo wa mauzo kwa saa' : 'Sales distribution across the day'}</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Saa za Biashara' : 'Peak Sales Hours'}</CardTitle>
+                  <CardDescription className="text-xs">{language === 'sw' ? 'Mchanganuo wa mauzo kwa saa' : 'Sales distribution across the day'}</CardDescription>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={salesByHour}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
@@ -894,17 +888,17 @@ const Reports = () => {
                 <Card className="card-kokotoa border-red-100 dark:border-red-900/30">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div>
-                      <CardTitle className="text-red-500 flex items-center gap-2">
+                      <CardTitle className="text-red-500 flex items-center gap-2 text-base sm:text-lg">
                         <AlertTriangle className="w-5 h-5" />
                         {language === 'sw' ? 'Bidhaa Chache (Low Stock)' : 'Low Stock Analysis'}
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-[10px] sm:text-xs">
                         {language === 'sw' ? 'Bidhaa zilizofikia kiwango cha chini' : 'Products below minimum threshold'}
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2">
+                    <div className="space-y-3 max-h-[240px] sm:max-h-[280px] overflow-y-auto pr-2">
                       {lowStockProducts.map((p) => (
                         <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                           <div>
@@ -926,10 +920,10 @@ const Reports = () => {
             {/* Category Value Breakdown */}
             <Card className="card-kokotoa lg:col-span-2">
               <CardHeader>
-                <CardTitle>{language === 'sw' ? 'Thamani ya Bidhaa kwa Aina' : 'Inventory Value by Category'}</CardTitle>
-                <CardDescription>{language === 'sw' ? 'Thamani ya bidhaa zilizopo ghala kwa sasa' : 'Total retail value distribution across categories'}</CardDescription>
+                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Thamani ya Bidhaa kwa Aina' : 'Inventory Value by Category'}</CardTitle>
+                <CardDescription className="text-xs">{language === 'sw' ? 'Thamani ya bidhaa zilizopo ghala kwa sasa' : 'Total retail value distribution across categories'}</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-64 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={inventoryValue}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
@@ -957,83 +951,85 @@ const Reports = () => {
             ) : profitReport ? (
               <>
                 {/* Profit Summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card className="card-kokotoa border-emerald-500/20">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Jumla ya Faida' : 'Total Profit'}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <Card className="card-kokotoa border-emerald-500/20 overflow-hidden relative">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Faida' : 'Profit'}
                       </CardTitle>
-                      <PiggyBank className="w-4 h-4 text-emerald-500" />
+                      <PiggyBank className="w-4 h-4 text-emerald-500 opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {formatPrice(profitReport.summary?.total_profit || 0)}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {profitReport.summary?.total_transactions || 0} {language === 'sw' ? 'miamala' : 'transactions'}
-                      </p>
+                      <div className="mt-1">
+                        <span className="text-[10px] sm:text-xs font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                          {profitReport.summary?.total_transactions || 0} {language === 'sw' ? 'Miamala' : 'Tx'}
+                        </span>
+                      </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="card-kokotoa border-primary/10">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Mauzo kwa Kipindi' : 'Sales for Period'}
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Mauzo' : 'Sales'}
                       </CardTitle>
-                      <DollarSign className="w-4 h-4 text-primary" />
+                      <DollarSign className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {formatPrice(profitReport.summary?.total_sales || 0)}
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="card-kokotoa border-primary/10">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Asilimia ya Faida' : 'Profit Margin'}
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Margin' : 'Margin'}
                       </CardTitle>
-                      <Percent className="w-4 h-4 text-primary" />
+                      <Percent className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {(profitReport.summary?.average_profit_margin || 0).toFixed(1)}%
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {language === 'sw' ? 'Wastani wa margin' : 'Average margin'}
-                      </p>
+                      <div className="mt-1">
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Wastani' : 'Average'}</span>
+                      </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="card-kokotoa border-primary/10">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {language === 'sw' ? 'Wastani wa Faida' : 'Average Profit'}
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
+                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Wastani' : 'Avg'}
                       </CardTitle>
-                      <TrendingUp className="w-4 h-4 text-primary" />
+                      <TrendingUp className="w-4 h-4 text-primary opacity-50" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-display font-bold text-foreground">
+                    <CardContent className="pb-3 sm:pb-6">
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
                         {formatPrice(profitReport.summary?.average_profit || 0)}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {language === 'sw' ? 'Kwa kila muamala' : 'Per transaction'}
-                      </p>
+                      <div className="mt-1">
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Kwa Muamala' : 'Per Tx'}</span>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
 
                 {/* Profit Transaction Table */}
                 <Card className="card-kokotoa">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>{language === 'sw' ? 'Mchanganuo wa Faida kwa Muamala' : 'Profit Breakdown by Transaction'}</CardTitle>
-                      <Button variant="outline" size="sm" onClick={handleProfitExport} disabled={!profitReport?.profit_transactions.length}>
-                        <Download className="w-4 h-4 mr-2" />
-                        {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
-                      </Button>
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mchanganuo wa Faida kwa Muamala' : 'Profit Breakdown by Transaction'}</CardTitle>
                     </div>
+                    <Button variant="outline" size="sm" onClick={handleProfitExport} disabled={!profitReport?.profit_transactions.length} className="w-full sm:w-auto">
+                      <Download className="w-4 h-4 mr-2" />
+                      {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+                    </Button>
                   </CardHeader>
                   <CardContent>
                     {profitReport.profit_transactions?.length ? (
