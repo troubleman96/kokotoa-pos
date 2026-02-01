@@ -388,31 +388,27 @@ const Dashboard = () => {
               </Card>
             )}
 
-            {/* Sales vs Profit Comparison Chart */}
+            {/* Profit Trend Chart */}
             {user?.role === 'OWNER' && (
               <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>{language === 'sw' ? 'Mauzo vs Faida' : 'Sales vs Profit'}</CardTitle>
+                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
                     <CardDescription>
-                      {language === 'sw' ? 'Mulinganisho wa mauzo na faida kwa siku 7 zilizopita' : 'Sales vs Profit comparison for the last 7 days'}
+                      {language === 'sw' ? 'Mwenendo wa faida kwa muda mrefu' : 'Long-term profit trend'}
                     </CardDescription>
                   </div>
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <BarChart className="w-5 h-5 text-blue-500" />
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="w-5 h-5 text-primary" />
                   </div>
                 </CardHeader>
                 <CardContent className="h-80 pt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={comparisonData}>
                       <defs>
-                        <linearGradient id="colorSalesComp" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="colorProfitComp" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        <linearGradient id="colorProfitMain" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
@@ -436,29 +432,65 @@ const Dashboard = () => {
                           borderRadius: '12px',
                           boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                         }}
+                        itemStyle={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}
+                        formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Faida' : 'Profit']}
                         labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
-                      />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="sales"
-                        name={language === 'sw' ? 'Mauzo' : 'Sales'}
-                        stroke="#3b82f6"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorSalesComp)"
                       />
                       <Area
                         type="monotone"
                         dataKey="profit"
-                        name={language === 'sw' ? 'Faida' : 'Profit'}
-                        stroke="#10b981"
-                        strokeWidth={2}
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
                         fillOpacity={1}
-                        fill="url(#colorProfitComp)"
+                        fill="url(#colorProfitMain)"
+                        animationDuration={1500}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Profit Summary / Status */}
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa overflow-hidden">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}</span>
+                      <span className="font-bold text-primary">{formatPrice(dashboardData?.today.profit || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary animate-pulse"
+                        style={{ width: `${Math.min(100, (dashboardData?.today.profit || 0) / 50000 * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
+                      <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.profit || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-foreground"
+                        style={{ width: `${Math.min(100, (dashboardData?.this_month.profit || 0) / 500000 * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {language === 'sw'
+                        ? 'Faida yako inaongezeka vizuri. Endelea kudhibiti gharama zako!'
+                        : 'Your profit is growing nicely. Keep controlling your costs!'}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
