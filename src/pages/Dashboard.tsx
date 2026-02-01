@@ -169,12 +169,7 @@ const Dashboard = () => {
                   <div className="text-2xl font-display font-bold text-foreground">
                     {formatPrice(dashboardData?.today.sales || 0)}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}:{' '}
-                    <span className="font-bold text-emerald-600">
-                      {formatPrice(dashboardData?.today.profit || 0)}
-                    </span>
-                  </div>
+
                   <div className="flex items-center gap-1 mt-1">
                     <ArrowUpRight className="w-4 h-4 text-primary" />
                     <span className="text-sm text-primary">
@@ -201,7 +196,7 @@ const Dashboard = () => {
                     {formatPrice(dashboardData?.today.profit || 0)}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm font-medium text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                    <span className="text-sm font-medium text-emerald-600 px-1">
                       {dashboardData?.today.profit_margin?.toFixed(1) || '0.0'}%
                     </span>
                     <span className="text-xs text-muted-foreground">
