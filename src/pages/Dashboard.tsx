@@ -56,16 +56,31 @@ const Dashboard = () => {
           console.warn('[Dashboard] Dashboard API returned null');
         }
 
-        // Process Daily Data for Comparison
+        // Process Daily Data
         if (salesRes?.data) {
-          const combinedData = salesRes.data.labels.map((label: string, index: number) => ({
+          const salesData = salesRes.data.labels.map((label: string, index: number) => ({
+            name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            sales: salesRes.data.data[index] || 0
+          }));
+          setSalesTrend(salesData);
+        }
+
+        if (profitRes?.data) {
+          const profitData = profitRes.data.labels.map((label: string, index: number) => ({
+            name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            profit: profitRes.data.data[index] || 0
+          }));
+          setDailyProfitTrend(profitData);
+        }
+
+        // Keep comparisonData for other potential uses if needed, though we primarily use specific trends now
+        if (salesRes?.data && profitRes?.data) {
+          const combined = salesRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
             sales: salesRes.data.data[index] || 0,
-            profit: profitRes?.data?.data[index] || 0
+            profit: profitRes.data.data[index] || 0
           }));
-          setComparisonData(combinedData);
-          setSalesTrend(combinedData);
-          setDailyProfitTrend(combinedData);
+          setComparisonData(combined);
         }
 
         if (monthlyRes?.data) {
