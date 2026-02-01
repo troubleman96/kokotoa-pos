@@ -281,10 +281,12 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-destructive">
                     <AlertTriangle className="w-5 h-5" />
-                    {language === 'sw' ? 'Tahadhari: Bidhaa Zinakwisha!' : 'Warning: Low Stock Items!'}
+                    {language === 'sw'
+                      ? `Tahadhari: Bidhaa ${dashboardData?.inventory.low_stock_count} zinahitaji kuongezwa!`
+                      : `Warning: ${dashboardData?.inventory.low_stock_count} products need restocking!`}
                   </CardTitle>
-                  <Link to="/inventory">
-                    <Button variant="outline" size="sm">
+                  <Link to="/inventory?low_stock=true">
+                    <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive">
                       {language === 'sw' ? 'Tazama Zote' : 'View All'}
                     </Button>
                   </Link>
