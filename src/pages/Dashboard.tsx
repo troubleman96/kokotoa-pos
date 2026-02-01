@@ -55,11 +55,11 @@ const Dashboard = () => {
         }
 
         // Process Daily Data for Comparison
-        if (salesRes?.data && profitRes?.data) {
+        if (salesRes?.data) {
           const combinedData = salesRes.data.labels.map((label: string, index: number) => ({
             name: new Date(label).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
             sales: salesRes.data.data[index] || 0,
-            profit: profitRes.data.data[index] || 0
+            profit: profitRes?.data?.data[index] || 0
           }));
           setComparisonData(combinedData);
           setSalesTrend(combinedData);

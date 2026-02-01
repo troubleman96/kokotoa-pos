@@ -632,11 +632,16 @@ const Reports = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Daily Sales Trend */}
               <Card className="card-kokotoa">
-                <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
-                  <CardDescription>{language === 'sw' ? `Mwenendo wa mauzo kwa muda mrefu` : `Revenue over the selected period`}</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div>
+                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+                    <CardDescription>{language === 'sw' ? `Mwenendo wa mauzo kwa muda mrefu` : `Revenue over the selected period`}</CardDescription>
+                  </div>
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
                 </CardHeader>
-                <CardContent className="h-80">
+                <CardContent className="h-80 pt-4">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={dailyTrend}>
                       <defs>
@@ -645,14 +650,39 @@ const Reports = () => {
                           <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v / 1000}k`} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Mauzo' : 'Sales']}
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        dy={10}
                       />
-                      <Area type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorSalesDetailed)" />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                        tickFormatter={(v) => `TSh ${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          borderColor: 'hsl(var(--border))',
+                          borderRadius: '12px',
+                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                        }}
+                        formatter={(v: number) => [formatPrice(v), language === 'sw' ? 'Mauzo' : 'Sales']}
+                        labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="sales"
+                        stroke="#3B82F6"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorSalesDetailed)"
+                        animationDuration={1500}
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
