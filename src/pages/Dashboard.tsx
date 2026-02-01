@@ -28,6 +28,7 @@ const Dashboard = () => {
     store: { name: string };
   } | null>(null);
   const [salesTrend, setSalesTrend] = useState<any[]>([]);
+  const [monthlySalesTrend, setMonthlySalesTrend] = useState<any[]>([]);
   const [dailyProfitTrend, setDailyProfitTrend] = useState<any[]>([]);
   const [monthlyProfitTrend, setMonthlyProfitTrend] = useState<any[]>([]);
   const [comparisonData, setComparisonData] = useState<any[]>([]);
@@ -40,11 +41,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [dashRes, salesRes, profitRes, monthlyRes] = await Promise.all([
+        const [dashRes, salesRes, profitRes, monthlyRes, monthlySalesRes] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
           graphsApi.getDailySales(7).catch(() => null),
           graphsApi.getDailyProfit(7).catch(() => null),
           graphsApi.getMonthlyProfit(6).catch(() => null),
+          graphsApi.getMonthlySales(6).catch(() => null),
         ]);
 
         if (dashRes?.data) {
@@ -72,6 +74,14 @@ const Dashboard = () => {
             profit: monthlyRes.data.data[index] || 0
           }));
           setMonthlyProfitTrend(monthlyData);
+        }
+
+        if (monthlySalesRes?.data) {
+          const monthlySalesData = monthlySalesRes.data.labels.map((label: string, index: number) => ({
+            name: label,
+            sales: monthlySalesRes.data.data[index] || 0
+          }));
+          setMonthlySalesTrend(monthlySalesData);
         }
 
       } catch (error) {
@@ -289,7 +299,7 @@ const Dashboard = () => {
                 <div>
                   <CardTitle>{language === 'sw' ? 'Mwenendo wa Mauzo' : 'Sales Trend'}</CardTitle>
                   <CardDescription>
-                    {language === 'sw' ? 'Mwenendo wa mauzo kwa muda mrefu' : 'Long-term sales trend'}
+                    {language === 'sw' ? 'Mwenendo wa mauzo kwa siku 7 zilizopita' : 'Sales trend for the last 7 days'}
                   </CardDescription>
                 </div>
                 <div className="p-2 rounded-lg bg-blue-500/10">
@@ -395,7 +405,7 @@ const Dashboard = () => {
                   <div>
                     <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
                     <CardDescription>
-                      {language === 'sw' ? 'Mwenendo wa faida kwa muda mrefu' : 'Long-term profit trend'}
+                      {language === 'sw' ? 'Mwenendo wa faida kwa siku 7 zilizopita' : 'Profit trend for the last 7 days'}
                     </CardDescription>
                   </div>
                   <div className="p-2 rounded-lg bg-primary/10">
@@ -404,7 +414,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="h-80 pt-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={comparisonData}>
+                    <AreaChart data={dailyProfitTrend}>
                       <defs>
                         <linearGradient id="colorProfitMain" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
@@ -495,60 +505,7 @@ const Dashboard = () => {
               </Card>
             )}
 
-            {/* Monthly Profit Bar Chart */}
-            {user?.role === 'OWNER' && monthlyProfitTrend.length > 0 && (
-              <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida (Miezi 6)' : 'Profit Trend (6 Months)'}</CardTitle>
-                    <CardDescription>
-                      {language === 'sw' ? 'Faida iliyopatikana kila mwezi' : 'Monthly profit performance'}
-                    </CardDescription>
-                  </div>
-                  <div className="p-2 rounded-lg bg-purple-500/10">
-                    <TrendingUp className="w-5 h-5 text-purple-500" />
-                  </div>
-                </CardHeader>
-                <CardContent className="h-80 pt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsBarChart data={monthlyProfitTrend}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
-                      <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        dy={10}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        tickFormatter={(value) => `TSh ${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
-                      />
-                      <Tooltip
-                        cursor={{ fill: 'transparent' }}
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          borderColor: 'hsl(var(--border))',
-                          borderRadius: '12px',
-                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
-                        }}
-                        itemStyle={{ color: '#a855f7', fontWeight: 'bold' }}
-                        formatter={(value: number) => [formatPrice(value), language === 'sw' ? 'Faida' : 'Profit']}
-                        labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
-                      />
-                      <Bar
-                        dataKey="profit"
-                        fill="#a855f7"
-                        radius={[4, 4, 0, 0]}
-                        barSize={40}
-                      />
-                    </RechartsBarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            )}
+
 
 
           </div>

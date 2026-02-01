@@ -472,6 +472,9 @@ export const graphsApi = {
 
   getMonthlyProfit: (months?: number) =>
     api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_profit: number; average_monthly_profit: number } }; errors: any }>(`/graphs/monthly-profit${months ? `?months=${months}` : ''}`),
+
+  getMonthlySales: (months?: number) =>
+    api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; summary: { total_sales: number; average_monthly_sales: number } }; errors: any }>(`/graphs/monthly-sales${months ? `?months=${months}` : ''}`),
 };
 
 export interface Store {
