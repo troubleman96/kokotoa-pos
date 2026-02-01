@@ -188,23 +188,6 @@ const Dashboard = () => {
               </Card>
             )}
 
-            <Card className="card-kokotoa">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {language === 'sw' ? 'Jumla ya Bidhaa' : 'Total Products'}
-                </CardTitle>
-                <Package className="w-4 h-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-display font-bold text-foreground">
-                  {dashboardData?.inventory.total_products || 0}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {language === 'sw' ? 'katika hesabu' : 'in inventory'}
-                </div>
-              </CardContent>
-            </Card>
-
             {user?.role === 'OWNER' && (
               <Card className="card-kokotoa">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -228,6 +211,23 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             )}
+
+            <Card className="card-kokotoa">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {language === 'sw' ? 'Jumla ya Bidhaa' : 'Total Products'}
+                </CardTitle>
+                <Package className="w-4 h-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-display font-bold text-foreground">
+                  {dashboardData?.inventory.total_products || 0}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  {language === 'sw' ? 'katika hesabu' : 'in inventory'}
+                </div>
+              </CardContent>
+            </Card>
 
             {user?.role === 'OWNER' && (
               <Card className="card-kokotoa">
