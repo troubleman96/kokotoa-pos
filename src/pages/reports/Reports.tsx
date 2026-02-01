@@ -418,96 +418,152 @@ const Reports = () => {
 
         {/* Sales Tab */}
         {activeTab === 'sales' && (
-          <Card className="card-kokotoa">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
-                <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length}>
-                  <Download className="w-4 h-4 mr-2" />
-                  {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
-                </Button>
+          <div className="space-y-6">
+            {isLoading ? (
+              <div className="flex text-center py-8 justify-center">
+                <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
               </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex text-center py-8 justify-center">
-                  <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
-                </div>
-              ) : salesData?.sales.length ? (
-                <div className="space-y-4">
-                  {/* Desktop View */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-border bg-muted/30">
-                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</th>
-                          <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                          <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Jumla' : 'Total'}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/50">
-                        {salesData.sales.slice(0, 10).map((sale) => (
-                          <tr key={sale.id} className="hover:bg-muted/20 transition-colors">
-                            <td className="p-4 font-mono text-xs font-bold text-foreground">{sale.transaction_number}</td>
-                            <td className="p-4">
-                              <div className="text-sm">
-                                <p className="font-medium">{new Date(sale.date).toLocaleDateString()}</p>
-                                <p className="text-[10px] text-muted-foreground">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-bold">{sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}</span>
-                            </td>
-                            <td className="p-4">
-                              <span className="text-xs font-medium text-muted-foreground">{sale.payment_method}</span>
-                            </td>
-                            <td className="p-4 text-right font-bold text-primary">{formatPrice(sale.total_amount)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+            ) : salesData ? (
+              <>
+                {/* Sales Summary */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Card className="card-kokotoa border-primary/20">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {language === 'sw' ? 'Jumla ya Mauzo' : 'Total Sales'}
+                      </CardTitle>
+                      <DollarSign className="w-4 h-4 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-display font-bold text-foreground">
+                        {formatPrice(salesData.summary?.total_sales || 0)}
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                  {/* Mobile View */}
-                  <div className="grid grid-cols-1 gap-3 md:hidden">
-                    {salesData.sales.slice(0, 10).map((sale) => (
-                      <div key={sale.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
-                            {sale.transaction_number}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground font-medium">
-                            {new Date(sale.date).toLocaleDateString()}
-                          </div>
+                  <Card className="card-kokotoa border-primary/10">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {language === 'sw' ? 'Idadi ya Miamala' : 'Total Transactions'}
+                      </CardTitle>
+                      <BarChart3 className="w-4 h-4 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-display font-bold text-foreground">
+                        {salesData.summary?.total_transactions || 0}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa border-primary/10">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {language === 'sw' ? 'Wastani wa Mauzo' : 'Average Sale'}
+                      </CardTitle>
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-display font-bold text-foreground">
+                        {formatPrice(salesData.summary?.average_sale || 0)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="card-kokotoa">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
+                      <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length}>
+                        <Download className="w-4 h-4 mr-2" />
+                        {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {salesData.sales.length ? (
+                      <div className="space-y-4">
+                        {/* Desktop View */}
+                        <div className="hidden md:block overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b border-border bg-muted/30">
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</th>
+                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/50">
+                              {salesData.sales.slice(0, 20).map((sale) => (
+                                <tr key={sale.id} className="hover:bg-muted/20 transition-colors">
+                                  <td className="p-4 font-mono text-xs font-bold text-foreground">{sale.transaction_number}</td>
+                                  <td className="p-4">
+                                    <div className="text-sm">
+                                      <p className="font-medium">{new Date(sale.date).toLocaleDateString()}</p>
+                                      <p className="text-[10px] text-muted-foreground">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                  </td>
+                                  <td className="p-4">
+                                    <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-bold">{sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}</span>
+                                  </td>
+                                  <td className="p-4 text-xs font-medium text-muted-foreground">{sale.payment_method}</td>
+                                  <td className="p-4 text-right font-bold text-primary">{formatPrice(sale.total_amount)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
-                        <div className="flex items-end justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
-                              <span className="text-xs font-bold">{sale.payment_method}</span>
+
+                        {/* Mobile View */}
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                          {salesData.sales.slice(0, 15).map((sale) => (
+                            <div key={sale.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
+                                  {sale.transaction_number}
+                                </div>
+                                <div className="text-[10px] text-muted-foreground font-medium">
+                                  {new Date(sale.date).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <div className="flex items-end justify-between">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
+                                    <span className="text-xs font-bold">{sale.payment_method}</span>
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground">
+                                    {sale.items_count} {language === 'sw' ? 'Vitu zilizouzwa' : 'Items sold'}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-base font-bold text-primary">{formatPrice(sale.total_amount)}</p>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {sale.items_count} {language === 'sw' ? 'Vitu zilizouzwa' : 'Items sold'}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-base font-bold text-primary">{formatPrice(sale.total_amount)}</p>
-                          </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <p className="text-muted-foreground">{language === 'sw' ? 'Hakuna mauzo' : 'No sales yet'}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ) : (
+                      <div className="text-center py-12">
+                        <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                        <p className="text-muted-foreground">{language === 'sw' ? 'Hakuna miamala iliyopatikana' : 'No transactions found'}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <p className="text-muted-foreground">
+                  {language === 'sw' ? 'Hakuna data ya mauzo inapatikana' : 'No sales data available'}
+                </p>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Inventory Tab */}
