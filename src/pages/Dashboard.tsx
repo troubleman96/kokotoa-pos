@@ -171,7 +171,7 @@ const Dashboard = () => {
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
                     {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}:{' '}
-                    <span className="font-semibold text-primary">
+                    <span className="font-bold text-emerald-600">
                       {formatPrice(dashboardData?.today.profit || 0)}
                     </span>
                   </div>
@@ -243,13 +243,13 @@ const Dashboard = () => {
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
                     {language === 'sw' ? 'Faida' : 'Profit'}:{' '}
-                    <span className="font-semibold text-emerald-500">
+                    <span className="font-bold text-emerald-600">
                       {formatPrice(dashboardData?.this_month.profit || 0)}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Margin:{' '}
-                    <span className="font-semibold text-emerald-500">
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">Margin:</span>
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
                       {dashboardData?.this_month.profit_margin?.toFixed(1) || '0.0'}%
                     </span>
                   </div>
