@@ -189,14 +189,14 @@ const Dashboard = () => {
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     {language === 'sw' ? 'Faida ya Leo' : "Today's Profit"}
                   </CardTitle>
-                  <PiggyBank className="w-4 h-4 text-emerald-500" />
+                  <PiggyBank className="w-4 h-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-display font-bold text-emerald-600">
+                  <div className="text-2xl font-display font-bold text-primary">
                     {formatPrice(dashboardData?.today.profit || 0)}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm font-medium text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                    <span className="text-sm font-medium text-primary">
                       {dashboardData?.today.profit_margin?.toFixed(1) || '0.0'}%
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -238,13 +238,13 @@ const Dashboard = () => {
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
                     {language === 'sw' ? 'Faida' : 'Profit'}:{' '}
-                    <span className="font-bold text-emerald-600">
+                    <span className="font-bold text-primary">
                       {formatPrice(dashboardData?.this_month.profit || 0)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">Margin:</span>
-                    <span className="text-xs font-medium text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-medium text-primary">
                       {dashboardData?.this_month.profit_margin?.toFixed(1) || '0.0'}%
                     </span>
                   </div>
