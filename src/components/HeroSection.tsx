@@ -29,7 +29,9 @@ const HeroSection = () => {
             {/* Title */}
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               <span className="text-foreground">{t('hero.title').split(' ').slice(0, -2).join(' ')}</span>
-              <span className="text-gradient"> {t('hero.title').split(' ').slice(-2).join(' ')}</span>
+              <span className="inline-block px-3 py-1 ml-2 bg-primary text-primary-foreground rounded-lg -rotate-1 transform transition-transform hover:rotate-0">
+                {t('hero.title').split(' ').slice(-2).join(' ')}
+              </span>
             </h1>
 
             {/* Subtitle */}
