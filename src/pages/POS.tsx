@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { productsApi, salesApi, Product } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ interface CartItem extends Product {
 
 const POS = () => {
   const { language } = useLanguage();
+  const { settings } = useSettings();
   const { toast } = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -156,7 +158,11 @@ const POS = () => {
             number: receiptResponse.data.receipt_number
           });
           setIsCheckoutModalOpen(false);
-          setIsReceiptModalOpen(true);
+
+          if (settings.showReceiptAfterSale) {
+            setIsReceiptModalOpen(true);
+          }
+
           setCart([]);
           // Reset fields
           setCustomerName('');

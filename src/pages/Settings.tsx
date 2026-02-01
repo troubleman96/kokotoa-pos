@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { authApi, storesApi, accountsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
+  const { settings, updateSetting } = useSettings();
   const { user, logout, refreshUser, updateUser, updateEmail } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'store' | 'subscription' | 'notifications' | 'appearance'>('profile');
@@ -612,6 +614,31 @@ const SettingsPage = () => {
                   </label>
                 </div>
               ))}
+
+              <div className="pt-4 border-t border-border/50">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4 tracking-wider">
+                  {language === 'sw' ? 'Mipangilio ya Mauzo' : 'Sales Settings'}
+                </h4>
+                <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/10 rounded-xl gap-4">
+                  <div>
+                    <span className="font-bold text-sm sm:text-base leading-tight block">
+                      {language === 'sw' ? 'Onyesha Risiti Baada ya Mauzo' : 'Show Receipt After Sale'}
+                    </span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                      {language === 'sw' ? 'Fungua dirisha la risiti kiotomatiki mauzo yanapokamilika' : 'Automatically open receipt modal when sale is complete'}
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={settings.showReceiptAfterSale}
+                      onChange={(e) => updateSetting('showReceiptAfterSale', e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                  </label>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
