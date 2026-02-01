@@ -97,12 +97,14 @@ const Login = () => {
 
         <Card className="card-kokotoa">
           <CardHeader className="text-center pb-2">
-            <div className="flex justify-center">
-              <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
-                <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
-              </div>
+            <div className="flex items-center justify-center gap-3">
+              <Link to="/">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent hover:opacity-80 transition-opacity">
+                  <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+                </div>
+              </Link>
+              <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Ingia Ukae' : 'Sign In'}</CardTitle>
             </div>
-            <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Ingia Ukae' : 'Sign In'}</CardTitle>
             <CardDescription>{language === 'sw' ? 'Ingia kwenye akaunti yako ya Kokotoa' : 'Log in to your Kokotoa account'}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -167,19 +169,20 @@ const Login = () => {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <label className="flex items-center gap-2 cursor-pointer text-sm">
-                  <input type="checkbox" className="rounded border-border" />
-                  <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
-                </label>
-              </div>
-              <p className="text-muted-foreground">
-                {language === 'sw' ? 'Huna akaunti?' : "Don't have an account?"}{' '}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="rounded border-border" />
+                <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
+              </label>
+
+              <div>
+                <span className="text-muted-foreground mr-1">
+                  {language === 'sw' ? 'Huna akaunti?' : "No account?"}
+                </span>
                 <Link to="/register" className="text-primary font-medium hover:underline">
                   {language === 'sw' ? 'Jisajili' : 'Register'}
                 </Link>
-              </p>
+              </div>
             </div>
           </CardContent>
         </Card>

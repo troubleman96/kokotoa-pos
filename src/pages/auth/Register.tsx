@@ -127,9 +127,11 @@ const Register = () => {
         <Card className="card-kokotoa">
           <CardHeader className="text-center pb-2">
             <div className="flex items-center justify-center gap-3">
-              <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent">
-                <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
-              </div>
+              <Link to="/">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent hover:opacity-80 transition-opacity">
+                  <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+                </div>
+              </Link>
               <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Jisajili Sasa' : 'Create Account'}</CardTitle>
             </div>
             <CardDescription className="mt-2">{language === 'sw' ? 'Fungua akaunti yako ya KOKOTOA' : 'Open your KOKOTOA account'}</CardDescription>
