@@ -281,8 +281,7 @@ const Reports = () => {
               key={tab.id}
               variant={activeTab === tab.id ? 'default' : 'outline'}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`whitespace-nowrap flex-shrink-0 shrink-0 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
-              size="sm"
+              className={`whitespace-nowrap flex-shrink-0 shrink-0 text-[11px] sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
             >
               {tab.label}
             </Button>
