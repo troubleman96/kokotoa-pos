@@ -344,6 +344,50 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
+            {/* Quick Summary / Status */}
+            {user?.role === 'OWNER' && (
+              <Card className="card-kokotoa overflow-hidden">
+                <CardHeader>
+                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
+                      <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary animate-pulse"
+                        style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
+                      <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-foreground"
+                        style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {language === 'sw'
+                        ? 'Utendaji wa biashara yako unaonyesha mwelekeo chanya. Endelea kufuatilia mapato yako!'
+                        : 'Your business performance shows a positive trend. Keep tracking your revenue!'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Sales vs Profit Comparison Chart */}
             {user?.role === 'OWNER' && (
               <Card className="card-kokotoa lg:col-span-3 overflow-hidden">
@@ -474,49 +518,7 @@ const Dashboard = () => {
               </Card>
             )}
 
-            {/* Quick Summary / Status */}
-            {user?.role === 'OWNER' && (
-              <Card className="card-kokotoa overflow-hidden">
-                <CardHeader>
-                  <CardTitle>{language === 'sw' ? 'Mwenendo wa Mapato' : 'Revenue Trend'}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{language === 'sw' ? 'Mauzo ya Leo' : "Today's Sales"}</span>
-                      <span className="font-bold text-primary">{formatPrice(dashboardData?.today.sales || 0)}</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary animate-pulse"
-                        style={{ width: `${Math.min(100, (dashboardData?.today.sales || 0) / 100000 * 100)}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{language === 'sw' ? 'Mwezi Huu' : 'This Month'}</span>
-                      <span className="font-bold text-foreground">{formatPrice(dashboardData?.this_month.sales || 0)}</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-foreground"
-                        style={{ width: `${Math.min(100, (dashboardData?.this_month.sales || 0) / 2000000 * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-muted/30 border border-border mt-4">
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {language === 'sw'
-                        ? 'Utendaji wa biashara yako unaonyesha mwelekeo chanya. Endelea kufuatilia mapato yako!'
-                        : 'Your business performance shows a positive trend. Keep tracking your revenue!'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           <Card className="card-kokotoa">
