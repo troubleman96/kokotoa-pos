@@ -14,12 +14,12 @@ const StatsSection = () => {
     <section className="py-16 lg:py-24 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           {stats.map((stat, index) => (
             <div key={index} className="text-center group">
-              <div className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-gradient mb-2 group-hover:scale-110 transition-transform duration-300">
+              <div className="font-display text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#ffffff] mb-2 group-hover:scale-105 transition-transform duration-300">
                 {stat.value}
               </div>
               <p className="text-muted-foreground font-medium">{stat.label}</p>
