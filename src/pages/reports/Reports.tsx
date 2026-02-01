@@ -111,36 +111,63 @@ const Reports = () => {
         }
 
         // Fetch Analytics specifically if tab is active or just as extra data
-        if (activeTab === 'analytics' || activeTab === 'profit') {
-          const [daily, top, methods, hours, value, dailyProfit, lowStock] = await Promise.all([
-            graphsApi.getDailySales(days).catch(() => null),
-            graphsApi.getTopProducts({ limit: 5, days }).catch(() => null),
-            graphsApi.getPaymentMethods(days).catch(() => null),
-            graphsApi.getSalesByHour(days).catch(() => null),
-            graphsApi.getInventoryValue().catch(() => null),
-            graphsApi.getDailyProfit(days).catch(() => null),
-            graphsApi.getLowStock().catch(() => null),
-          ]);
+        // We also fetch today's specific data for the Overview tab
+        const [daily, top, methods, hours, value, dailyProfit, lowStock, todayTop, todayMethods] = await Promise.all([
+          graphsApi.getDailySales(days).catch(() => null),
+          graphsApi.getTopProducts({ limit: 5, days }).catch(() => null),
+          graphsApi.getPaymentMethods(days).catch(() => null),
+          graphsApi.getSalesByHour(days).catch(() => null),
+          graphsApi.getInventoryValue().catch(() => null),
+          graphsApi.getDailyProfit(days).catch(() => null),
+          graphsApi.getLowStock().catch(() => null),
+          graphsApi.getTopProducts({ limit: 5, days: 1 }).catch(() => null),
+          graphsApi.getPaymentMethods(1).catch(() => null),
+        ]);
 
-          if (daily?.data) {
-            setDailyTrend(daily.data.labels.map((l, i) => ({
-              name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-              sales: daily.data.data[i]
-            })));
+        if (daily?.data) {
+          setDailyTrend(daily.data.labels.map((l, i) => ({
+            name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            sales: daily.data.data[i]
+          })));
+        }
+        if (top?.data) setTopProducts(top.data.data.map(p => ({ name: p.name, quantity: p.quantity_sold, revenue: p.revenue })));
+        if (methods?.data) setSalesByMethod(methods.data.labels.map((l, i) => ({ name: l, value: methods.data.data[i] })));
+        if (hours?.data) setSalesByHour(hours.data.labels.map((l, i) => ({ name: l, sales: hours.data.data[i] })));
+        if (value?.data) setInventoryValue(value.data.labels.map((l, i) => ({ name: l, value: value.data.data[i] })));
+        if (dailyProfit?.data) {
+          setDailyProfitTrend(dailyProfit.data.labels.map((l, i) => ({
+            name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+            profit: dailyProfit.data.data[i],
+          })));
+        }
+        if (lowStock?.data) {
+          setLowStockProducts(lowStock.data.data || []);
+        }
+
+        // Map today's data to dailySummary for the Overview tab if daily-summary endpoint is empty
+        if (!dailyRec?.data) {
+          const payment_methods: any = {};
+          if (todayMethods?.data) {
+            todayMethods.data.labels.forEach((l, i) => {
+              payment_methods[l] = { total: todayMethods.data.data[i], count: 0 }; // Count is not directly available in graph API
+            });
           }
-          if (top?.data) setTopProducts(top.data.data.map(p => ({ name: p.name, quantity: p.quantity_sold, revenue: p.revenue })));
-          if (methods?.data) setSalesByMethod(methods.data.labels.map((l, i) => ({ name: l, value: methods.data.data[i] })));
-          if (hours?.data) setSalesByHour(hours.data.labels.map((l, i) => ({ name: l, sales: hours.data.data[i] })));
-          if (value?.data) setInventoryValue(value.data.labels.map((l, i) => ({ name: l, value: value.data.data[i] })));
-          if (dailyProfit?.data) {
-            setDailyProfitTrend(dailyProfit.data.labels.map((l, i) => ({
-              name: new Date(l).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-              profit: dailyProfit.data.data[i],
-            })));
-          }
-          if (lowStock?.data) {
-            setLowStockProducts(lowStock.data.data || []);
-          }
+
+          setDailySummary({
+            top_products: todayTop?.data?.data.map(p => ({
+              product_name: p.name,
+              product_sku: p.sku,
+              quantity: p.quantity_sold,
+              revenue: p.revenue
+            })) || [],
+            low_stock_alerts: lowStock?.data?.data.map(p => ({
+              name: p.name,
+              sku: p.sku,
+              quantity: p.current_stock,
+              minimum_stock: p.minimum_stock
+            })) || [],
+            payment_methods: payment_methods
+          });
         }
       } catch (error) {
         console.error('Error fetching reports:', error);
