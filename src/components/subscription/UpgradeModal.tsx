@@ -158,13 +158,12 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                 <div className="p-4 rounded-xl bg-card border border-border">
                                     <h4 className="font-medium mb-3 flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-red-500" />
-                                        M-Pesa / Tigo Pesa / Airtel
+                                        Airtel
                                     </h4>
                                     <ul className="space-y-2 text-sm text-muted-foreground">
-                                        <li>1. Piga *150*00# (Au mtandao wako)</li>
-                                        <li>2. Chagua "Lipa kwa M-Pesa"</li>
-                                        <li>3. Weka namba ya kampuni: <strong>123456</strong></li>
-                                        <li>4. Weka namba ya kumbukumbu: <strong className="text-primary cursor-pointer" onClick={() => handleCopyReference('KOKOTOA')}>KOKOTOA</strong></li>
+                                        <li>1. Piga *150*60# (Au mtandao wako)</li>
+                                        <li>2. Chagua "Tuma Airtel au mitandao mengine "</li>
+                                        <li>3. Weka namba ya simu: <strong>0692 069 230</strong></li>
                                         <li>5. Weka kiasi: <strong>{selectedPackage.price}</strong></li>
                                     </ul>
                                 </div>
@@ -181,11 +180,11 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                         }
                                     </p>
                                     <div className="space-y-3">
-                                        <a href="tel:+255XXXXXXXXX" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <a href="tel:+255 692 069 230" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                             <Phone className="w-4 h-4 text-primary" />
-                                            <span className="text-sm">+255 XXX XXX XXX</span>
+                                            <span className="text-sm">+255 692 069 230</span>
                                         </a>
-                                        <a href="https://wa.me/255XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <a href="https://wa.me/255 692 069 230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                             <MessageCircle className="w-4 h-4 text-green-500" />
                                             <span className="text-sm">WhatsApp</span>
                                         </a>
@@ -194,21 +193,7 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                             </div>
                         </div>
 
-                        <div className="bg-muted p-4 rounded-xl flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium">
-                                    {language === 'sw' ? 'Namba ya Kumbukumbu' : 'Reference Number'}
-                                </p>
-                                <p className="text-lg font-mono font-bold text-primary">KOKOTOA</p>
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleCopyReference('KOKOTOA')}
-                            >
-                                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                            </Button>
-                        </div>
+
 
                         <p className="text-center text-sm text-muted-foreground">
                             {language === 'sw'
