@@ -184,7 +184,7 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                             <Phone className="w-4 h-4 text-primary" />
                                             <span className="text-sm">+255 692 069 230</span>
                                         </a>
-                                        <a href="https://wa.me/255 692 069 230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <a href="https://wa.me/255692069230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                             <MessageCircle className="w-4 h-4 text-green-500" />
                                             <span className="text-sm">WhatsApp</span>
                                         </a>
