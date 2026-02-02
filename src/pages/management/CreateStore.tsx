@@ -46,11 +46,16 @@ const CreateStore = () => {
 
       const isCreatingMasterStore = !user.is_profile_complete;
 
+      console.log('[CreateStore] Creating store with data:', formData);
+      console.log('[CreateStore] Is creating master store:', isCreatingMasterStore);
+
       // Use the new /stores/create/ endpoint
       const response = await storesApi.create({
         ...formData,
         phone_number: formData.phone_number || user.phone || '',
       });
+
+      console.log('[CreateStore] Response received:', response);
 
       if (response.success) {
         // Update user in localStorage
@@ -80,6 +85,9 @@ const CreateStore = () => {
         }
       }
     } catch (error: any) {
+      console.error('[CreateStore] Error caught:', error);
+      console.error('[CreateStore] Error details:', JSON.stringify(error, null, 2));
+
       let errorMessage = language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again';
 
       if (error?.errors) {
