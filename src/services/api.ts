@@ -42,8 +42,9 @@ interface SubscriptionStatus {
   has_access: boolean;
   trial_start: string;
   trial_end: string;
+  trial_days_left?: number | null;
   subscription_activated: string | null;
-  days_remaining?: number;
+  days_remaining?: number; // legacy support if needed
   subscription?: {
     package: SubscriptionPackage;
     expires_at: string;

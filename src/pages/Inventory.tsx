@@ -338,7 +338,6 @@ const Inventory = () => {
     <DashboardLayout
       title={language === 'sw' ? 'Hesabu ya Bidhaa' : 'Inventory Management'}
       subtitle={language === 'sw' ? `Jumla: ${products.length} bidhaa` : `Total: ${products.length} products`}
-      notificationCount={lowStockCount}
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between">

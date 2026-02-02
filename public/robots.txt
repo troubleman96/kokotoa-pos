@@ -1,14 +1,27 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# robots.txt for KOKOTOA POS System
+# Allow all search engines to crawl public pages
 
 User-agent: *
 Allow: /
+Allow: /login
+Allow: /register
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+# Disallow private/authenticated pages
+Disallow: /dashboard
+Disallow: /pos
+Disallow: /inventory
+Disallow: /sales-history
+Disallow: /stock-history
+Disallow: /settings
+Disallow: /subscription
+Disallow: /create-store
+Disallow: /verify-phone
+Disallow: /verify-otp
+Disallow: /forgot-password
+
+# Sitemap location
+Sitemap: https://kokotoa.online/sitemap.xml

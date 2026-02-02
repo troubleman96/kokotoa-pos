@@ -7,11 +7,16 @@ import { authApi, storesApi, accountsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
-  User, Lock, Bell, Palette, Save, Store, Edit2, ChevronRight, CreditCard
+  User, Lock, Bell, Palette, Save, Store, Edit2, ChevronRight, CreditCard,
+  ShieldCheck, AlertCircle
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
+import SubscriptionSettings from '@/components/subscription/SubscriptionSettings';
+import UpgradeModal from '@/components/subscription/UpgradeModal';
+import { subscriptionApi, SubscriptionStatus } from '@/services/api';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
@@ -42,6 +47,10 @@ const SettingsPage = () => {
     phone_number: string;
     details: string;
   } | null>(null);
+
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [storeLimit, setStoreLimit] = useState<{ current: number; max: number }>({ current: 0, max: 1 });
 
 
 
@@ -201,6 +210,31 @@ const SettingsPage = () => {
     fetchStoreData();
   }, [user?.store]);
 
+  useEffect(() => {
+    const fetchSubscriptionData = async () => {
+      if (user?.role !== 'OWNER') return;
+      try {
+        const [subRes, storesRes] = await Promise.all([
+          subscriptionApi.getStatus(),
+          storesApi.list()
+        ]);
+
+        if (subRes.success) setSubscriptionStatus(subRes.data);
+        if (storesRes.success) {
+          const maxStores = subRes.data?.subscription?.package.max_stores || 1;
+          setStoreLimit({
+            current: storesRes.data.length,
+            max: maxStores
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching subscription/stores data:', error);
+      }
+    };
+
+    fetchSubscriptionData();
+  }, [user]);
+
   const handleUpdateStore = async () => {
     if (!storeData || !storeData.name || !storeData.location) {
       toast({
@@ -238,7 +272,10 @@ const SettingsPage = () => {
   const tabs = [
     { id: 'profile', label: language === 'sw' ? 'Wasifu' : 'Profile', icon: User },
     { id: 'password', label: language === 'sw' ? 'Nenosiri' : 'Password', icon: Lock },
-    ...(user?.role === 'OWNER' ? [{ id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store }] : []),
+    ...(user?.role === 'OWNER' ? [
+      { id: 'store', label: language === 'sw' ? 'Duka' : 'Store', icon: Store },
+      { id: 'subscription', label: language === 'sw' ? 'Usajili' : 'Subscription', icon: ShieldCheck }
+    ] : []),
     { id: 'notifications', label: language === 'sw' ? 'Arifa' : 'Notifications', icon: Bell },
     { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales', icon: CreditCard },
     { id: 'appearance', label: language === 'sw' ? 'Muonekano' : 'Appearance', icon: Palette },
@@ -577,7 +614,62 @@ const SettingsPage = () => {
           </Card>
         )}
 
-        {/* Notifications Tab */}
+        {/* Subscription Tab */}
+        {activeTab === 'subscription' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
+          <div className="space-y-6">
+            <SubscriptionSettings
+              subscriptionStatus={subscriptionStatus}
+              onUpgrade={() => setShowUpgradeModal(true)}
+            />
+
+            {/* Store Limit Progress */}
+            <Card className="card-kokotoa">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Store className="w-5 h-5 text-primary" />
+                  {language === 'sw' ? 'Limit ya Maduka' : 'Store Limit'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-2xl font-bold">{storeLimit.current} / {storeLimit.max}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'sw' ? 'Maduka yanayotumika' : 'Active stores'}
+                      </p>
+                    </div>
+                    {storeLimit.current >= storeLimit.max && (
+                      <Badge variant="destructive" className="mb-1">
+                        {language === 'sw' ? 'Mwisho Umefikiwa' : 'Limit Reached'}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-1000 ${(storeLimit.current / storeLimit.max) >= 1 ? 'bg-destructive' : 'bg-primary'
+                        }`}
+                      style={{ width: `${Math.min(100, (storeLimit.current / storeLimit.max) * 100)}%` }}
+                    />
+                  </div>
+
+                  {storeLimit.current >= storeLimit.max && (
+                    <div className="bg-destructive/10 p-4 rounded-xl border border-destructive/20 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                      <p className="text-sm text-destructive font-medium">
+                        {language === 'sw'
+                          ? 'Umefika kikomo cha maduka. Boresha kifurushi chako ili kuongeza duka lingine.'
+                          : 'You have reached your store limit. Upgrade your plan to add more stores.'
+                        }
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         {activeTab === 'notifications' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <Card className="card-kokotoa">
             <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
@@ -710,6 +802,15 @@ const SettingsPage = () => {
         )}
       </div>
 
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => {
+          setShowUpgradeModal(false);
+          // Refresh status after modal close
+          refreshUser();
+        }}
+        subscriptionInfo={subscriptionStatus || undefined}
+      />
     </DashboardLayout>
   );
 };

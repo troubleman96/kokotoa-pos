@@ -24,7 +24,7 @@ const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
     // 3. EXPIRED and verified - Show "Upgrade Subscription"
 
     if (status === 'TRIAL') {
-        const daysLeft = days_remaining || 0;
+        const daysLeft = subscriptionStatus.trial_days_left ?? user?.trial_days_left ?? days_remaining ?? 0;
         const isUrgent = daysLeft <= 3;
 
         return (

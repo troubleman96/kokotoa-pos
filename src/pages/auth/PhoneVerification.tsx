@@ -155,13 +155,23 @@ const PhoneVerification = () => {
                                 <div className="p-4 rounded-xl bg-muted/50 text-center">
                                     <span className="text-lg font-mono font-bold">{phone}</span>
                                 </div>
-                                <Button
-                                    onClick={handleRequestOTP}
-                                    className="w-full btn-kokotoa h-12 text-lg"
-                                    isLoading={isResending}
-                                >
-                                    {language === 'sw' ? 'Tuma OTP' : 'Request OTP'}
-                                </Button>
+                                <div className="flex flex-col gap-3">
+                                    <Button
+                                        onClick={handleRequestOTP}
+                                        className="w-full btn-kokotoa h-12 text-lg"
+                                        isLoading={isResending}
+                                    >
+                                        {language === 'sw' ? 'Tuma OTP' : 'Request OTP'}
+                                    </Button>
+
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => navigate('/dashboard')}
+                                        className="w-full h-12"
+                                    >
+                                        {language === 'sw' ? 'Ruka kwa sasa' : 'Skip for now'}
+                                    </Button>
+                                </div>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
@@ -211,14 +221,25 @@ const PhoneVerification = () => {
                                     {language === 'sw' ? 'Thibitisha' : 'Verify OTP'}
                                 </Button>
 
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => setOtpRequested(false)}
-                                    className="w-full h-12"
-                                >
-                                    {language === 'sw' ? 'Tumia namba nyingine' : 'Use different number'}
-                                </Button>
+                                <div className="flex flex-col gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => navigate('/dashboard')}
+                                        className="w-full h-12"
+                                    >
+                                        {language === 'sw' ? 'Ruka kwa sasa' : 'Skip for now'}
+                                    </Button>
+
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => setOtpRequested(false)}
+                                        className="w-full h-12"
+                                    >
+                                        {language === 'sw' ? 'Tumia namba nyingine' : 'Use different number'}
+                                    </Button>
+                                </div>
                             </form>
                         )}
 

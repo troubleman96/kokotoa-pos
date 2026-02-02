@@ -2,20 +2,12 @@ import { useState, ReactNode } from 'react';
 import AppSidebar from './AppSidebar';
 import AppHeader from './AppHeader';
 import NotificationPanel from './NotificationPanel';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface DashboardLayoutProps {
     children: ReactNode;
     title: string;
     subtitle?: string;
-    notificationCount?: number;
-    notifications?: Array<{
-        id: string;
-        type: 'low_stock' | 'sale' | 'system';
-        title: string;
-        message: string;
-        time: string;
-        read: boolean;
-    }>;
     headerActions?: React.ReactNode;
 }
 
@@ -23,16 +15,14 @@ const DashboardLayout = ({
     children,
     title,
     subtitle,
-    notificationCount = 0,
-    notifications = [],
     headerActions
 }: DashboardLayoutProps) => {
+    const { notifications, notificationCount, markAsRead } = useNotifications();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
     const handleMarkAsRead = (id: string) => {
-        // This would typically update state in a parent component or context
-        console.log('Mark as read:', id);
+        markAsRead(id);
     };
 
     return (
