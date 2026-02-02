@@ -59,12 +59,11 @@ interface User {
   email?: string;
   first_name: string;
   last_name: string;
-  role: 'OWNER' | 'CASHIER' | 'STAFF' | string;
-  role_name: string;
+  role: 'OWNER' | 'CASHIER' | 'STAFF' | null;
+  role_name: string | null;
   store: number | null;
-  store_name?: string;
+  store_name?: string | null;
   is_phone_verified: boolean;
-  is_store_created: boolean;
   is_profile_complete: boolean;
   created_at: string;
   // Subscription fields
@@ -74,6 +73,7 @@ interface User {
   trial_start_date?: string;
   trial_end_date?: string;
   subscription_activated_at?: string;
+  trial_days_left?: number | null;
 }
 
 class ApiService {
@@ -297,30 +297,30 @@ export const accountsApi = {
 
 export const subscriptionApi = {
   getPackages: () =>
-    api.get<{ success: boolean; message: string; data: SubscriptionPackage[]; errors: any }>('/accounts/packages/'),
+    api.get<{ success: boolean; message: string; data: SubscriptionPackage[]; errors: any }>('/subscriptions/packages/'),
 
   getStatus: () =>
-    api.get<{ success: boolean; message: string; data: SubscriptionStatus; errors: any }>('/accounts/subscription-status/'),
+    api.get<{ success: boolean; message: string; data: SubscriptionStatus; errors: any }>('/subscriptions/status/'),
 };
 
 export const storesApi = {
   create: (data: { name: string; location: string; details?: string; phone_number: string }) =>
-    api.post<{ success: boolean; message: string; data: Store; errors: any }>('/accounts/stores/', data),
+    api.post<{ success: boolean; message: string; data: { store: Store; user?: { id: number; is_profile_complete: boolean; role: string } }; errors: any }>('/stores/create/', data),
 
   list: () =>
-    api.get<{ success: boolean; message: string; data: Store[]; errors: any }>('/accounts/stores/'),
+    api.get<{ success: boolean; message: string; data: Store[]; errors: any }>('/stores/management/'),
 
   get: (id: number) =>
-    api.get<{ success: boolean; message: string; data: Store & { user_count: number }; errors: any }>(`/accounts/stores/${id}/`),
+    api.get<{ success: boolean; message: string; data: Store & { user_count: number }; errors: any }>(`/stores/management/${id}/`),
 
   update: (id: number, data: Partial<Store>) =>
-    api.put<{ success: boolean; message: string; data: Store; errors: any }>(`/accounts/stores/${id}/`, data),
+    api.put<{ success: boolean; message: string; data: Store; errors: any }>(`/stores/management/${id}/`, data),
 
   patch: (id: number, data: Partial<Store>) =>
-    api.patch<{ success: boolean; message: string; data: Store; errors: any }>(`/accounts/stores/${id}/`, data),
+    api.patch<{ success: boolean; message: string; data: Store; errors: any }>(`/stores/management/${id}/`, data),
 
   delete: (id: number) =>
-    api.delete<{ success: boolean; message: string; errors: any }>(`/accounts/stores/${id}/`),
+    api.delete<{ success: boolean; message: string; errors: any }>(`/stores/management/${id}/`),
 };
 
 export const usersApi = {

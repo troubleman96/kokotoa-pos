@@ -29,10 +29,9 @@ const CreateStore = () => {
       navigate('/login');
       return;
     }
-    if (user.is_profile_complete) {
-      navigate('/dashboard');
-    }
-    // If user is not profile complete, stay on this page and show the form
+    // Allow access whether profile is complete or not
+    // If not complete: creating Master Store
+    // If complete: creating additional store
   }, [user, navigate, logout, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,44 +43,65 @@ const CreateStore = () => {
         navigate('/login');
         return;
       }
-      // Use fetch directly to get status and data
-      const accessToken = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api-pos.kokotoa.online/api'}/accounts/stores/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          ...formData,
-          phone_number: formData.phone_number || user.phone || '',
-        }),
+
+      const isCreatingMasterStore = !user.is_profile_complete;
+
+      // Use the new /stores/create/ endpoint
+      const response = await storesApi.create({
+        ...formData,
+        phone_number: formData.phone_number || user.phone || '',
       });
-      const data = await res.json();
-      if (res.status === 201 && data.success) {
+
+      if (response.success) {
         // Update user in localStorage
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        userData.is_profile_complete = true;
-        userData.store = data.data.id;
-        userData.store_name = data.data.name;
-        localStorage.setItem('user', JSON.stringify(userData));
-        toast({
-          title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
-          description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
-        });
-        navigate('/dashboard');
-      } else {
-        toast({
-          title: language === 'sw' ? 'Kosa!' : 'Error!',
-          description: (data && data.message) || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
-          variant: 'destructive',
-        });
+
+        if (isCreatingMasterStore && response.data.user) {
+          // Master Store creation - update profile completion and role
+          userData.is_profile_complete = response.data.user.is_profile_complete;
+          userData.role = response.data.user.role;
+          userData.store = response.data.store.id;
+          userData.store_name = response.data.store.name;
+          localStorage.setItem('user', JSON.stringify(userData));
+
+          toast({
+            title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
+            description: language === 'sw' ? 'Karibu kwa mfumo wako wa mauzo' : 'Welcome to your POS system',
+          });
+          navigate('/dashboard');
+        } else {
+          // Additional store creation
+          toast({
+            title: language === 'sw' ? 'Duka limeundwa!' : 'Store created!',
+            description: language === 'sw' ? `Duka "${response.data.store.name}" limeundwa kwa mafanikio` : `Store "${response.data.store.name}" created successfully`,
+          });
+          // Optionally navigate to stores management or stay on page
+          navigate('/settings');
+        }
       }
-    } catch (error: unknown) {
-      const err = error as { message?: string };
+    } catch (error: any) {
+      let errorMessage = language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again';
+
+      if (error?.errors) {
+        if (error.errors.non_field_errors) {
+          errorMessage = error.errors.non_field_errors[0];
+        } else if (error.errors.detail) {
+          errorMessage = error.errors.detail;
+        } else {
+          const firstError = Object.values(error.errors)[0];
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0] as string;
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          }
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: language === 'sw' ? 'Kosa!' : 'Error!',
-        description: err.message || (language === 'sw' ? 'Tafadhali wasiliana na msaada' : 'Please try again'),
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -106,12 +126,21 @@ const CreateStore = () => {
             <Store className="w-10 h-10 text-primary" />
           </div>
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            {language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store'}
+            {!user?.is_profile_complete
+              ? (language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store')
+              : (language === 'sw' ? 'Ongeza Duka Jipya' : 'Add New Store')
+            }
           </h1>
           <p className="text-muted-foreground">
-            {language === 'sw' 
-              ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
-              : 'Congratulations! Create your first store to start doing business.'
+            {!user?.is_profile_complete
+              ? (language === 'sw'
+                ? 'Inaunganisha! Unda duka lako la kwanza ili kuanza kufanya biashara.'
+                : 'Congratulations! Create your first store to start doing business.'
+              )
+              : (language === 'sw'
+                ? 'Ongeza duka lingine kwa biashara yako.'
+                : 'Add another store to your business.'
+              )
             }
           </p>
         </div>
