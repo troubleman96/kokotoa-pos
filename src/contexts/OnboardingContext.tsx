@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface TourStep {
     id: string;
@@ -7,6 +8,7 @@ export interface TourStep {
     content: { sw: string; en: string };
     position: 'top' | 'bottom' | 'left' | 'right' | 'center';
     action?: () => void;
+    nextPage?: string;
 }
 
 interface OnboardingState {
@@ -17,6 +19,7 @@ interface OnboardingState {
     hasSeenWelcome: boolean;
     hasCompletedOnboarding: boolean;
     showWelcome: boolean;
+    currentSteps: TourStep[];
 }
 
 interface OnboardingContextType {
@@ -29,7 +32,6 @@ interface OnboardingContextType {
     restartOnboarding: () => void;
     dismissWelcome: () => void;
     acceptWelcome: () => void;
-    currentSteps: TourStep[];
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -65,9 +67,10 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
         hasSeenWelcome: stored.hasSeenWelcome || false,
         hasCompletedOnboarding: stored.hasCompletedOnboarding || false,
         showWelcome: false,
+        currentSteps: [],
     });
 
-    const [currentSteps, setCurrentSteps] = useState<TourStep[]>([]);
+    const navigate = useNavigate();
 
     // Check if user should see welcome on first dashboard visit
     useEffect(() => {
@@ -81,22 +84,38 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     }, [state.hasSeenWelcome, state.hasCompletedOnboarding]);
 
     const startTour = (page: string, steps: TourStep[]) => {
-        if (state.hasCompletedOnboarding || state.completedPages.includes(page)) {
-            return; // Don't start tour if already completed
+        // Allow starting a new tour even if one is active (for cross-page flow)
+        if (state.hasCompletedOnboarding && !state.isActive) {
+            return;
         }
 
-        setCurrentSteps(steps);
         setState(prev => ({
             ...prev,
             isActive: true,
             currentStep: 0,
             currentPage: page,
+            currentSteps: steps,
         }));
     };
 
     const nextStep = () => {
+        const currentStepObj = state.currentSteps[state.currentStep];
+
+        // Handle cross-page navigation if specified
+        if (currentStepObj?.nextPage && state.currentStep === state.currentSteps.length - 1) {
+            navigate(currentStepObj.nextPage);
+            // We don't finish yet, let the next page's OnboardingTour take over
+            setState(prev => ({
+                ...prev,
+                isActive: false, // Briefly deactivate so the next page can auto-start
+                completedPages: [...prev.completedPages, prev.currentPage]
+            }));
+            saveState({ completedPages: [...state.completedPages, state.currentPage] });
+            return;
+        }
+
         setState(prev => {
-            const stepsLength = currentSteps.length;
+            const stepsLength = prev.currentSteps.length;
             if (prev.currentStep < stepsLength - 1) {
                 return { ...prev, currentStep: prev.currentStep + 1 };
             } else {
@@ -131,7 +150,6 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
             saveState({ hasCompletedOnboarding: true });
             return newState;
         });
-        setCurrentSteps([]);
     };
 
     const completeTour = () => {
@@ -146,9 +164,7 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
             saveState({ completedPages: newCompletedPages });
             return newState;
         });
-        setCurrentSteps([]);
     };
-
     const restartOnboarding = () => {
         setState({
             isActive: false,
@@ -158,13 +174,13 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
             hasSeenWelcome: false,
             hasCompletedOnboarding: false,
             showWelcome: true,
+            currentSteps: [],
         });
         saveState({
             completedPages: [],
             hasSeenWelcome: false,
             hasCompletedOnboarding: false,
         });
-        setCurrentSteps([]);
     };
 
     const dismissWelcome = () => {
@@ -198,7 +214,6 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
                 restartOnboarding,
                 dismissWelcome,
                 acceptWelcome,
-                currentSteps,
             }}
         >
             {children}

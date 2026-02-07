@@ -65,6 +65,7 @@ export const dashboardTourSteps: TourStep[] = [
             en: 'Products with low stock are shown here. Make sure to restock early to avoid running out.',
         },
         position: 'top',
+        nextPage: '/pos',
     },
 ];
 
@@ -142,10 +143,11 @@ export const posTourSteps: TourStep[] = [
             en: 'Complete Sale ✅',
         },
         content: {
-            sw: 'Bofya hapa kumaliza mauzo. Risiti itatolewa moja kwa moja na hesabu itasasishwa.',
+            sw: 'Bofya hapa kumaliza mauzo. Risiti kutolewa moja kwa moja na hesabu itasasishwa.',
             en: 'Click here to complete the sale. A receipt will be generated automatically and stock will be updated.',
         },
         position: 'top',
+        nextPage: '/inventory',
     },
 ];
 
@@ -214,6 +216,7 @@ export const inventoryTourSteps: TourStep[] = [
             en: 'Use this to increase or decrease stock manually. Reasons for changes will be recorded.',
         },
         position: 'left',
+        nextPage: '/stock-history',
     },
 ];
 
@@ -246,7 +249,7 @@ export const stockHistoryTourSteps: TourStep[] = [
     },
     {
         id: 'stock-history-list',
-        target: '[data-tour="movement-list"]',
+        target: '[data-tour="stock-movements-list"]',
         title: {
             sw: 'Orodha ya Mabadiliko 📊',
             en: 'Movement List 📊',
@@ -256,6 +259,7 @@ export const stockHistoryTourSteps: TourStep[] = [
             en: 'Each movement shows product, type, quantity, and reason. This helps track your inventory.',
         },
         position: 'top',
+        nextPage: '/sales-history',
     },
 ];
 
@@ -301,7 +305,7 @@ export const salesHistoryTourSteps: TourStep[] = [
     },
     {
         id: 'sales-history-receipt',
-        target: '[data-tour="receipt-action"]',
+        target: '[data-tour="sales-receipt-action"]',
         title: {
             sw: 'Chapisha Risiti 🖨️',
             en: 'Print Receipt 🖨️',
@@ -311,6 +315,7 @@ export const salesHistoryTourSteps: TourStep[] = [
             en: 'You can reprint receipts for customers. Receipts show all items and totals.',
         },
         position: 'left',
+        nextPage: '/reports',
     },
 ];
 
@@ -330,7 +335,7 @@ export const reportsTourSteps: TourStep[] = [
     },
     {
         id: 'reports-filters',
-        target: '[data-tour="date-filters"]',
+        target: '[data-tour="reports-date-filter"]',
         title: {
             sw: 'Chagua Muda 📅',
             en: 'Select Period 📅',
@@ -343,7 +348,7 @@ export const reportsTourSteps: TourStep[] = [
     },
     {
         id: 'reports-charts',
-        target: '[data-tour="reports-charts"]',
+        target: '[data-tour="reports-tabs"]',
         title: {
             sw: 'Grafu za Takwimu 📈',
             en: 'Analytics Charts 📈',
@@ -356,7 +361,7 @@ export const reportsTourSteps: TourStep[] = [
     },
     {
         id: 'reports-export',
-        target: '[data-tour="export-button"]',
+        target: '[data-tour="reports-export"]',
         title: {
             sw: 'Pakua Ripoti 💾',
             en: 'Export Reports 💾',
@@ -366,6 +371,7 @@ export const reportsTourSteps: TourStep[] = [
             en: 'Download reports as CSV files for Excel or further analysis.',
         },
         position: 'left',
+        nextPage: '/settings',
     },
 ];
 
@@ -421,6 +427,7 @@ export const settingsTourSteps: TourStep[] = [
             en: 'Change your password regularly for better security. Use a strong password.',
         },
         position: 'right',
+        nextPage: '/users',
     },
 ];
 
