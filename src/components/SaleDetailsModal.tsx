@@ -158,56 +158,6 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                 </div>
                             </div>
 
-                            {/* Info Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                                        <User className="w-3.5 h-3.5" />
-                                        {language === 'sw' ? 'Mteja' : 'Customer'}
-                                    </div>
-                                    <p className="font-black text-sm text-foreground mb-0.5">
-                                        {sale.customer_name || (language === 'sw' ? 'Mteja wa Kawaida' : 'Walk-in Customer')}
-                                    </p>
-                                    {sale.customer_phone && <p className="text-xs font-mono font-bold text-primary">{sale.customer_phone}</p>}
-                                </div>
-
-                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                                        <Calendar className="w-3.5 h-3.5" />
-                                        {language === 'sw' ? 'Tarehe & Saa' : 'Date & Time'}
-                                    </div>
-                                    <p className="font-black text-sm text-foreground mb-0.5">
-                                        {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM yyyy') : '-'}
-                                    </p>
-                                    <p className="text-xs font-bold text-muted-foreground">
-                                        {sale.created_at ? format(parseISO(sale.created_at), 'HH:mm:ss') : '-'}
-                                    </p>
-                                </div>
-
-                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                                        <Receipt className="w-3.5 h-3.5" />
-                                        {language === 'sw' ? 'Keshia' : 'Cashier'}
-                                    </div>
-                                    <p className="font-black text-sm text-foreground mb-0.5">
-                                        {sale.created_by_name}
-                                    </p>
-                                </div>
-
-                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                                        <RefreshCcw className="w-3.5 h-3.5" />
-                                        {language === 'sw' ? 'Namba ya Siri' : 'Reference'}
-                                    </div>
-                                    <p className="font-black text-sm text-foreground mb-0.5">
-                                        {sale.payment_reference || 'N/A'}
-                                    </p>
-                                    <p className="text-xs font-bold text-muted-foreground">
-                                        {language === 'sw' ? 'Malipo' : 'Payment Method'}: {sale.payment_method}
-                                    </p>
-                                </div>
-                            </div>
-
                             {/* Items Section */}
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
@@ -277,6 +227,56 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                         <span className="font-black uppercase tracking-widest text-base">{language === 'sw' ? 'Jumla Kuu' : 'Net Total'}</span>
                                         <span className="text-2xl font-display font-black tabular-nums">{sale.formatted_total}</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Info Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                                        <User className="w-3.5 h-3.5" />
+                                        {language === 'sw' ? 'Mteja' : 'Customer'}
+                                    </div>
+                                    <p className="font-black text-sm text-foreground mb-0.5">
+                                        {sale.customer_name || (language === 'sw' ? 'Mteja wa Kawaida' : 'Walk-in Customer')}
+                                    </p>
+                                    {sale.customer_phone && <p className="text-xs font-mono font-bold text-primary">{sale.customer_phone}</p>}
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                                        <Calendar className="w-3.5 h-3.5" />
+                                        {language === 'sw' ? 'Tarehe & Saa' : 'Date & Time'}
+                                    </div>
+                                    <p className="font-black text-sm text-foreground mb-0.5">
+                                        {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM yyyy') : '-'}
+                                    </p>
+                                    <p className="text-xs font-bold text-muted-foreground">
+                                        {sale.created_at ? format(parseISO(sale.created_at), 'HH:mm:ss') : '-'}
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                                        <Receipt className="w-3.5 h-3.5" />
+                                        {language === 'sw' ? 'Keshia' : 'Cashier'}
+                                    </div>
+                                    <p className="font-black text-sm text-foreground mb-0.5">
+                                        {sale.created_by_name}
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 group hover:border-primary/20 transition-all">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                                        <RefreshCcw className="w-3.5 h-3.5" />
+                                        {language === 'sw' ? 'Namba ya Siri' : 'Reference'}
+                                    </div>
+                                    <p className="font-black text-sm text-foreground mb-0.5">
+                                        {sale.payment_reference || 'N/A'}
+                                    </p>
+                                    <p className="text-xs font-bold text-muted-foreground">
+                                        {language === 'sw' ? 'Malipo' : 'Payment Method'}: {sale.payment_method}
+                                    </p>
                                 </div>
                             </div>
                         </div>
