@@ -19,6 +19,8 @@ import {
 import MathLoader from '@/components/ui/MathLoader';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { reportsTourSteps } from '@/data/tourSteps';
+import SaleDetailsModal from '@/components/SaleDetailsModal';
+import { Sale } from '@/services/api';
 
 const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -30,6 +32,7 @@ const Reports = () => {
     sales: Array<{
       id: number;
       transaction_number: string;
+      product_names?: string;
       date: string;
       items_count: number;
       total_amount: number;
@@ -83,6 +86,16 @@ const Reports = () => {
   const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
 
   const [dateRange, setDateRange] = useState('7');
+
+  // Modal States
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleRowClick = (sale: any) => {
+    // Map minimal data to Sale type for the modal (which will fetch more if needed)
+    setSelectedSale(sale as Sale);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -528,28 +541,43 @@ const Reports = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="border-b border-border bg-muted/30">
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</th>
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Kiasi' : 'Qty'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest text-primary">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
                               {salesData.sales.slice(0, 20).map((sale) => (
-                                <tr key={sale.id} className="hover:bg-muted/20 transition-colors">
-                                  <td className="p-4 font-mono text-xs font-bold text-foreground">{sale.transaction_number}</td>
+                                <tr
+                                  key={sale.id}
+                                  className="hover:bg-primary/5 transition-all cursor-pointer group border-b border-border/50 last:border-0"
+                                  onClick={() => handleRowClick(sale)}
+                                >
                                   <td className="p-4">
-                                    <div className="text-sm">
-                                      <p className="font-medium">{new Date(sale.date).toLocaleDateString()}</p>
-                                      <p className="text-[10px] text-muted-foreground">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    <p className="font-mono text-xs font-black text-foreground mb-0.5 group-hover:text-primary transition-colors">{sale.transaction_number}</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground line-clamp-1 max-w-[300px] uppercase tracking-tighter">
+                                      {sale.product_names || (language === 'sw' ? 'Hakuna maelezo...' : 'No items listed')}
+                                    </p>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="text-xs">
+                                      <p className="font-black text-foreground">{new Date(sale.date).toLocaleDateString()}</p>
+                                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </div>
                                   </td>
                                   <td className="p-4">
-                                    <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-bold">{sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}</span>
+                                    <span className="px-2.5 py-1 bg-muted group-hover:bg-primary/10 rounded-lg text-[10px] font-black uppercase transition-colors">
+                                      {sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}
+                                    </span>
                                   </td>
-                                  <td className="p-4 text-xs font-medium text-muted-foreground">{sale.payment_method}</td>
-                                  <td className="p-4 text-right font-bold text-primary">{formatPrice(sale.total_amount)}</td>
+                                  <td className="p-4">
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{sale.payment_method}</span>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="font-black text-base text-primary tabular-nums">{formatPrice(sale.total_amount)}</p>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -559,27 +587,38 @@ const Reports = () => {
                         {/* Mobile View */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
                           {salesData.sales.slice(0, 15).map((sale) => (
-                            <div key={sale.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
+                            <div
+                              key={sale.id}
+                              className="p-4 rounded-2xl border border-border bg-card shadow-sm hover:border-primary/30 transition-all cursor-pointer space-y-3 relative overflow-hidden"
+                              onClick={() => handleRowClick(sale)}
+                            >
                               <div className="flex items-center justify-between">
-                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
-                                  {sale.transaction_number}
+                                <div className="space-y-0.5">
+                                  <div className="font-mono text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-lg inline-block">
+                                    {sale.transaction_number}
+                                  </div>
+                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
+                                    {sale.product_names}
+                                  </p>
                                 </div>
-                                <div className="text-[10px] text-muted-foreground font-medium">
+                                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
                                   {new Date(sale.date).toLocaleDateString()}
                                 </div>
                               </div>
-                              <div className="flex items-end justify-between">
+                              <div className="flex items-end justify-between pt-1">
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
-                                    {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
-                                    <span className="text-xs font-bold">{sale.payment_method}</span>
+                                    <div className="p-1 rounded bg-muted/50">
+                                      {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{sale.payment_method}</span>
                                   </div>
-                                  <div className="text-[10px] text-muted-foreground">
-                                    {sale.items_count} {language === 'sw' ? 'Vitu zilizouzwa' : 'Items sold'}
+                                  <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                                    {sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-base font-bold text-primary">{formatPrice(sale.total_amount)}</p>
+                                  <p className="text-lg font-black text-primary tabular-nums">{formatPrice(sale.total_amount)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1040,32 +1079,47 @@ const Reports = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="border-b border-border bg-muted/30">
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mauzo' : 'Sales'}</th>
-                                <th className="text-right p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Faida' : 'Profit'}</th>
-                                <th className="text-center p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Margin' : 'Margin'}</th>
-                                <th className="text-left p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Keshia' : 'Cashier'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Mauzo' : 'Sales'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest text-emerald-500">{language === 'sw' ? 'Faida' : 'Profit'}</th>
+                                <th className="text-center p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Margin' : 'Margin'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Keshia' : 'Cashier'}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
                               {profitReport.profit_transactions.slice(0, 20).map((tx: any) => (
-                                <tr key={tx.id} className="hover:bg-muted/20 transition-colors">
-                                  <td className="p-4 font-mono text-xs font-bold text-foreground">{tx.transaction_number}</td>
+                                <tr
+                                  key={tx.id}
+                                  className="hover:bg-primary/5 transition-all cursor-pointer group border-b border-border/50 last:border-0"
+                                  onClick={() => handleRowClick(tx)}
+                                >
                                   <td className="p-4">
-                                    <div className="text-sm">
-                                      <p className="font-medium">{new Date(tx.date).toLocaleDateString()}</p>
-                                      <p className="text-[10px] text-muted-foreground">{new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    <p className="font-mono text-xs font-black text-foreground mb-0.5 group-hover:text-primary transition-colors">{tx.transaction_number}</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground line-clamp-1 max-w-[250px] uppercase tracking-tighter">
+                                      {tx.product_names || (language === 'sw' ? 'Hakuna maelezo...' : 'No items listed')}
+                                    </p>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="text-xs">
+                                      <p className="font-black text-foreground">{new Date(tx.date).toLocaleDateString()}</p>
+                                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </div>
                                   </td>
-                                  <td className="p-4 text-right font-medium">{formatPrice(tx.net_amount)}</td>
-                                  <td className="p-4 text-right font-bold text-emerald-500">{formatPrice(tx.total_profit)}</td>
+                                  <td className="p-4 text-right">
+                                    <p className="text-xs font-black text-foreground tabular-nums">{formatPrice(tx.net_amount)}</p>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="text-sm font-black text-emerald-500 tabular-nums">{formatPrice(tx.total_profit)}</p>
+                                  </td>
                                   <td className="p-4 text-center">
-                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-bold">
+                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-lg text-[10px] font-black uppercase">
                                       {tx.profit_margin.toFixed(1)}%
                                     </span>
                                   </td>
-                                  <td className="p-4 text-sm text-muted-foreground">{tx.cashier}</td>
+                                  <td className="p-4">
+                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{tx.cashier}</p>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -1075,21 +1129,36 @@ const Reports = () => {
                         {/* Mobile View */}
                         <div className="grid grid-cols-1 gap-3 md:hidden">
                           {profitReport.profit_transactions.slice(0, 15).map((tx: any) => (
-                            <div key={tx.id} className="p-4 rounded-xl border border-border bg-card shadow-sm space-y-3">
+                            <div
+                              key={tx.id}
+                              className="p-4 rounded-2xl border border-border bg-card shadow-sm hover:border-emerald-500/30 transition-all cursor-pointer space-y-3 relative overflow-hidden"
+                              onClick={() => handleRowClick(tx)}
+                            >
                               <div className="flex items-center justify-between">
-                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted p-1 rounded">
-                                  {tx.transaction_number}
+                                <div className="space-y-0.5">
+                                  <div className="font-mono text-[10px] font-black text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded-lg inline-block">
+                                    {tx.transaction_number}
+                                  </div>
+                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
+                                    {tx.product_names}
+                                  </p>
                                 </div>
-                                <div className="text-xs font-bold text-emerald-500">
-                                  +{formatPrice(tx.total_profit)}
+                                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+                                  {new Date(tx.date).toLocaleDateString()}
                                 </div>
                               </div>
-                              <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                                <div className="text-[10px] text-muted-foreground">
-                                  {tx.cashier} • {new Date(tx.date).toLocaleDateString()}
+                              <div className="flex items-end justify-between pt-1 border-t border-border/50">
+                                <div className="space-y-1">
+                                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                                    {tx.cashier}
+                                  </div>
+                                  <div className="text-[10px] font-bold bg-muted px-2 py-0.5 rounded-full inline-block">
+                                    {tx.profit_margin.toFixed(1)}% margin
+                                  </div>
                                 </div>
-                                <div className="text-[10px] font-bold bg-muted px-2 py-0.5 rounded-full">
-                                  {tx.profit_margin.toFixed(1)}% margin
+                                <div className="text-right">
+                                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">{language === 'sw' ? 'Faida' : 'Profit'}</p>
+                                  <p className="text-lg font-black text-emerald-500 tabular-nums">{formatPrice(tx.total_profit)}</p>
                                 </div>
                               </div>
                             </div>
@@ -1185,6 +1254,11 @@ const Reports = () => {
         )}
       </div>
       <OnboardingTour page="reports" steps={reportsTourSteps} />
+      <SaleDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        sale={selectedSale}
+      />
     </DashboardLayout >
   );
 };
