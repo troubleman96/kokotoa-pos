@@ -84,12 +84,12 @@ const TourWelcome = () => {
     const t = content[language];
 
     return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="card-kokotoa rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-2 border-primary/20 animate-slide-up relative">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+            <div className="card-kokotoa rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-2 border-primary/20 animate-slide-up relative my-8 max-h-[90vh] overflow-y-auto">
                 {/* Close button */}
                 <button
                     onClick={dismissWelcome}
-                    className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors z-10"
                 >
                     <X className="w-6 h-6" />
                 </button>
