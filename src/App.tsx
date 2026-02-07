@@ -49,6 +49,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import ScrollToHashElement from "@/components/ScrollToHashElement";
 
 const App = () => (
@@ -58,36 +59,38 @@ const App = () => (
       <LanguageProvider>
         <AuthProvider>
           <SettingsProvider>
-            <NotificationProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/demo" element={<Demo />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/verify-otp" element={<VerifyOTP />} />
-                  <Route path="/verify-phone" element={<PhoneVerification />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/pos" element={<ProtectedRoute><POS /></ProtectedRoute>} />
-                  <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-                  <Route path="/stock-history" element={<ProtectedRoute><StockHistory /></ProtectedRoute>} />
-                  <Route path="/sales-history" element={<ProtectedRoute><SalesHistory /></ProtectedRoute>} />
-                  <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-                  <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                  <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-                  <Route path="/create-store" element={<ProtectedRoute><CreateStore /></ProtectedRoute>} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </TooltipProvider>
-            </NotificationProvider>
+            <OnboardingProvider>
+              <NotificationProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/demo" element={<Demo />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/verify-otp" element={<VerifyOTP />} />
+                    <Route path="/verify-phone" element={<PhoneVerification />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/pos" element={<ProtectedRoute><POS /></ProtectedRoute>} />
+                    <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+                    <Route path="/stock-history" element={<ProtectedRoute><StockHistory /></ProtectedRoute>} />
+                    <Route path="/sales-history" element={<ProtectedRoute><SalesHistory /></ProtectedRoute>} />
+                    <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+                    <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+                    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+                    <Route path="/create-store" element={<ProtectedRoute><CreateStore /></ProtectedRoute>} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </TooltipProvider>
+              </NotificationProvider>
+            </OnboardingProvider>
           </SettingsProvider>
         </AuthProvider>
       </LanguageProvider>

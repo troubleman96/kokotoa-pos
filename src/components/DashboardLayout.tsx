@@ -2,6 +2,7 @@ import { useState, ReactNode } from 'react';
 import AppSidebar from './AppSidebar';
 import AppHeader from './AppHeader';
 import NotificationPanel from './NotificationPanel';
+import TourWelcome from './onboarding/TourWelcome';
 import { useNotifications } from '@/contexts/NotificationContext';
 
 interface DashboardLayoutProps {
@@ -50,6 +51,8 @@ const DashboardLayout = ({
                 notifications={notifications}
                 onMarkAsRead={handleMarkAsRead}
             />
+
+            <TourWelcome />
         </div>
     );
 };

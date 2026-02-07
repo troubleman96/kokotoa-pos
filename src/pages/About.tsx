@@ -13,16 +13,15 @@ const About = () => {
   ];
 
   const team = [
-    { name: 'Juma Mwangi', role: 'Mwanzilishi & CEO', emoji: '👨🏿‍💼' },
-    { name: 'Amina Hassan', role: 'CTO', emoji: '👩🏿‍💻' },
-    { name: 'Peter Komba', role: 'Mkurugenzi wa Mauzo', emoji: '👨🏿‍💼' },
-    { name: 'Grace Temba', role: 'Msaada wa Wateja', emoji: '👩🏿‍💼' },
+    { name: 'Ditrick Mpangile', role: 'Mwanzilishi & CEO', emoji: '👨🏿‍💼' },
+    { name: 'Lugenge Emmanuel', role: 'Mwanzilishi & CTO', emoji: '👩🏿‍💻' },
+
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-24">
         {/* Hero Section */}
         <section className="py-16 lg:py-24 hero-pattern">
