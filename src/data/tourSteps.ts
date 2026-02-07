@@ -216,3 +216,252 @@ export const inventoryTourSteps: TourStep[] = [
         position: 'left',
     },
 ];
+
+export const stockHistoryTourSteps: TourStep[] = [
+    {
+        id: 'stock-history-welcome',
+        target: '[data-tour="stock-history-header"]',
+        title: {
+            sw: 'Logi ya Bidhaa 📋',
+            en: 'Stock History 📋',
+        },
+        content: {
+            sw: 'Hapa unaweza kuona historia kamili ya mabadiliko yote ya hesabu. Kila mabadiliko yanarekodishwa kwa usalama.',
+            en: 'Here you can see complete history of all stock changes. Every movement is securely recorded.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'stock-history-filters',
+        target: '[data-tour="stock-filters"]',
+        title: {
+            sw: 'Chuja Logi 🔍',
+            en: 'Filter History 🔍',
+        },
+        content: {
+            sw: 'Tumia vichujio kutafuta mabadiliko ya bidhaa maalum au aina ya mabadiliko (kuongeza, kupunguza, mauzo).',
+            en: 'Use filters to find movements for specific products or movement types (restock, adjustment, sale).',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'stock-history-list',
+        target: '[data-tour="movement-list"]',
+        title: {
+            sw: 'Orodha ya Mabadiliko 📊',
+            en: 'Movement List 📊',
+        },
+        content: {
+            sw: 'Kila mabadiliko yanaonyesha bidhaa, aina, kiasi, na sababu. Hii inasaidia kufuatilia hesabu yako.',
+            en: 'Each movement shows product, type, quantity, and reason. This helps track your inventory.',
+        },
+        position: 'top',
+    },
+];
+
+export const salesHistoryTourSteps: TourStep[] = [
+    {
+        id: 'sales-history-welcome',
+        target: '[data-tour="sales-history-header"]',
+        title: {
+            sw: 'Historia ya Mauzo 🧾',
+            en: 'Sales History 🧾',
+        },
+        content: {
+            sw: 'Angalia rekodi zote za mauzo yako. Unaweza kutazama maelezo, kuchapisha risiti, na kufuatilia malipo.',
+            en: 'View all your sales records. You can see details, print receipts, and track payments.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'sales-history-search',
+        target: '[data-tour="sales-search"]',
+        title: {
+            sw: 'Tafuta Mauzo 🔍',
+            en: 'Search Sales 🔍',
+        },
+        content: {
+            sw: 'Tafuta mauzo kwa jina la mteja au nambari ya risiti. Unaweza pia kuchuja kwa tarehe.',
+            en: 'Search sales by customer name or receipt number. You can also filter by date.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'sales-history-list',
+        target: '[data-tour="sales-list"]',
+        title: {
+            sw: 'Orodha ya Mauzo 📋',
+            en: 'Sales List 📋',
+        },
+        content: {
+            sw: 'Kila mauzo yanaonyesha jumla, njia ya malipo, na tarehe. Bofya kuona maelezo zaidi.',
+            en: 'Each sale shows total, payment method, and date. Click to view more details.',
+        },
+        position: 'top',
+    },
+    {
+        id: 'sales-history-receipt',
+        target: '[data-tour="receipt-action"]',
+        title: {
+            sw: 'Chapisha Risiti 🖨️',
+            en: 'Print Receipt 🖨️',
+        },
+        content: {
+            sw: 'Unaweza kuchapisha risiti tena kwa mteja. Risiti zinaonyesha bidhaa zote na jumla.',
+            en: 'You can reprint receipts for customers. Receipts show all items and totals.',
+        },
+        position: 'left',
+    },
+];
+
+export const reportsTourSteps: TourStep[] = [
+    {
+        id: 'reports-welcome',
+        target: '[data-tour="reports-header"]',
+        title: {
+            sw: 'Ripoti za Biashara 📊',
+            en: 'Business Reports 📊',
+        },
+        content: {
+            sw: 'Angalia takwimu kamili za biashara yako. Ripoti zinakusaidia kufanya maamuzi sahihi.',
+            en: 'View comprehensive business analytics. Reports help you make informed decisions.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'reports-filters',
+        target: '[data-tour="date-filters"]',
+        title: {
+            sw: 'Chagua Muda 📅',
+            en: 'Select Period 📅',
+        },
+        content: {
+            sw: 'Chagua tarehe za kuanza na kumalizia ili kuona ripoti za kipindi maalum.',
+            en: 'Select start and end dates to view reports for a specific period.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'reports-charts',
+        target: '[data-tour="reports-charts"]',
+        title: {
+            sw: 'Grafu za Takwimu 📈',
+            en: 'Analytics Charts 📈',
+        },
+        content: {
+            sw: 'Grafu zinaonyesha mwenendo wa mauzo, faida, na bidhaa zinazouzwa zaidi. Rahisi kuelewa.',
+            en: 'Charts show sales trends, profit, and top products. Easy to understand at a glance.',
+        },
+        position: 'top',
+    },
+    {
+        id: 'reports-export',
+        target: '[data-tour="export-button"]',
+        title: {
+            sw: 'Pakua Ripoti 💾',
+            en: 'Export Reports 💾',
+        },
+        content: {
+            sw: 'Pakua ripoti kama faili za CSV kwa ajili ya Excel au uchambuzi zaidi.',
+            en: 'Download reports as CSV files for Excel or further analysis.',
+        },
+        position: 'left',
+    },
+];
+
+export const settingsTourSteps: TourStep[] = [
+    {
+        id: 'settings-welcome',
+        target: '[data-tour="settings-header"]',
+        title: {
+            sw: 'Mipangilio ⚙️',
+            en: 'Settings ⚙️',
+        },
+        content: {
+            sw: 'Dhibiti taarifa zako binafsi, duka lako, na usalama wa akaunti yako.',
+            en: 'Manage your personal information, store details, and account security.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'settings-profile',
+        target: '[data-tour="profile-section"]',
+        title: {
+            sw: 'Taarifa Binafsi 👤',
+            en: 'Personal Information 👤',
+        },
+        content: {
+            sw: 'Badilisha jina lako, nambari ya simu, na barua pepe. Taarifa hizi zinaonyeshwa kwenye risiti.',
+            en: 'Update your name, phone number, and email. This information appears on receipts.',
+        },
+        position: 'right',
+    },
+    {
+        id: 'settings-store',
+        target: '[data-tour="store-section"]',
+        title: {
+            sw: 'Taarifa za Duka 🏪',
+            en: 'Store Information 🏪',
+        },
+        content: {
+            sw: 'Badilisha jina la duka, anwani, na nambari ya simu. Taarifa hizi zinaonyeshwa kwenye risiti.',
+            en: 'Update store name, address, and phone. This information appears on receipts.',
+        },
+        position: 'right',
+    },
+    {
+        id: 'settings-security',
+        target: '[data-tour="security-section"]',
+        title: {
+            sw: 'Usalama 🔒',
+            en: 'Security 🔒',
+        },
+        content: {
+            sw: 'Badilisha nywila yako mara kwa mara kwa usalama zaidi. Tumia nywila ngumu.',
+            en: 'Change your password regularly for better security. Use a strong password.',
+        },
+        position: 'right',
+    },
+];
+
+export const usersTourSteps: TourStep[] = [
+    {
+        id: 'users-welcome',
+        target: '[data-tour="users-header"]',
+        title: {
+            sw: 'Usimamizi wa Wafanyakazi 👥',
+            en: 'Staff Management 👥',
+        },
+        content: {
+            sw: 'Ongeza na dhibiti wafanyakazi wako. Weka majukumu na ruhusa kwa kila mfanyakazi.',
+            en: 'Add and manage your staff. Set roles and permissions for each employee.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'users-add',
+        target: '[data-tour="add-user"]',
+        title: {
+            sw: 'Ongeza Mfanyakazi ➕',
+            en: 'Add Staff ➕',
+        },
+        content: {
+            sw: 'Bofya hapa kuongeza mfanyakazi mpya. Weka jina, nambari ya simu, na jukumu.',
+            en: 'Click here to add a new staff member. Enter name, phone number, and role.',
+        },
+        position: 'bottom',
+    },
+    {
+        id: 'users-roles',
+        target: '[data-tour="user-list"]',
+        title: {
+            sw: 'Majukumu ya Wafanyakazi 🎭',
+            en: 'Staff Roles 🎭',
+        },
+        content: {
+            sw: 'Kuna majukumu 3: Mmiliki (Owner), Meneja (Manager), na Karani (Cashier). Kila jukumu lina ruhusa tofauti.',
+            en: 'There are 3 roles: Owner, Manager, and Cashier. Each role has different permissions.',
+        },
+        position: 'top',
+    },
+];

@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import MathLoader from '@/components/ui/MathLoader';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { posTourSteps } from '@/data/tourSteps';
 
 interface CartItem extends Product {
   quantity: number;
@@ -185,264 +187,268 @@ const POS = () => {
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
   return (
-    <DashboardLayout
-      title={language === 'sw' ? 'Skrini ya Mauzo' : 'Sales Screen'}
-      subtitle={new Date().toLocaleDateString('sw-TZ', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })}
-      headerActions={
-        cart.length > 0 && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="lg:hidden relative transition-all hover:bg-primary/5 border-primary/10"
-            onClick={() => {
-              const element = document.getElementById('cart-section');
-              element?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            <ShoppingCart className="w-5 h-5 text-primary" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card animate-in zoom-in">
-              {cart.length}
-            </span>
-          </Button>
-        )
-      }
-    >
-      <div className="flex flex-col lg:flex-row gap-4 h-full">
-        {/* Products Section */}
-        <div className="flex-1 space-y-4">
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder={language === 'sw' ? 'Tafuta bidhaa...' : 'Search products...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-card border-border"
-              />
+    <>
+      <DashboardLayout
+        title={language === 'sw' ? 'Skrini ya Mauzo' : 'Sales Screen'}
+        subtitle={new Date().toLocaleDateString('sw-TZ', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}
+        headerActions={
+          cart.length > 0 && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="lg:hidden relative transition-all hover:bg-primary/5 border-primary/10"
+              onClick={() => {
+                const element = document.getElementById('cart-section');
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <ShoppingCart className="w-5 h-5 text-primary" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card animate-in zoom-in">
+                {cart.length}
+              </span>
+            </Button>
+          )
+        }
+      >
+        <div className="flex flex-col lg:flex-row gap-4 h-full" data-tour="pos-header">
+          {/* Products Section */}
+          <div className="flex-1 space-y-4">
+            <div className="space-y-4">
+              <div className="relative" data-tour="product-search">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  placeholder={language === 'sw' ? 'Tafuta bidhaa...' : 'Search products...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-12 bg-card border-border"
+                />
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {categories.map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={selectedCategory === cat.id ? 'btn-kokotoa whitespace-nowrap' : 'whitespace-nowrap'}
+                  >
+                    {cat.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {categories.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={selectedCategory === cat.id ? 'btn-kokotoa whitespace-nowrap' : 'whitespace-nowrap'}
-                >
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4" data-tour="product-grid">
+                {filteredProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    className="card-kokotoa rounded-xl p-4 text-center hover:border-primary/30 transition-all group"
+                  >
+                    <div className="w-full aspect-square mb-3 relative">
+                      {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={product.image_url || product.image || ''}
+                            alt={product.name}
+                            className="w-full h-full rounded-lg object-cover"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                              const placeholder = target.nextElementSibling as HTMLElement;
+                              if (placeholder) placeholder.style.display = 'flex';
+                            }}
+                            onLoad={(e) => {
+                              const target = e.currentTarget;
+                              const placeholder = target.nextElementSibling as HTMLElement;
+                              if (placeholder) placeholder.style.display = 'none';
+                            }}
+                          />
+                          <div className="hidden absolute inset-0 w-full h-full rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-4xl">
+                            {product.category.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-4xl">
+                          {product.category.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-foreground text-sm mb-1 truncate">
+                      {product.name}
+                    </h3>
+                    <p className="text-primary font-semibold">{formatPrice(parseFloat(product.selling_price))}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'sw' ? 'Kiasi' : 'Stock'}: {product.quantity}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
+          {/* Cart Section */}
+          <div id="cart-section" className="w-full lg:w-96 bg-card border border-border rounded-xl flex flex-col scroll-mt-20" data-tour="shopping-cart">
+            <div className="p-4 lg:p-6 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display font-semibold text-foreground">{language === 'sw' ? 'Kikapu' : 'Cart'}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {cart.length} {language === 'sw' ? 'bidhaa' : 'items'}
+                  </p>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4">
-              {filteredProducts.map((product) => (
-                <button
-                  key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="card-kokotoa rounded-xl p-4 text-center hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-full aspect-square mb-3 relative">
-                    {(product.image_url && product.image_url !== '') || (product.image && product.image !== '') ? (
-                      <div className="relative w-full h-full">
+
+            <div className="flex-1 overflow-auto p-4 lg:p-6 space-y-3">
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">{language === 'sw' ? 'Kikapu tupu' : 'Cart is empty'}</p>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
+                    <div className="relative w-12 h-12 flex-shrink-0">
+                      {(item.image_url && item.image_url !== '') || (item.image && item.image !== '') ? (
                         <img
-                          src={product.image_url || product.image || ''}
-                          alt={product.name}
-                          className="w-full h-full rounded-lg object-cover"
+                          src={item.image_url || item.image || ''}
+                          alt={item.name}
+                          className="w-12 h-12 rounded-lg object-cover"
                           onError={(e) => {
                             const target = e.currentTarget;
                             target.style.display = 'none';
                             const placeholder = target.nextElementSibling as HTMLElement;
                             if (placeholder) placeholder.style.display = 'flex';
                           }}
-                          onLoad={(e) => {
-                            const target = e.currentTarget;
-                            const placeholder = target.nextElementSibling as HTMLElement;
-                            if (placeholder) placeholder.style.display = 'none';
-                          }}
                         />
-                        <div className="hidden absolute inset-0 w-full h-full rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-4xl">
-                          {product.category.charAt(0).toUpperCase()}
-                        </div>
+                      ) : null}
+                      <div className="absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-xl">
+                        {item.category.charAt(0).toUpperCase()}
                       </div>
-                    ) : (
-                      <div className="w-full h-full rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-4xl">
-                        {product.category.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <h3 className="font-medium text-foreground text-sm mb-1 truncate">
-                    {product.name}
-                  </h3>
-                  <p className="text-primary font-semibold">{formatPrice(parseFloat(product.selling_price))}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Kiasi' : 'Stock'}: {product.quantity}
-                  </p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Cart Section */}
-        <div id="cart-section" className="w-full lg:w-96 bg-card border border-border rounded-xl flex flex-col scroll-mt-20">
-          <div className="p-4 lg:p-6 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="font-display font-semibold text-foreground">{language === 'sw' ? 'Kikapu' : 'Cart'}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {cart.length} {language === 'sw' ? 'bidhaa' : 'items'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-auto p-4 lg:p-6 space-y-3">
-            {cart.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <p className="text-muted-foreground">{language === 'sw' ? 'Kikapu tupu' : 'Cart is empty'}</p>
-              </div>
-            ) : (
-              cart.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                  <div className="relative w-12 h-12 flex-shrink-0">
-                    {(item.image_url && item.image_url !== '') || (item.image && item.image !== '') ? (
-                      <img
-                        src={item.image_url || item.image || ''}
-                        alt={item.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.style.display = 'none';
-                          const placeholder = target.nextElementSibling as HTMLElement;
-                          if (placeholder) placeholder.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div className="absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 items-center justify-center text-primary font-semibold text-xl">
-                      {item.category.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-foreground text-sm truncate">{item.name}</h4>
+                      <p className="text-sm text-primary">{formatPrice(parseFloat(item.selling_price))}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive hover:bg-destructive/20 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-foreground text-sm truncate">{item.name}</h4>
-                    <p className="text-sm text-primary">{formatPrice(parseFloat(item.selling_price))}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateQuantity(item.id, -1)}
-                      className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-8 text-center font-medium">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.id, 1)}
-                      className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive hover:bg-destructive/20 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="p-4 lg:p-6 border-t border-border space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-medium text-foreground">{language === 'sw' ? 'Jumla' : 'Total'}:</span>
-              <span className="text-2xl font-display font-bold text-primary">
-                {formatPrice(total)}
-              </span>
+                ))
+              )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="p-4 lg:p-6 border-t border-border space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-medium text-foreground">{language === 'sw' ? 'Jumla' : 'Total'}:</span>
+                <span className="text-2xl font-display font-bold text-primary">
+                  {formatPrice(total)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2" data-tour="payment-methods">
+                <Button
+                  onClick={() => openCheckout('CASH')}
+                  variant="outline"
+                  className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
+                  disabled={isProcessing}
+                >
+                  <Banknote className="w-5 h-5" />
+                  <span className="text-xs">{language === 'sw' ? 'Taslimu' : 'Cash'}</span>
+                </Button>
+                <Button
+                  onClick={() => openCheckout('MPESA')}
+                  variant="outline"
+                  className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
+                  disabled={isProcessing}
+                >
+                  <Smartphone className="w-5 h-5" />
+                  <span className="text-xs">M-Pesa</span>
+                </Button>
+                <Button
+                  onClick={() => openCheckout('BANK')}
+                  variant="outline"
+                  className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
+                  disabled={isProcessing}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  <span className="text-xs">{language === 'sw' ? 'Benki' : 'Bank'}</span>
+                </Button>
+              </div>
+
               <Button
                 onClick={() => openCheckout('CASH')}
-                variant="outline"
-                className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
-                disabled={isProcessing}
+                className="w-full btn-kokotoa h-14 text-lg"
+                isLoading={isProcessing}
+                disabled={cart.length === 0}
+                data-tour="complete-sale"
               >
-                <Banknote className="w-5 h-5" />
-                <span className="text-xs">{language === 'sw' ? 'Taslimu' : 'Cash'}</span>
-              </Button>
-              <Button
-                onClick={() => openCheckout('MPESA')}
-                variant="outline"
-                className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
-                disabled={isProcessing}
-              >
-                <Smartphone className="w-5 h-5" />
-                <span className="text-xs">M-Pesa</span>
-              </Button>
-              <Button
-                onClick={() => openCheckout('BANK')}
-                variant="outline"
-                className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
-                disabled={isProcessing}
-              >
-                <CreditCard className="w-5 h-5" />
-                <span className="text-xs">{language === 'sw' ? 'Benki' : 'Bank'}</span>
+                <ShoppingCart className="w-5 h-5" />
+                {language === 'sw' ? 'Maliza Mauzo' : 'Complete Sale'}
               </Button>
             </div>
-
-            <Button
-              onClick={() => openCheckout('CASH')}
-              className="w-full btn-kokotoa h-14 text-lg"
-              isLoading={isProcessing}
-              disabled={cart.length === 0}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {language === 'sw' ? 'Maliza Mauzo' : 'Complete Sale'}
-            </Button>
           </div>
         </div>
-      </div>
-      <CheckoutModal
-        isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
-        onConfirm={completeSale}
-        isProcessing={isProcessing}
-        total={total}
-        paymentMethod={paymentMethod}
-        customerName={customerName}
-        setCustomerName={setCustomerName}
-        customerPhone={customerPhone}
-        setCustomerPhone={setCustomerPhone}
-        paymentRef={paymentRef}
-        setPaymentRef={setPaymentRef}
-        notes={saleNotes}
-        setNotes={setSaleNotes}
-        language={language}
-      />
+        <CheckoutModal
+          isOpen={isCheckoutModalOpen}
+          onClose={() => setIsCheckoutModalOpen(false)}
+          onConfirm={completeSale}
+          isProcessing={isProcessing}
+          total={total}
+          paymentMethod={paymentMethod}
+          customerName={customerName}
+          setCustomerName={setCustomerName}
+          customerPhone={customerPhone}
+          setCustomerPhone={setCustomerPhone}
+          paymentRef={paymentRef}
+          setPaymentRef={setPaymentRef}
+          notes={saleNotes}
+          setNotes={setSaleNotes}
+          language={language}
+        />
 
-      <ReceiptModal
-        isOpen={isReceiptModalOpen}
-        onClose={() => setIsReceiptModalOpen(false)}
-        receiptText={receiptData.text}
-        receiptNumber={receiptData.number}
-      />
-    </DashboardLayout>
+        <ReceiptModal
+          isOpen={isReceiptModalOpen}
+          onClose={() => setIsReceiptModalOpen(false)}
+          receiptText={receiptData.text}
+          receiptNumber={receiptData.number}
+        />
+      </DashboardLayout>
+      <OnboardingTour page="pos" steps={posTourSteps} />
+    </>
   );
 };
 
