@@ -250,53 +250,53 @@ const SalesHistory = () => {
                             <div className="space-y-4">
                                 {/* Desktop View */}
                                 <div className="hidden md:block overflow-x-auto">
-                                    <table className="w-full text-left">
+                                    <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="border-b border-border bg-muted/50">
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Muamala' : 'Transaction'}</th>
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Mteja' : 'Customer'}</th>
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Faida' : 'Profit'}</th>
-                                                <th className="p-4 font-semibold text-muted-foreground text-sm uppercase tracking-wider text-right">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                                            <tr className="border-b border-border bg-muted/40">
+                                                <th className="p-4 font-bold text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                                <th className="p-4 font-bold text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Mteja' : 'Customer'}</th>
+                                                <th className="p-4 font-bold text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                                <th className="p-4 font-bold text-muted-foreground text-[10px] uppercase tracking-widest text-right">{language === 'sw' ? 'Faida' : 'Profit'}</th>
+                                                <th className="p-4 font-bold text-muted-foreground text-[10px] uppercase tracking-widest text-right">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                                                 <th className="p-4 text-center"></th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-border/50">
+                                        <tbody className="divide-y divide-border/30">
                                             {filteredSales.map((sale) => (
                                                 <tr
                                                     key={sale.id}
-                                                    className={`group hover:bg-primary/5 transition-colors cursor-pointer ${sale.is_returned ? 'bg-destructive/5' : ''}`}
+                                                    className={`group hover:bg-primary/[0.03] transition-colors cursor-pointer ${sale.is_returned ? 'bg-destructive/[0.02]' : ''}`}
                                                     onClick={() => handleViewSale(sale)}
                                                 >
                                                     <td className="p-4">
-                                                        <div className="font-mono text-xs font-bold text-foreground bg-muted group-hover:bg-primary/10 p-1.5 rounded inline-block">
-                                                            {sale.transaction_number}
+                                                        <div className="flex flex-col gap-1.5 min-w-[200px]">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-mono text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded leading-none">
+                                                                    {sale.transaction_number}
+                                                                </span>
+                                                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
+                                                                    <Calendar className="w-3 h-3" />
+                                                                    {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM, HH:mm') : '-'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                                                                {sale.items.map(item => item.product_name).join(', ')}
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td className="p-4">
                                                         <div className="text-sm">
-                                                            <p className="font-medium text-foreground">
-                                                                {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM yyyy') : '-'}
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {sale.created_at ? format(parseISO(sale.created_at), 'HH:mm') : '-'}
-                                                            </p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="text-sm">
-                                                            <p className="font-medium text-foreground">{sale.customer_name || 'Walk-in'}</p>
-                                                            {sale.customer_phone && <p className="text-xs text-muted-foreground">{sale.customer_phone}</p>}
+                                                            <p className="font-bold text-foreground">{sale.customer_name || (language === 'sw' ? 'Mteja wa Kawaida' : 'Walk-in')}</p>
+                                                            {sale.customer_phone && <p className="text-[10px] text-muted-foreground font-medium">{sale.customer_phone}</p>}
                                                         </div>
                                                     </td>
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted border border-border">
+                                                            <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-muted border border-border/50 uppercase tracking-tight">
                                                                 {sale.payment_method_display}
                                                             </span>
                                                             {sale.is_returned && (
-                                                                <span className="text-[10px] font-bold text-destructive uppercase">
+                                                                <span className="text-[9px] font-black text-destructive uppercase bg-destructive/10 px-1.5 py-0.5 rounded-md">
                                                                     {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
                                                                 </span>
                                                             )}
@@ -304,16 +304,16 @@ const SalesHistory = () => {
                                                     </td>
                                                     <td className="p-4 text-right">
                                                         <div className="flex flex-col items-end">
-                                                            <span className="font-semibold text-emerald-600">
-                                                                {formatPrice(sale.total_profit || 0)}
+                                                            <span className="font-bold text-sm text-emerald-600">
+                                                                +{formatPrice(sale.total_profit || 0)}
                                                             </span>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {((Number(sale.total_profit || 0) / Number(sale.net_amount || 1)) * 100).toFixed(1)}%
+                                                            <span className="text-[10px] font-bold text-muted-foreground/60">
+                                                                {((Number(sale.total_profit || 0) / Number(sale.net_amount || 1)) * 100).toFixed(0)}% Margin
                                                             </span>
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-right">
-                                                        <div className={`font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
+                                                        <div className={`font-display font-black text-base ${sale.is_returned ? 'text-destructive line-through opacity-50' : 'text-foreground'}`}>
                                                             {sale.formatted_total}
                                                         </div>
                                                     </td>
@@ -322,13 +322,12 @@ const SalesHistory = () => {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                className="h-8 w-8 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 hover:text-primary"
                                                                 onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
-                                                                data-tour="sales-receipt-action"
                                                             >
-                                                                <Printer className="w-4 h-4 text-primary" />
+                                                                <Printer className="w-4 h-4" />
                                                             </Button>
-                                                            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -338,66 +337,67 @@ const SalesHistory = () => {
                                 </div>
 
                                 {/* Mobile View */}
-                                <div className="grid grid-cols-1 gap-4 md:hidden p-4">
+                                <div className="grid grid-cols-1 gap-3 md:hidden p-4">
                                     {filteredSales.map((sale) => (
                                         <div
                                             key={sale.id}
-                                            className={`p-4 rounded-xl border border-border bg-card/50 shadow-sm space-y-3 relative overflow-hidden active:scale-[0.98] transition-all ${sale.is_returned ? 'border-l-4 border-l-destructive' : ''}`}
+                                            className={`p-4 rounded-2xl border border-border bg-card/50 shadow-sm space-y-3 relative overflow-hidden active:scale-[0.98] transition-all hover:border-primary/20 ${sale.is_returned ? 'border-l-4 border-l-destructive' : ''}`}
                                             onClick={() => handleViewSale(sale)}
                                         >
                                             <div className="flex items-center justify-between">
-                                                <div className="font-mono text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                                    {sale.transaction_number}
+                                                <div className="font-mono text-[9px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded uppercase tracking-wider">
+                                                    #{sale.transaction_number.split('-').pop()}
                                                 </div>
-                                                <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
+                                                <div className="text-[10px] text-muted-foreground flex items-center gap-1 font-bold italic">
                                                     <Calendar className="w-3 h-3" />
-                                                    {sale.created_at ? format(parseISO(sale.created_at), 'dd MMM, HH:mm') : '-'}
+                                                    {sale.created_at ? format(parseISO(sale.created_at), 'HH:mm • dd MMM') : '-'}
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <p className="font-bold text-foreground text-sm truncate">{sale.customer_name || 'Walk-in Customer'}</p>
-                                                        {sale.is_returned && (
-                                                            <span className="text-[8px] font-bold text-destructive uppercase border border-destructive/20 px-1 rounded bg-destructive/5">
-                                                                {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex items-center gap-1.5 p-1 rounded bg-muted/50 border border-border/50">
-                                                            {sale.payment_method === 'CASH' ? <DollarSign className="w-3 h-3 text-emerald-500" /> : <CreditCard className="w-3 h-3 text-blue-500" />}
-                                                            <span className="text-[10px] font-semibold">{sale.payment_method_display}</span>
-                                                        </div>
-                                                        {sale.customer_phone && (
-                                                            <p className="text-[10px] text-muted-foreground font-mono">{sale.customer_phone}</p>
-                                                        )}
+                                            <div className="space-y-1">
+                                                <p className="font-black text-foreground text-sm line-clamp-1">
+                                                    {sale.items.map(item => item.product_name).join(', ')}
+                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-[11px] font-bold text-muted-foreground truncate">{sale.customer_name || (language === 'sw' ? 'Mteja wa Kawaida' : 'Walk-in Customer')}</p>
+                                                    {sale.is_returned && (
+                                                        <span className="text-[8px] font-black text-destructive uppercase border border-destructive/20 px-1.5 py-0.5 rounded-md bg-destructive/5">
+                                                            {language === 'sw' ? 'Yalirudishwa' : 'Returned'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-end justify-between pt-1">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-muted/50 border border-border/50">
+                                                        <CreditCard className="w-3 h-3 text-muted-foreground" />
+                                                        <span className="text-[9px] font-black uppercase">{sale.payment_method_display}</span>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className={`text-base font-display font-bold ${sale.is_returned ? 'text-destructive line-through' : 'text-primary'}`}>
+                                                    <div className={`text-base font-display font-black ${sale.is_returned ? 'text-destructive line-through opacity-50' : 'text-primary'}`}>
                                                         {sale.formatted_total}
-                                                    </p>
-                                                    <p className="text-xs font-medium text-emerald-500">
-                                                        {formatPrice(sale.total_profit || 0)}
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-emerald-600">
+                                                        +{formatPrice(sale.total_profit || 0)}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                            <div className="flex items-center justify-between pt-3 border-t border-border/40">
                                                 <Button
                                                     variant="secondary"
                                                     size="sm"
-                                                    className="h-8 px-3 bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 text-[10px] font-bold"
+                                                    className="h-8 px-4 bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 text-[10px] font-black rounded-xl"
                                                     onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
                                                 >
-                                                    <Printer className="w-3 h-3 mr-1.5" />
+                                                    <Printer className="w-3.5 h-3.5 mr-2" />
                                                     {language === 'sw' ? 'RISITI' : 'RECEIPT'}
                                                 </Button>
-                                                <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
-                                                    {language === 'sw' ? 'ANGALIA' : 'VIEW DETAILS'}
-                                                    <ChevronRight className="w-3.5 h-3.5" />
+                                                <div className="flex items-center gap-1 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                                                    {language === 'sw' ? 'MIAKA' : 'DETAILS'}
+                                                    <ChevronRight className="w-4 h-4 text-primary/40" />
                                                 </div>
                                             </div>
                                         </div>

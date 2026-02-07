@@ -26,7 +26,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         { path: '/sales-history', icon: Receipt, label: language === 'sw' ? 'Miamala' : 'Transactions' },
         ...(user?.role === 'OWNER' ? [
             { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
-            { path: '/subscription', icon: Package, label: language === 'sw' ? 'Usajili' : 'Subscription' },
+            { path: '/subscription', icon: Package, label: language === 'sw' ? 'Kifurushi' : 'Subscription' },
             { path: '/users', icon: Users, label: language === 'sw' ? 'Wafanyakazi' : 'Staff' },
         ] : []),
         { path: '/settings', icon: Settings, label: language === 'sw' ? 'Mipangilio' : 'Settings' },
