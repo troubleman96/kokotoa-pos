@@ -40,15 +40,15 @@ const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notific
                     <Button
                         variant="outline"
                         size="sm"
-                        className="h-10 px-3 hidden sm:flex items-center gap-2 border-primary/10 hover:bg-primary/5 rounded-xl transition-all duration-300"
+                        className="h-10 px-2 sm:px-3 flex items-center gap-1 sm:gap-2 border-primary/10 hover:bg-primary/5 rounded-xl transition-all duration-300"
                         onClick={() => setLanguage(language === 'sw' ? 'en' : 'sw')}
                     >
                         <img
                             src={language === 'sw' ? "https://flagcdn.com/w40/gb.png" : "https://flagcdn.com/w40/tz.png"}
                             alt={language === 'sw' ? "English" : "Swahili"}
-                            className="w-4 h-3 object-cover rounded-sm"
+                            className="w-5 h-3.5 object-cover rounded-sm shadow-sm"
                         />
-                        <span className="font-black text-xs tracking-tighter">
+                        <span className="font-black text-xs tracking-tighter hidden sm:inline">
                             {language === 'sw' ? 'EN' : 'SW'}
                         </span>
                     </Button>

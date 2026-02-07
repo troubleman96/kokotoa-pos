@@ -49,12 +49,8 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                                    <div className="w-1 h-1 rounded-full bg-primary/40" />
-                                    {language === 'sw' ? 'Duka Lako' : 'Your Store'}
-                                </div>
-                                <div className="text-sm text-foreground font-black truncate bg-primary/5 px-3 py-2 rounded-xl border border-primary/10 shadow-sm">
+                            <div className="flex flex-col gap-1">
+                                <div className="text-base text-foreground font-black truncate tracking-tight">
                                     {user?.store_name || (language === 'sw' ? 'Msimamizi' : 'Administrator')}
                                 </div>
                             </div>
@@ -83,7 +79,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                         }`}
                                 >
-                                    <item.icon className={`w-4.5 h-4.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                    <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                                     <span className="font-bold text-sm tracking-tight">{item.label}</span>
                                     {isActive && (
                                         <div className="ml-auto w-1 h-1 rounded-full bg-primary-foreground/50 animate-pulse" />
@@ -94,7 +90,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     </nav>
 
                     {/* Fixed Footer Block */}
-                    <div className="p-4 border-t border-border bg-muted/20 backdrop-blur-sm flex-none">
+                    <div className="p-4 border-t border-border bg-card/50 backdrop-blur-sm flex-none">
                         <div className="grid grid-cols-2 gap-2">
                             {/* Tour Guide Button */}
                             <button
@@ -102,18 +98,18 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                     restartOnboarding();
                                     onClose();
                                 }}
-                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 group border border-transparent hover:border-primary/20 bg-muted/40"
+                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 group border border-border/50 hover:border-primary/20 bg-muted/20"
                             >
-                                <Compass className="w-4 h-4" />
-                                <span className="font-black text-[10px] uppercase tracking-wider">{language === 'sw' ? 'Onyesha' : 'Show Tour'}</span>
+                                <Compass className="w-4 h-4 transition-transform group-hover:scale-110" />
+                                <span className="font-black text-[10px] uppercase tracking-wider">{language === 'sw' ? 'Onyesha' : 'Tour'}</span>
                             </button>
 
                             {/* Logout Button */}
                             <button
                                 onClick={logout}
-                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group border border-transparent hover:border-destructive/20 bg-muted/40"
+                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group border border-border/50 hover:border-destructive/20 bg-muted/20"
                             >
-                                <LogOut className="w-4 h-4" />
+                                <LogOut className="w-4 h-4 transition-transform group-hover:scale-110" />
                                 <span className="font-black text-[10px] uppercase tracking-wider">{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
                             </button>
                         </div>
