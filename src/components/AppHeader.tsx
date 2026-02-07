@@ -19,11 +19,11 @@ const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notific
                         <Menu className="w-6 h-6" />
                     </button>
                     <div>
-                        <h1 className="font-display text-2xl font-bold text-foreground">
+                        <h1 className="font-display text-xl sm:text-2xl font-black text-foreground tracking-tight leading-none mb-1">
                             {title}
                         </h1>
                         {subtitle && (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-70">
                                 {subtitle}
                             </p>
                         )}
