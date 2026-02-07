@@ -100,8 +100,8 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-3xl bg-card border-border overflow-hidden flex flex-col p-0 gap-0 h-[85vh] sm:h-auto border-none sm:border shadow-2xl rounded-none sm:rounded-2xl">
-                    <DialogHeader className="p-6 border-b border-border bg-muted/20">
+                <DialogContent className="max-w-4xl bg-card border-border overflow-hidden flex flex-col p-0 gap-0 h-[95vh] sm:h-[85vh] border-none sm:border shadow-2xl rounded-none sm:rounded-2xl">
+                    <DialogHeader className="p-6 border-b border-border bg-muted/20 shrink-0">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
                                 <DialogTitle className="font-display text-2xl font-black tracking-tight flex items-center gap-3">
@@ -191,9 +191,6 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                     </div>
                                     <p className="font-black text-sm text-foreground mb-0.5">
                                         {sale.created_by_name}
-                                    </p>
-                                    <p className="text-xs font-bold text-muted-foreground">
-                                        {language === 'sw' ? 'ID ya Mtumiaji' : 'User ID'}: {sale.created_by}
                                     </p>
                                 </div>
 
@@ -285,7 +282,7 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                         </div>
                     )}
 
-                    <div className="p-6 border-t border-border bg-muted/20 flex flex-wrap gap-3">
+                    <div className="p-6 border-t border-border bg-muted/20 flex flex-wrap gap-3 shrink-0">
                         <Button
                             className="flex-[2] btn-kokotoa shadow-xl h-12 text-sm font-black uppercase tracking-widest rounded-2xl"
                             onClick={() => onViewReceipt && onViewReceipt(sale?.id || 0)}
