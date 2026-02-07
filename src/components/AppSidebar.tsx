@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt, Users
+    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt, Users, Compass
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -14,6 +15,7 @@ interface AppSidebarProps {
 const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
     const { language, setLanguage } = useLanguage();
     const { user, logout } = useAuth();
+    const { restartOnboarding } = useOnboarding();
     const location = useLocation();
 
     const navItems = [
@@ -66,6 +68,19 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                             </Link>
                         ))}
                     </nav>
+
+                    <div className="p-4 border-t border-border">
+                        <button
+                            onClick={() => {
+                                restartOnboarding();
+                                onClose();
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors w-full text-left mb-2"
+                        >
+                            <Compass className="w-5 h-5" />
+                            <span>{language === 'sw' ? 'Mwongozo' : 'Tour Guide'}</span>
+                        </button>
+                    </div>
 
                     <div className="p-4 border-t border-border">
                         <div className="flex gap-2">
