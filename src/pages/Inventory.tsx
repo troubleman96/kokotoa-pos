@@ -20,6 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
 import MathLoader from '@/components/ui/MathLoader';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { inventoryTourSteps } from '@/data/tourSteps';
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -339,9 +341,9 @@ const Inventory = () => {
       title={language === 'sw' ? 'Hesabu ya Bidhaa' : 'Inventory Management'}
       subtitle={language === 'sw' ? `Jumla: ${products.length} bidhaa` : `Total: ${products.length} products`}
     >
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="inventory-header">
         <div className="flex items-center justify-between">
-          <Button onClick={openAddModal} className="btn-kokotoa">
+          <Button onClick={openAddModal} className="btn-kokotoa" data-tour="add-product">
             <Plus className="w-4 h-4 mr-2" />
             <span className="relative z-10">{language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}</span>
           </Button>
@@ -391,7 +393,7 @@ const Inventory = () => {
           ) : filteredProducts.length > 0 ? (
             <div className="space-y-4">
               {/* Desktop Table View */}
-              <Card className="card-kokotoa overflow-hidden hidden md:block">
+              <Card className="card-kokotoa overflow-hidden hidden md:block" data-tour="product-list">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -437,7 +439,7 @@ const Inventory = () => {
                           <td className="p-4 text-right text-muted-foreground">{formatPrice(product.cost_price)}</td>
                           <td className="p-4 text-right font-medium text-primary">{formatPrice(product.selling_price)}</td>
                           <td className="p-4 text-center">
-                            <span className={`font-semibold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                            <span className={`font-semibold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`} data-tour="stock-level">
                               {product.quantity}
                             </span>
                             <span className="text-xs text-muted-foreground ml-1">
@@ -464,6 +466,7 @@ const Inventory = () => {
                                 onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
                                 className="hover:bg-amber-100 hover:text-amber-600 dark:hover:bg-amber-900/20"
                                 title={language === 'sw' ? 'Marekebisho' : 'Adjust Stock'}
+                                data-tour="adjust-stock"
                               >
                                 <RefreshCcw className="w-4 h-4" />
                               </Button>
@@ -952,6 +955,8 @@ const Inventory = () => {
         }}
         product={selectedProduct}
       />
+
+      <OnboardingTour page="inventory" steps={inventoryTourSteps} />
     </DashboardLayout>
   );
 };

@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import DashboardLayout from '@/components/DashboardLayout';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { stockHistoryTourSteps } from '@/data/tourSteps';
 
 const StockHistory = () => {
     const { language } = useLanguage();
@@ -90,9 +92,9 @@ const StockHistory = () => {
             title={language === 'sw' ? 'Kumbukumbu ya Bidhaa' : 'Stock History'}
             subtitle={language === 'sw' ? 'Fuatilia mabadiliko yote ya hesabu ya bidhaa' : 'Track all changes to your product inventory'}
         >
-            <div className="space-y-6">
+            <div className="space-y-6" data-tour="stock-history-header">
                 {/* Filters */}
-                <Card className="card-kokotoa">
+                <Card className="card-kokotoa" data-tour="stock-filters">
                     <CardContent className="p-4">
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1 relative">
@@ -129,7 +131,7 @@ const StockHistory = () => {
                 </Card>
 
                 {/* History Table */}
-                <Card className="card-kokotoa">
+                <Card className="card-kokotoa" data-tour="stock-movements-list">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-primary/10">
@@ -297,6 +299,7 @@ const StockHistory = () => {
                     </CardContent>
                 </Card>
             </div>
+            <OnboardingTour page="stock-history" steps={stockHistoryTourSteps} />
         </DashboardLayout>
     );
 };

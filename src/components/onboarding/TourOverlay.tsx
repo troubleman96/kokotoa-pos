@@ -46,33 +46,34 @@ const TourOverlay = ({ targetElement, isActive }: TourOverlayProps) => {
 
     return (
         <>
-            {/* Backdrop overlay */}
+            {/* Backdrop overlay - subtle and calm */}
             <div
-                className="fixed inset-0 bg-black/60 z-[9997] transition-opacity duration-300"
+                className="fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] z-[9997] transition-opacity duration-500"
                 style={{ opacity: isActive ? 1 : 0 }}
             />
 
-            {/* Spotlight cutout */}
+            {/* Spotlight cutout - elegant glow */}
             <div
-                className="fixed z-[9998] pointer-events-none transition-all duration-400"
+                className="fixed z-[9998] pointer-events-none transition-all duration-500 ease-out"
                 style={{
-                    top: `${position.top - 8}px`,
-                    left: `${position.left - 8}px`,
-                    width: `${position.width + 16}px`,
-                    height: `${position.height + 16}px`,
-                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 20px 4px rgba(var(--primary), 0.3)',
-                    borderRadius: '12px',
+                    top: `${position.top - 12}px`,
+                    left: `${position.left - 12}px`,
+                    width: `${position.width + 24}px`,
+                    height: `${position.height + 24}px`,
+                    boxShadow: '0 0 0 9999px rgba(15, 23, 42, 0.4), 0 0 40px 10px rgba(var(--primary), 0.25)',
+                    borderRadius: '16px',
                 }}
             />
 
-            {/* Highlighted element border */}
+            {/* Highlighted element border - pulsing accent */}
             <div
-                className="fixed z-[9998] pointer-events-none transition-all duration-400 border-2 border-primary rounded-xl animate-pulse"
+                className="fixed z-[9998] pointer-events-none transition-all duration-500 ease-out border-2 border-primary/30 rounded-[18px] animate-pulse"
                 style={{
                     top: `${position.top - 8}px`,
                     left: `${position.left - 8}px`,
                     width: `${position.width + 16}px`,
                     height: `${position.height + 16}px`,
+                    boxShadow: 'inset 0 0 20px rgba(var(--primary), 0.1)',
                 }}
             />
         </>

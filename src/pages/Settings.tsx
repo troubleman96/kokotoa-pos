@@ -14,6 +14,8 @@ import {
   ShieldCheck, AlertCircle
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { settingsTourSteps } from '@/data/tourSteps';
 import SubscriptionSettings from '@/components/subscription/SubscriptionSettings';
 import UpgradeModal from '@/components/subscription/UpgradeModal';
 import { subscriptionApi, SubscriptionStatus } from '@/services/api';
@@ -291,7 +293,7 @@ const SettingsPage = () => {
       title={language === 'sw' ? 'Mipangilio' : 'Settings'}
       subtitle={language === 'sw' ? 'Dhibiti akaunti yako' : 'Manage your account'}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6" data-tour="settings-header">
         {/* Desktop Tabs */}
         <div className="hidden md:flex gap-2 mb-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
           <div className="flex gap-2 min-w-max">
@@ -507,7 +509,7 @@ const SettingsPage = () => {
 
         {/* Store Tab */}
         {activeTab === 'store' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
-          <Card className="card-kokotoa">
+          <Card className="card-kokotoa" data-tour="store-info">
             <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
               <div className="flex items-center gap-3 mb-2 md:hidden">
                 <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
@@ -623,7 +625,7 @@ const SettingsPage = () => {
             />
 
             {/* Store Limit Progress */}
-            <Card className="card-kokotoa">
+            <Card className="card-kokotoa" data-tour="subscription-status">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Store className="w-5 h-5 text-primary" />
@@ -713,7 +715,7 @@ const SettingsPage = () => {
 
         {/* Sales Tab */}
         {activeTab === 'sales' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
-          <Card className="card-kokotoa">
+          <Card className="card-kokotoa" data-tour="receipt-customization">
             <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
               <div className="flex items-center gap-3 mb-2 md:hidden">
                 <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
@@ -811,6 +813,7 @@ const SettingsPage = () => {
         }}
         subscriptionInfo={subscriptionStatus || undefined}
       />
+      <OnboardingTour page="settings" steps={settingsTourSteps} />
     </DashboardLayout>
   );
 };

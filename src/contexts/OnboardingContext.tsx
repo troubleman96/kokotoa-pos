@@ -96,7 +96,8 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
 
     const nextStep = () => {
         setState(prev => {
-            if (prev.currentStep < currentSteps.length - 1) {
+            const stepsLength = currentSteps.length;
+            if (prev.currentStep < stepsLength - 1) {
                 return { ...prev, currentStep: prev.currentStep + 1 };
             } else {
                 // Tour completed for this page

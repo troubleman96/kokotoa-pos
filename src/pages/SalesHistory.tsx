@@ -19,6 +19,8 @@ import SaleDetailsModal from '@/components/SaleDetailsModal';
 import ReceiptModal from '@/components/ReceiptModal';
 import { useToast } from '@/hooks/use-toast';
 import MathLoader from '@/components/ui/MathLoader';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { salesHistoryTourSteps } from '@/data/tourSteps';
 
 const SalesHistory = () => {
     const { language } = useLanguage();
@@ -125,7 +127,7 @@ const SalesHistory = () => {
             title={language === 'sw' ? 'Miamala ya Mauzo' : 'Sales Transactions'}
             subtitle={language === 'sw' ? 'Kumbukumbu ya mauzo yote yaliyofanyika' : 'History of all sales transactions processed'}
         >
-            <div className="space-y-6">
+            <div className="space-y-6" data-tour="sales-history-header">
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Card className="card-kokotoa">
@@ -187,7 +189,7 @@ const SalesHistory = () => {
                 </div>
 
                 {/* Filters */}
-                <Card className="card-kokotoa border-primary/5">
+                <Card className="card-kokotoa border-primary/5" data-tour="sales-search">
                     <CardContent className="p-4">
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1 relative">
@@ -225,7 +227,7 @@ const SalesHistory = () => {
                 </Card>
 
                 {/* Sales Table */}
-                <Card className="card-kokotoa overflow-hidden border-primary/5 shadow-xl">
+                <Card className="card-kokotoa overflow-hidden border-primary/5 shadow-xl" data-tour="sales-list">
                     <CardHeader className="bg-muted/30">
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-primary/10">
@@ -322,6 +324,7 @@ const SalesHistory = () => {
                                                                 size="icon"
                                                                 className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                                                 onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
+                                                                data-tour="sales-receipt-action"
                                                             >
                                                                 <Printer className="w-4 h-4 text-primary" />
                                                             </Button>
@@ -441,6 +444,7 @@ const SalesHistory = () => {
                 receiptText={receiptData.text}
                 receiptNumber={receiptData.number}
             />
+            <OnboardingTour page="sales-history" steps={salesHistoryTourSteps} />
         </DashboardLayout>
     );
 };

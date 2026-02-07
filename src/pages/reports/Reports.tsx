@@ -17,6 +17,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import MathLoader from '@/components/ui/MathLoader';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { reportsTourSteps } from '@/data/tourSteps';
 
 const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -258,9 +260,9 @@ const Reports = () => {
       title={language === 'sw' ? 'Ripoti na Takwimu' : 'Reports & Analytics'}
       subtitle={language === 'sw' ? 'Angalia utendaji wa biashara yako' : 'View your business performance'}
     >
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-6" data-tour="reports-header">
         {/* Date Range Selector */}
-        <div className="flex justify-end">
+        <div className="flex justify-end" data-tour="reports-date-filter">
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-40">
               <Calendar className="w-4 h-4 mr-2" />
@@ -275,7 +277,7 @@ const Reports = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide" data-tour="reports-tabs">
           {tabs.map((tab) => (
             <Button
               key={tab.id}
@@ -513,7 +515,7 @@ const Reports = () => {
                     <div>
                       <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mauzo katika Kipindi Hiki' : 'Sales for Selected Period'}</CardTitle>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length} className="w-full sm:w-auto">
+                    <Button variant="outline" size="sm" onClick={handleSalesExport} disabled={!salesData?.sales.length} className="w-full sm:w-auto" data-tour="reports-export">
                       <Download className="w-4 h-4 mr-2" />
                       {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
                     </Button>
@@ -1182,9 +1184,9 @@ const Reports = () => {
           </div>
         )}
       </div>
+      <OnboardingTour page="reports" steps={reportsTourSteps} />
     </DashboardLayout >
   );
 };
 
 export default Reports;
-

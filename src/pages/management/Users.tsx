@@ -3,6 +3,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { usersTourSteps } from '@/data/tourSteps';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -186,12 +188,12 @@ const Users = () => {
       title={language === 'sw' ? 'Usimamizi wa Watumiaji' : 'User Management'}
       subtitle={language === 'sw' ? `Jumla: ${users.length} watumiaji` : `Total: ${users.length} users`}
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6" data-tour="users-header">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-muted-foreground hidden lg:block">
             {language === 'sw' ? 'Orodha ya Watumiaji' : 'User List'}
           </h2>
-          <Button onClick={openAddModal} className="btn-kokotoa">
+          <Button onClick={openAddModal} className="btn-kokotoa" data-tour="add-user">
             <Plus className="w-4 h-4 mr-2" />
             {language === 'sw' ? 'Ongeza Mtumiaji' : 'Add User'}
           </Button>
@@ -203,7 +205,7 @@ const Users = () => {
               <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
             </div>
           ) : users.length > 0 ? (
-            <Card className="card-kokotoa">
+            <Card className="card-kokotoa" data-tour="users-list">
               <div className="space-y-4">
                 {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto">
@@ -233,7 +235,10 @@ const Users = () => {
                           </td>
                           <td className="p-4 text-sm font-medium text-muted-foreground font-mono">{user.phone}</td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getRoleBadgeColor(user.role)}`}>
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getRoleBadgeColor(user.role)}`}
+                              data-tour="user-roles"
+                            >
                               {user.role_name}
                             </span>
                           </td>
@@ -475,6 +480,8 @@ const Users = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <OnboardingTour page="users" steps={usersTourSteps} />
     </DashboardLayout>
   );
 };
