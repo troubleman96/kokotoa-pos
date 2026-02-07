@@ -87,15 +87,6 @@ const Reports = () => {
 
   const [dateRange, setDateRange] = useState('7');
 
-  // Modal States
-  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleRowClick = (sale: any) => {
-    // Map minimal data to Sale type for the modal (which will fetch more if needed)
-    setSelectedSale(sale as Sale);
-    setIsModalOpen(true);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -589,8 +580,7 @@ const Reports = () => {
                           {salesData.sales.slice(0, 15).map((sale) => (
                             <div
                               key={sale.id}
-                              className="p-4 rounded-2xl border border-border bg-card shadow-sm hover:border-primary/30 transition-all cursor-pointer space-y-3 relative overflow-hidden"
-                              onClick={() => handleRowClick(sale)}
+                              className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-3 relative overflow-hidden"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
@@ -1091,8 +1081,7 @@ const Reports = () => {
                               {profitReport.profit_transactions.slice(0, 20).map((tx: any) => (
                                 <tr
                                   key={tx.id}
-                                  className="hover:bg-primary/5 transition-all cursor-pointer group border-b border-border/50 last:border-0"
-                                  onClick={() => handleRowClick(tx)}
+                                  className="border-b border-border/50 last:border-0"
                                 >
                                   <td className="p-4">
                                     <p className="font-mono text-xs font-black text-foreground mb-0.5 group-hover:text-primary transition-colors">{tx.transaction_number}</p>
@@ -1131,8 +1120,7 @@ const Reports = () => {
                           {profitReport.profit_transactions.slice(0, 15).map((tx: any) => (
                             <div
                               key={tx.id}
-                              className="p-4 rounded-2xl border border-border bg-card shadow-sm hover:border-emerald-500/30 transition-all cursor-pointer space-y-3 relative overflow-hidden"
-                              onClick={() => handleRowClick(tx)}
+                              className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-3 relative overflow-hidden"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
@@ -1254,11 +1242,6 @@ const Reports = () => {
         )}
       </div>
       <OnboardingTour page="reports" steps={reportsTourSteps} />
-      <SaleDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        sale={selectedSale}
-      />
     </DashboardLayout >
   );
 };
