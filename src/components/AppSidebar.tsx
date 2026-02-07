@@ -37,14 +37,26 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
             <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-card border-r border-border transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none`}>
                 <div className="flex flex-col h-full overflow-hidden">
                     {/* Fixed Header */}
-                    <div className="p-6 border-b border-border bg-card/50 backdrop-blur-md flex-none">
-                        <Link to="/dashboard" className="flex items-center gap-3 group">
-                            <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-105">
-                                <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-8 h-8 object-contain" />
+                    <div className="p-6 border-b border-border bg-card/50 backdrop-blur-md flex-none relative">
+                        <Link to="/dashboard" className="flex flex-col gap-4 group">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-105 shadow-inner">
+                                    <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-8 h-8 object-contain" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="font-display font-black text-xl tracking-tight text-foreground uppercase">KOKOTOA</span>
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest mt-[-2px]">Smart POS</span>
+                                </div>
                             </div>
-                            <div className="flex flex-col">
-                                <span className="font-display font-black text-xl tracking-tight text-foreground">KOKOTOA</span>
-                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest mt-[-2px]">Smart POS</span>
+
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                                    <div className="w-1 h-1 rounded-full bg-primary/40" />
+                                    {language === 'sw' ? 'Duka Lako' : 'Your Store'}
+                                </div>
+                                <div className="text-sm text-foreground font-black truncate bg-primary/5 px-3 py-2 rounded-xl border border-primary/10 shadow-sm">
+                                    {user?.store_name || (language === 'sw' ? 'Msimamizi' : 'Administrator')}
+                                </div>
                             </div>
                         </Link>
                         <button
@@ -54,17 +66,9 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <div className="px-6 py-2">
-                        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground/60 uppercase tracking-widest mb-1">
-                            {language === 'sw' ? 'Msimamizi wa Duka' : 'Store Administrator'}
-                        </div>
-                        <div className="text-sm text-foreground font-black truncate bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">
-                            {user?.store_name || (language === 'sw' ? 'Msimamizi' : 'Administrator')}
-                        </div>
-                    </div>
 
                     {/* Scrollable Navigation Area */}
-                    <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+                    <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
                         {navItems.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
@@ -74,15 +78,15 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                     onClick={() => {
                                         if (window.innerWidth < 1024) onClose();
                                     }}
-                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${isActive
-                                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${isActive
+                                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.01]'
                                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                         }`}
                                 >
-                                    <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                                    <span className="font-semibold tracking-tight">{item.label}</span>
+                                    <item.icon className={`w-4.5 h-4.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                    <span className="font-bold text-sm tracking-tight">{item.label}</span>
                                     {isActive && (
-                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-foreground/50 animate-pulse" />
+                                        <div className="ml-auto w-1 h-1 rounded-full bg-primary-foreground/50 animate-pulse" />
                                     )}
                                 </Link>
                             );
@@ -90,31 +94,29 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                     </nav>
 
                     {/* Fixed Footer Block */}
-                    <div className="p-4 border-t border-border bg-muted/20 backdrop-blur-sm space-y-2 flex-none">
-                        {/* Tour Guide Button */}
-                        <button
-                            onClick={() => {
-                                restartOnboarding();
-                                onClose();
-                            }}
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 w-full text-left group border border-transparent hover:border-primary/20"
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <div className="p-4 border-t border-border bg-muted/20 backdrop-blur-sm flex-none">
+                        <div className="grid grid-cols-2 gap-2">
+                            {/* Tour Guide Button */}
+                            <button
+                                onClick={() => {
+                                    restartOnboarding();
+                                    onClose();
+                                }}
+                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 group border border-transparent hover:border-primary/20 bg-muted/40"
+                            >
                                 <Compass className="w-4 h-4" />
-                            </div>
-                            <span className="font-bold text-sm tracking-tight">{language === 'sw' ? 'Mwongozo' : 'Tour Guide'}</span>
-                        </button>
+                                <span className="font-black text-[10px] uppercase tracking-wider">{language === 'sw' ? 'Onyesha' : 'Show Tour'}</span>
+                            </button>
 
-                        {/* Logout Button */}
-                        <button
-                            onClick={logout}
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 w-full text-left group border border-transparent hover:border-destructive/20"
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center group-hover:bg-destructive/20 transition-colors">
+                            {/* Logout Button */}
+                            <button
+                                onClick={logout}
+                                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group border border-transparent hover:border-destructive/20 bg-muted/40"
+                            >
                                 <LogOut className="w-4 h-4" />
-                            </div>
-                            <span className="font-bold text-sm tracking-tight">{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
-                        </button>
+                                <span className="font-black text-[10px] uppercase tracking-wider">{language === 'sw' ? 'Ondoka' : 'Logout'}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </aside>
