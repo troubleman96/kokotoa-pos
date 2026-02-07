@@ -1,5 +1,6 @@
-import { Menu, Bell } from 'lucide-react';
+import { Menu, Bell, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AppHeaderProps {
     title: string;
@@ -11,6 +12,8 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notificationCount = 0, headerActions }: AppHeaderProps) => {
+    const { language, setLanguage } = useLanguage();
+
     return (
         <header className="bg-card border-b border-border p-4 lg:p-6">
             <div className="flex items-center justify-between">
@@ -32,7 +35,25 @@ const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notific
 
                 <div className="flex items-center gap-2 relative">
                     {headerActions}
-                    <Button variant="outline" size="icon" className="relative transition-all hover:bg-primary/5 border-primary/10" onClick={onNotificationClick}>
+
+                    {/* Smart Language Toggle */}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 px-3 hidden sm:flex items-center gap-2 border-primary/10 hover:bg-primary/5 rounded-xl transition-all duration-300"
+                        onClick={() => setLanguage(language === 'sw' ? 'en' : 'sw')}
+                    >
+                        <img
+                            src={language === 'sw' ? "https://flagcdn.com/w40/gb.png" : "https://flagcdn.com/w40/tz.png"}
+                            alt={language === 'sw' ? "English" : "Swahili"}
+                            className="w-4 h-3 object-cover rounded-sm"
+                        />
+                        <span className="font-black text-xs tracking-tighter">
+                            {language === 'sw' ? 'EN' : 'SW'}
+                        </span>
+                    </Button>
+
+                    <Button variant="outline" size="icon" className="h-10 w-10 relative transition-all hover:bg-primary/5 border-primary/10 rounded-xl" onClick={onNotificationClick}>
                         <Bell className="w-5 h-5" />
                         {notificationCount > 0 && (
                             <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card">

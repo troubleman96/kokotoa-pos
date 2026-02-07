@@ -105,30 +105,6 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                             <span className="font-bold text-sm tracking-tight">{language === 'sw' ? 'Mwongozo' : 'Tour Guide'}</span>
                         </button>
 
-                        {/* Language Toggles */}
-                        <div className="flex items-center gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/50">
-                            <button
-                                onClick={() => setLanguage('sw')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-black transition-all duration-300 ${language === 'sw'
-                                    ? 'bg-primary text-primary-foreground shadow-md'
-                                    : 'text-muted-foreground hover:text-foreground'
-                                    }`}
-                            >
-                                <img src="https://flagcdn.com/w40/tz.png" className="w-4 h-3 object-cover rounded-sm" alt="TZ" />
-                                SW
-                            </button>
-                            <button
-                                onClick={() => setLanguage('en')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-black transition-all duration-300 ${language === 'en'
-                                    ? 'bg-primary text-primary-foreground shadow-md'
-                                    : 'text-muted-foreground hover:text-foreground'
-                                    }`}
-                            >
-                                <img src="https://flagcdn.com/w40/gb.png" className="w-4 h-3 object-cover rounded-sm" alt="EN" />
-                                EN
-                            </button>
-                        </div>
-
                         {/* Logout Button */}
                         <button
                             onClick={logout}
