@@ -166,7 +166,7 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                         {language === 'sw' ? 'Orodha ya Bidhaa' : 'Purchased Items'}
                                     </h3>
                                     <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded-lg">
-                                        {sale.items.length} {language === 'sw' ? 'Aina za bidhaa' : 'Items'}
+                                        {sale.items?.length || 0} {language === 'sw' ? 'Aina za bidhaa' : 'Items'}
                                     </span>
                                 </div>
                                 <div className="border border-border rounded-2xl overflow-hidden shadow-sm">
@@ -180,7 +180,7 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-border/40">
-                                            {sale.items.map((item) => (
+                                            {sale.items?.map((item) => (
                                                 <tr key={item.id} className="hover:bg-muted/20 transition-colors">
                                                     <td className="p-4">
                                                         <p className="font-black text-sm text-foreground">{item.product_name}</p>
