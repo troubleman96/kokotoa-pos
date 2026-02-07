@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import Landing from "./pages/Landing";
+import Demo from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -63,6 +64,7 @@ const App = () => (
                 <Sonner />
                 <Routes>
                   <Route path="/" element={<Landing />} />
+                  <Route path="/demo" element={<Demo />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/verify-otp" element={<VerifyOTP />} />

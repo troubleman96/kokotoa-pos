@@ -87,7 +87,7 @@ const StockHistory = () => {
 
     return (
         <DashboardLayout
-            title={language === 'sw' ? 'Lumbukumbu ya Bidhaa' : 'Stock History'}
+            title={language === 'sw' ? 'Kumbukumbu ya Bidhaa' : 'Stock History'}
             subtitle={language === 'sw' ? 'Fuatilia mabadiliko yote ya hesabu ya bidhaa' : 'Track all changes to your product inventory'}
         >
             <div className="space-y-6">

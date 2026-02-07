@@ -52,14 +52,16 @@ const HeroSection = () => {
                   </span>
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="flex-1 sm:flex-initial h-12 md:h-14 px-4 sm:px-8 text-sm md:text-lg border-border hover:bg-muted"
-              >
-                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                {t('hero.demo')}
-              </Button>
+              <Link to="/demo" className="flex-1 sm:flex-initial">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 md:h-14 px-4 sm:px-8 text-sm md:text-lg border-border hover:bg-muted"
+                >
+                  <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  {t('hero.demo')}
+                </Button>
+              </Link>
             </div>
 
             {/* Trust Badge */}
