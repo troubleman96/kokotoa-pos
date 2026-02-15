@@ -12,7 +12,7 @@ const openReportsTab = (tabId: string) => () => clickElement(`[data-tour="report
 export const dashboardTourSteps: TourStep[] = [
     {
         id: 'dashboard-welcome',
-        target: '[data-tour="dashboard-header"]',
+        target: '[data-tour="dashboard-title"]',
         title: {
             sw: 'Karibu kwenye Dashibodi',
             en: 'Welcome to Dashboard',
@@ -51,7 +51,7 @@ export const dashboardTourSteps: TourStep[] = [
     },
     {
         id: 'dashboard-profit-chart',
-        target: '[data-tour="top-products"]',
+        target: '[data-tour="profit-chart"]',
         title: {
             sw: 'Mwenendo wa Faida',
             en: 'Profit Trend',

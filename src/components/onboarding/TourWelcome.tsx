@@ -22,8 +22,8 @@ const TourWelcome = () => {
 
     const content = {
         sw: {
-            title: 'Karibu KOKOTOA POS! 🎉',
-            subtitle: 'Mfumo wa Kisasa wa Mauzo kwa Biashara Yako',
+            title: 'Karibu, KOKOTOA POS! 🎉',
+            subtitle: 'Mfumo wa mauzo wa biashara yako',
             features: [
                 {
                     icon: '🛒',
@@ -85,57 +85,59 @@ const TourWelcome = () => {
 
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-            <div className="card-kokotoa rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-2 border-primary/20 animate-slide-up relative my-8 max-h-[90vh] overflow-y-auto">
+            <div className="card-kokotoa rounded-3xl p-5 sm:p-6 max-w-2xl w-full shadow-2xl border-2 border-primary/20 animate-slide-up relative my-4 max-h-[92vh] overflow-hidden flex flex-col">
                 {/* Close button */}
                 <button
                     onClick={dismissWelcome}
-                    className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors z-10"
+                    className="absolute top-4 right-4 sm:top-5 sm:right-5 text-muted-foreground hover:text-foreground transition-colors z-10"
                 >
                     <X className="w-6 h-6" />
                 </button>
 
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 mb-4 p-3">
-                        <img
-                            src="/logo.png"
-                            alt="KOKOTOA POS"
-                            className="w-full h-full object-contain"
-                        />
+                <div className="overflow-y-auto pr-1">
+                    {/* Header */}
+                    <div className="text-center mb-6 mt-2">
+                        <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 p-2">
+                                <img
+                                    src="/pos-kokotoa_favicon/web-app-manifest-192x192.png"
+                                    alt="KOKOTOA POS"
+                                    className="w-full h-full object-contain"
+                                />
+                            </span>
+                            <span>{t.title}</span>
+                        </h2>
+                        <p className="text-muted-foreground text-base sm:text-lg">
+                            {t.subtitle}
+                        </p>
                     </div>
-                    <h2 className="font-display text-3xl font-bold text-foreground mb-2">
-                        {t.title}
-                    </h2>
-                    <p className="text-muted-foreground text-lg">
-                        {t.subtitle}
+
+                    {/* Features Grid */}
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                        {t.features.map((feature, index) => (
+                            <div
+                                key={index}
+                                className="bg-muted/30 rounded-xl p-3 sm:p-4 text-center hover:bg-muted/50 transition-colors"
+                            >
+                                <div className="text-2xl sm:text-3xl mb-1.5 sm:mb-2">{feature.icon}</div>
+                                <h3 className="font-display font-semibold text-foreground mb-1 text-sm sm:text-base">
+                                    {feature.title}
+                                </h3>
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                    {feature.description}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Question */}
+                    <p className="text-center text-foreground font-medium mb-5">
+                        {t.question}
                     </p>
                 </div>
 
-                {/* Features Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                    {t.features.map((feature, index) => (
-                        <div
-                            key={index}
-                            className="bg-muted/30 rounded-xl p-4 text-center hover:bg-muted/50 transition-colors"
-                        >
-                            <div className="text-3xl mb-2">{feature.icon}</div>
-                            <h3 className="font-display font-semibold text-foreground mb-1">
-                                {feature.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                                {feature.description}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Question */}
-                <p className="text-center text-foreground font-medium mb-6">
-                    {t.question}
-                </p>
-
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/60 bg-card">
                     <Button
                         variant="outline"
                         size="lg"

@@ -10,13 +10,15 @@ interface DashboardLayoutProps {
     title: string;
     subtitle?: string;
     headerActions?: React.ReactNode;
+    headerTitleTourId?: string;
 }
 
 const DashboardLayout = ({
     children,
     title,
     subtitle,
-    headerActions
+    headerActions,
+    headerTitleTourId
 }: DashboardLayoutProps) => {
     const { notifications, notificationCount, markAsRead } = useNotifications();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -38,6 +40,7 @@ const DashboardLayout = ({
                     onNotificationClick={() => setIsNotificationOpen(true)}
                     notificationCount={notificationCount}
                     headerActions={headerActions}
+                    titleTourId={headerTitleTourId}
                 />
 
                 <main className="flex-1 p-4 lg:p-6 overflow-auto">

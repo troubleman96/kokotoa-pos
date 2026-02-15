@@ -9,9 +9,10 @@ interface AppHeaderProps {
     onNotificationClick: () => void;
     notificationCount?: number;
     headerActions?: React.ReactNode;
+    titleTourId?: string;
 }
 
-const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notificationCount = 0, headerActions }: AppHeaderProps) => {
+const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notificationCount = 0, headerActions, titleTourId }: AppHeaderProps) => {
     const { language, setLanguage } = useLanguage();
 
     return (
@@ -22,7 +23,10 @@ const AppHeader = ({ title, subtitle, onMenuToggle, onNotificationClick, notific
                         <Menu className="w-6 h-6" />
                     </button>
                     <div>
-                        <h1 className="font-display text-xl sm:text-2xl font-black text-foreground tracking-tight leading-none mb-1">
+                        <h1
+                            data-tour={titleTourId}
+                            className="font-display text-xl sm:text-2xl font-black text-foreground tracking-tight leading-none mb-1"
+                        >
                             {title}
                         </h1>
                         {subtitle && (

@@ -142,6 +142,7 @@ const Dashboard = () => {
         title={language === 'sw'
           ? `Karibu, ${user?.first_name || 'Mfanyabiashara'}!`
           : `Welcome, ${user?.first_name || 'Business Owner'}!`}
+        headerTitleTourId="dashboard-title"
         subtitle={new Date().toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', {
           weekday: 'long',
           year: 'numeric',
@@ -401,7 +402,7 @@ const Dashboard = () => {
 
                   {/* Profit Trend Chart */}
                   {user?.role === 'OWNER' && (
-                    <Card className="card-kokotoa lg:col-span-3 overflow-hidden" data-tour="top-products">
+                    <Card className="card-kokotoa lg:col-span-3 overflow-hidden" data-tour="profit-chart">
                       <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                           <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>

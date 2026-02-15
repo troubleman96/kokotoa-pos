@@ -82,6 +82,12 @@ const OnboardingTour = ({ page, steps, autoStart = true }: OnboardingTourProps) 
                     block: 'center',
                     inline: 'center',
                 });
+                // Re-measure after smooth scrolling completes inside nested scroll containers.
+                setTimeout(() => {
+                    if (!cancelled) {
+                        updatePosition();
+                    }
+                }, 350);
                 return;
             }
 
@@ -96,13 +102,13 @@ const OnboardingTour = ({ page, steps, autoStart = true }: OnboardingTourProps) 
 
         focusCurrentStep();
         window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
 
         return () => {
             cancelled = true;
             if (retryTimer) clearTimeout(retryTimer);
             window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
         };
     }, [state.isActive, state.currentStep, state.currentSteps, nextStep]);
 

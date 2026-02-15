@@ -34,11 +34,11 @@ const TourOverlay = ({ targetElement, isActive }: TourOverlayProps) => {
 
         updatePosition();
         window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
 
         return () => {
             window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
         };
     }, [targetElement, isActive]);
 
