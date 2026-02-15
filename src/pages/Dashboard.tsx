@@ -298,7 +298,7 @@ const Dashboard = () => {
                   {/* Sales Chart */}
                   <Card className="card-kokotoa lg:col-span-3 overflow-hidden" data-tour="sales-chart">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <div>
+                      <div data-tour="sales-trend-heading">
                         <CardTitle>{language === 'sw' ? 'Mwenendo wa Mauzo' : 'Sales Trend'}</CardTitle>
                         <CardDescription>
                           {language === 'sw' ? 'Mwenendo wa mauzo kwa siku 7 zilizopita' : 'Sales trend for the last 7 days'}
@@ -404,7 +404,7 @@ const Dashboard = () => {
                   {user?.role === 'OWNER' && (
                     <Card className="card-kokotoa lg:col-span-3 overflow-hidden" data-tour="profit-chart">
                       <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
+                        <div data-tour="profit-trend-heading">
                           <CardTitle>{language === 'sw' ? 'Mwenendo wa Faida' : 'Profit Trend'}</CardTitle>
                           <CardDescription>
                             {language === 'sw' ? 'Mwenendo wa faida kwa siku 7 zilizopita' : 'Profit trend for the last 7 days'}

@@ -24,8 +24,8 @@ const TourOverlay = ({ targetElement, isActive }: TourOverlayProps) => {
             if (element) {
                 const rect = element.getBoundingClientRect();
                 setPosition({
-                    top: rect.top + window.scrollY,
-                    left: rect.left + window.scrollX,
+                    top: rect.top,
+                    left: rect.left,
                     width: rect.width,
                     height: rect.height,
                 });

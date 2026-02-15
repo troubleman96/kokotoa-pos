@@ -58,8 +58,8 @@ const OnboardingTour = ({ page, steps, autoStart = true }: OnboardingTourProps) 
             if (element) {
                 const rect = element.getBoundingClientRect();
                 setElementPosition({
-                    top: rect.top + window.scrollY,
-                    left: rect.left + window.scrollX,
+                    top: rect.top,
+                    left: rect.left,
                     width: rect.width,
                     height: rect.height,
                 });

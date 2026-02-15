@@ -38,7 +38,7 @@ export const dashboardTourSteps: TourStep[] = [
     },
     {
         id: 'dashboard-sales-chart',
-        target: '[data-tour="sales-chart"]',
+        target: '[data-tour="sales-trend-heading"]',
         title: {
             sw: 'Mwenendo wa Mauzo',
             en: 'Sales Trend',
@@ -51,7 +51,7 @@ export const dashboardTourSteps: TourStep[] = [
     },
     {
         id: 'dashboard-profit-chart',
-        target: '[data-tour="profit-chart"]',
+        target: '[data-tour="profit-trend-heading"]',
         title: {
             sw: 'Mwenendo wa Faida',
             en: 'Profit Trend',
