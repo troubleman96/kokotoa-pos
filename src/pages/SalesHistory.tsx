@@ -324,6 +324,7 @@ const SalesHistory = () => {
                                                                 size="icon"
                                                                 className="h-8 w-8 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 hover:text-primary"
                                                                 onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
+                                                                data-tour="sales-receipt-action"
                                                             >
                                                                 <Printer className="w-4 h-4" />
                                                             </Button>
@@ -391,6 +392,7 @@ const SalesHistory = () => {
                                                     size="sm"
                                                     className="h-8 px-4 bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 text-[10px] font-black rounded-xl"
                                                     onClick={(e) => { e.stopPropagation(); handleViewReceipt(sale.id); }}
+                                                    data-tour="sales-receipt-action"
                                                 >
                                                     <Printer className="w-3.5 h-3.5 mr-2" />
                                                     {language === 'sw' ? 'RISITI' : 'RECEIPT'}

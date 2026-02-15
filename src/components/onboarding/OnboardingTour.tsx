@@ -44,7 +44,16 @@ const OnboardingTour = ({ page, steps, autoStart = true }: OnboardingTourProps) 
         const currentStep = state.currentSteps[state.currentStep];
         if (!currentStep) return;
 
-        const updatePosition = () => {
+        // Run optional step side effects (e.g., open a tab) before measuring.
+        if (currentStep.action) {
+            currentStep.action();
+        }
+
+        let cancelled = false;
+        let retryTimer: ReturnType<typeof setTimeout> | null = null;
+        const maxRetries = 8;
+
+        const measurePosition = () => {
             const element = document.querySelector(currentStep.target);
             if (element) {
                 const rect = element.getBoundingClientRect();
@@ -54,25 +63,48 @@ const OnboardingTour = ({ page, steps, autoStart = true }: OnboardingTourProps) 
                     width: rect.width,
                     height: rect.height,
                 });
+                return element;
+            }
+            return null;
+        };
 
-                // Scroll element into view if needed
+        const updatePosition = () => {
+            measurePosition();
+        };
+
+        const focusCurrentStep = (attempt = 0) => {
+            if (cancelled) return;
+            const element = measurePosition();
+
+            if (element) {
                 element.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center',
                     inline: 'center',
                 });
+                return;
             }
+
+            if (attempt < maxRetries) {
+                retryTimer = setTimeout(() => focusCurrentStep(attempt + 1), 250);
+                return;
+            }
+
+            // Skip steps that cannot be rendered in the current UI state.
+            nextStep();
         };
 
-        updatePosition();
+        focusCurrentStep();
         window.addEventListener('resize', updatePosition);
         window.addEventListener('scroll', updatePosition);
 
         return () => {
+            cancelled = true;
+            if (retryTimer) clearTimeout(retryTimer);
             window.removeEventListener('resize', updatePosition);
             window.removeEventListener('scroll', updatePosition);
         };
-    }, [state.isActive, state.currentStep, state.currentSteps]);
+    }, [state.isActive, state.currentStep, state.currentSteps, nextStep]);
 
     // Keyboard navigation
     useEffect(() => {

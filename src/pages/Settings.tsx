@@ -302,6 +302,7 @@ const SettingsPage = () => {
                 key={tab.id}
                 variant={activeTab === tab.id ? 'default' : 'outline'}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                data-tour={`settings-tab-${tab.id}`}
                 className={`transition-all duration-200 ${activeTab === tab.id ? 'btn-kokotoa shadow-md scale-105' : 'hover:bg-primary/5'}`}
               >
                 <tab.icon className={`w-4 h-4 mr-2 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
@@ -318,6 +319,7 @@ const SettingsPage = () => {
               <Button
                 key={tab.id}
                 variant="outline"
+                data-tour={`settings-tab-${tab.id}`}
                 className="w-full justify-between h-16 px-6 text-lg font-medium border-primary/10 hover:border-primary/30 hover:bg-primary/5 transition-all card-kokotoa"
                 onClick={() => handleTabClick(tab.id)}
               >
@@ -335,7 +337,7 @@ const SettingsPage = () => {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
-          <Card className="card-kokotoa">
+          <Card className="card-kokotoa" data-tour="profile-section">
             <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
               <div className="flex items-center gap-3 mb-2 md:hidden">
                 <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">
@@ -442,7 +444,7 @@ const SettingsPage = () => {
 
         {/* Password Tab */}
         {activeTab === 'password' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
-          <Card className="card-kokotoa">
+          <Card className="card-kokotoa" data-tour="security-section">
             <CardHeader className="p-4 sm:p-6 border-b border-border/50 mb-4">
               <div className="flex items-center gap-3 mb-2 md:hidden">
                 <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(true)} className="-ml-2 h-8">

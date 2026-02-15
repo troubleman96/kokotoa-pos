@@ -36,13 +36,6 @@ const TourTooltip = ({
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    useEffect(() => {
-        // Execute step action if provided
-        if (step.action) {
-            step.action();
-        }
-    }, [step]);
-
     if (!position) return null;
 
     const getTooltipPosition = () => {

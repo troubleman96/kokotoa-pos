@@ -1,6 +1,26 @@
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const normalizeApiBaseUrl = (rawUrl?: string) => {
+  if (!rawUrl) return '/api';
+
+  const runtimeHost = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1';
+  const fallbackHost = runtimeHost && runtimeHost !== '0.0.0.0' ? runtimeHost : '127.0.0.1';
+
+  try {
+    const parsedUrl = new URL(rawUrl);
+    if (parsedUrl.hostname === '0.0.0.0') {
+      parsedUrl.hostname = fallbackHost;
+    }
+    return parsedUrl.toString().replace(/\/$/, '');
+  } catch {
+    return rawUrl.replace('://0.0.0.0', `://${fallbackHost}`).replace(/\/$/, '');
+  }
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
+if (import.meta.env.DEV) {
+  console.log('[API] Base URL:', API_BASE_URL);
+}
 
 interface ApiResponse<T> {
   success: boolean;

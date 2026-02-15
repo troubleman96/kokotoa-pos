@@ -288,7 +288,7 @@ const Users = () => {
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1.5">
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${getRoleBadgeColor(user.role)}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${getRoleBadgeColor(user.role)}`} data-tour="user-roles">
                             {user.role_name}
                           </span>
                         </div>

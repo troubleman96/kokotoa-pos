@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { storesApi, api } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Package, Store, MapPin, Phone, ArrowRight, CheckCircle } from 'lucide-react';
+import { Store, MapPin, Phone, ArrowRight, CheckCircle } from 'lucide-react';
 
 const CreateStore = () => {
   const { language } = useLanguage();
@@ -126,18 +126,18 @@ const CreateStore = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-center justify-center p-3 md:p-4">
       <div className="w-full max-w-lg">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Store className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            {!user?.is_profile_complete
-              ? (language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store')
-              : (language === 'sw' ? 'Ongeza Duka Jipya' : 'Add New Store')
-            }
+        <div className="text-center mb-5 md:mb-6">
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1.5 flex items-center justify-center gap-2">
+            <Store className="w-6 h-6 text-primary shrink-0" />
+            <span>
+              {!user?.is_profile_complete
+                ? (language === 'sw' ? 'Unda Duka Lako' : 'Create Your Store')
+                : (language === 'sw' ? 'Ongeza Duka Jipya' : 'Add New Store')
+              }
+            </span>
           </h1>
           <p className="text-muted-foreground">
             {!user?.is_profile_complete
@@ -154,39 +154,41 @@ const CreateStore = () => {
         </div>
 
         <Card className="card-kokotoa">
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {language === 'sw' ? 'Jina la Duka *' : 'Store Name *'}
-                </label>
-                <div className="relative">
-                  <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder={language === 'sw' ? 'Mfano: Mama Maria Shop' : 'e.g., Mama Maria Shop'}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="pl-12 h-12 bg-background"
-                    required
-                  />
+          <CardContent className="pt-4 md:pt-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="min-w-0">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    {language === 'sw' ? 'Jina la Duka *' : 'Store Name *'}
+                  </label>
+                  <div className="relative">
+                    <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder={language === 'sw' ? 'Mama Maria Shop' : 'Mama Maria Shop'}
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="pl-10 h-11 bg-background"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {language === 'sw' ? 'Mahali *' : 'Location *'}
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder={language === 'sw' ? 'Mfano: Kariakoo, Dar es Salaam' : 'e.g., Kariakoo, Dar es Salaam'}
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="pl-12 h-12 bg-background"
-                    required
-                  />
+                <div className="min-w-0">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    {language === 'sw' ? 'Mahali *' : 'Location *'}
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder={language === 'sw' ? 'Kariakoo' : 'Kariakoo'}
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="pl-10 h-11 bg-background"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -195,13 +197,13 @@ const CreateStore = () => {
                   {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="tel"
                     placeholder="255628587749"
                     value={formData.phone_number}
                     onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                    className="pl-12 h-12 bg-background"
+                    className="pl-10 h-11 bg-background"
                   />
                 </div>
               </div>
@@ -214,7 +216,7 @@ const CreateStore = () => {
                   placeholder={language === 'sw' ? 'Maelezo mafupi kuhusu duka lako' : 'Brief description about your store'}
                   value={formData.details}
                   onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                  className="w-full h-24 px-4 py-3 rounded-xl border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full h-20 px-4 py-2.5 rounded-xl border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -239,7 +241,7 @@ const CreateStore = () => {
                 </ul>
               </div>
 
-              <Button type="submit" className="w-full btn-kokotoa h-14 text-lg" disabled={isLoading}>
+              <Button type="submit" className="w-full btn-kokotoa h-11 text-base" disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />

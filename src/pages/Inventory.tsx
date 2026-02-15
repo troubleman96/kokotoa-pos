@@ -505,7 +505,7 @@ const Inventory = () => {
               </Card>
 
               {/* Mobile Card View */}
-              <div className="grid grid-cols-1 gap-4 md:hidden">
+              <div className="grid grid-cols-1 gap-4 md:hidden" data-tour="product-list">
                 {filteredProducts.map((product) => (
                   <Card
                     key={product.id}
@@ -543,7 +543,7 @@ const Inventory = () => {
                       <div className="grid grid-cols-2 gap-4 py-3 border-y border-border/50">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Hesabu' : 'Stock Level'}</p>
-                          <p className={`text-lg font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`}>
+                          <p className={`text-lg font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`} data-tour="stock-level">
                             {product.quantity} <span className="text-xs font-normal text-muted-foreground">{product.unit}</span>
                           </p>
                         </div>
@@ -569,6 +569,7 @@ const Inventory = () => {
                             size="sm"
                             className="h-9 px-3 bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"
                             onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
+                            data-tour="adjust-stock"
                           >
                             <RefreshCcw className="w-3.5 h-3.5 mr-1.5" />
                             {language === 'sw' ? 'Rekebisha' : 'Adjust'}
