@@ -28,6 +28,7 @@ const Inventory = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
@@ -78,22 +79,31 @@ const Inventory = () => {
     image: null,
   });
 
-  const categories = [
-    { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
-  ];
+  const categories = useMemo(
+    () => [
+      { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
+      ...categoryList.map((cat) => ({ id: cat, label: cat })),
+    ],
+    [language, categoryList]
+  );
 
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await productsApi.list();
-      if (response.data) {
-        setProducts(response.data);
-        const uniqueCategories = [...new Set(response.data.map((p: Product) => p.category))];
-        uniqueCategories.forEach((cat: string) => {
-          if (!categories.find(c => c.id === cat)) {
-            categories.push({ id: cat, label: cat });
-          }
-        });
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        productsApi.list(),
+        productsApi.getCategories().catch(() => null),
+      ]);
+
+      if (productsResponse.data) {
+        setProducts(productsResponse.data);
+      }
+
+      if (categoriesResponse?.data?.categories) {
+        setCategoryList([...new Set(categoriesResponse.data.categories)]);
+      } else if (productsResponse.data) {
+        const uniqueCategories = [...new Set(productsResponse.data.map((p: Product) => p.category))];
+        setCategoryList(uniqueCategories);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -110,6 +120,14 @@ const Inventory = () => {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  useEffect(() => {
+    if (selectedCategory === 'all') return;
+    const exists = categoryList.includes(selectedCategory);
+    if (!exists) {
+      setSelectedCategory('all');
+    }
+  }, [categoryList, selectedCategory]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -342,46 +360,50 @@ const Inventory = () => {
       subtitle={language === 'sw' ? `Jumla: ${products.length} bidhaa` : `Total: ${products.length} products`}
     >
       <div className="space-y-4" data-tour="inventory-header">
-        <div className="flex items-center justify-between">
-          <Button onClick={openAddModal} className="btn-kokotoa" data-tour="add-product">
-            <Plus className="w-4 h-4 mr-2" />
-            <span className="relative z-10">{language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}</span>
-          </Button>
-        </div>
-
         <div className="p-4 lg:p-6 border-b border-border bg-card/50 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="flex flex-col lg:flex-row gap-3 lg:items-center">
+            <div className="relative flex-[2.4] min-w-0">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 placeholder={language === 'sw' ? 'Tafuta bidhaa...' : 'Search products...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-card border-border"
+                className="pl-12 h-12 bg-card border-border text-base"
               />
             </div>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-48 h-12 bg-card">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center lg:flex-[0.8] lg:justify-end">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full sm:w-36 h-11 bg-card text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Button
-              variant={showLowStockOnly ? 'default' : 'outline'}
-              onClick={() => setShowLowStockOnly(!showLowStockOnly)}
-              className={`h-12 ${showLowStockOnly ? 'bg-destructive hover:bg-destructive/90' : ''}`}
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              {language === 'sw' ? `Zinakwisha (${lowStockCount})` : `Low Stock (${lowStockCount})`}
-            </Button>
+              <Button
+                variant={showLowStockOnly ? 'default' : 'outline'}
+                onClick={() => setShowLowStockOnly(!showLowStockOnly)}
+                className={`h-11 px-4 text-sm ${showLowStockOnly ? 'bg-destructive hover:bg-destructive/90' : ''}`}
+              >
+                <AlertTriangle className="w-4 h-4 mr-1.5" />
+                {language === 'sw' ? `Zinakwisha (${lowStockCount})` : `Low Stock (${lowStockCount})`}
+              </Button>
+
+              <Button
+                onClick={openAddModal}
+                className="btn-kokotoa h-11 px-4 sm:px-5 text-sm font-bold"
+                data-tour="add-product"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="relative z-10">{language === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}</span>
+              </Button>
+            </div>
           </div>
         </div>
 

@@ -32,6 +32,7 @@ const POS = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Checkout & Receipt state
@@ -44,23 +45,33 @@ const POS = () => {
   const [paymentRef, setPaymentRef] = useState('');
   const [saleNotes, setSaleNotes] = useState('');
 
-  const categories = [
-    { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
-  ];
+  const categories = useMemo(
+    () => [
+      { id: 'all', label: language === 'sw' ? 'Zote' : 'All' },
+      ...categoryList.map((cat) => ({ id: cat, label: cat })),
+    ],
+    [language, categoryList]
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await productsApi.list();
-        if (response.data) {
-          setProducts(response.data);
-          const uniqueCategories = [...new Set(response.data.map((p: Product) => p.category))];
-          uniqueCategories.forEach((cat: string) => {
-            if (!categories.find(c => c.id === cat)) {
-              categories.push({ id: cat, label: cat });
-            }
-          });
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          productsApi.list(),
+          productsApi.getCategories().catch(() => null),
+        ]);
+
+        if (productsResponse.data) {
+          setProducts(productsResponse.data);
+        }
+
+        if (categoriesResponse?.data?.categories) {
+          setCategoryList([...new Set(categoriesResponse.data.categories)]);
+        } else if (productsResponse.data) {
+          // Fallback if category endpoint fails: derive from available products.
+          const uniqueCategories = [...new Set(productsResponse.data.map((p: Product) => p.category))];
+          setCategoryList(uniqueCategories);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -74,7 +85,7 @@ const POS = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [language]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -229,7 +240,7 @@ const POS = () => {
                 />
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              <div className="flex gap-2 overflow-x-auto pb-2 whitespace-nowrap">
                 {categories.map((cat) => (
                   <Button
                     key={cat.id}
@@ -306,10 +317,11 @@ const POS = () => {
                   <ShoppingCart className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="font-display font-semibold text-foreground">{language === 'sw' ? 'Kikapu' : 'Cart'}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {cart.length} {language === 'sw' ? 'bidhaa' : 'items'}
-                  </p>
+                  <h2 className="font-display font-semibold text-foreground">
+                    {language === 'sw'
+                      ? `Kikapu (${cart.length} bidhaa)`
+                      : `Cart (${cart.length} ${cart.length === 1 ? 'item' : 'items'})`}
+                  </h2>
                 </div>
               </div>
             </div>

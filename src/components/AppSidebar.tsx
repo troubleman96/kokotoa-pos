@@ -21,7 +21,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
     const navItems = [
         { path: '/dashboard', icon: Home, label: language === 'sw' ? 'Dashibodi' : 'Dashboard' },
         { path: '/pos', icon: ShoppingCart, label: language === 'sw' ? 'Mauzo' : 'Sales' },
-        { path: '/inventory', icon: Package, label: language === 'sw' ? 'Hesabu' : 'Inventory' },
+        { path: '/inventory', icon: Package, label: language === 'sw' ? 'Bidhaa' : 'Inventory' },
         { path: '/stock-history', icon: History, label: language === 'sw' ? 'Logi ya Bidhaa' : 'Stock History' },
         { path: '/sales-history', icon: Receipt, label: language === 'sw' ? 'Miamala' : 'Transactions' },
         ...(user?.role === 'OWNER' ? [
@@ -45,13 +45,9 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-display font-black text-xl tracking-tight text-foreground uppercase">KOKOTOA</span>
-                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest mt-[-2px]">Smart POS</span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <div className="text-base text-foreground font-black truncate tracking-tight">
-                                    {user?.store_name || (language === 'sw' ? 'Msimamizi' : 'Administrator')}
+                                    <span className="text-[11px] font-bold text-green-600 uppercase tracking-wider mt-[-2px] truncate max-w-[170px]">
+                                        {user?.store_name || (language === 'sw' ? 'Duka Langu' : 'My Store')}
+                                    </span>
                                 </div>
                             </div>
                         </Link>

@@ -99,6 +99,7 @@ interface User {
 
 class ApiService {
   private accessToken: string | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
 
   setAccessToken(token: string | null) {
     this.accessToken = token;
@@ -120,7 +121,7 @@ class ApiService {
 
   setRefreshToken(token: string | null) {
     if (token) {
-      const isSecure = window.location.protocol === 'https:';
+      const isSecure = typeof window !== 'undefined' ? window.location.protocol === 'https:' : false;
       Cookies.set('refresh_token', token, { expires: 30, secure: isSecure, sameSite: 'strict' });
       localStorage.setItem('refresh_token', token); // Fallback
     } else {
@@ -131,6 +132,56 @@ class ApiService {
 
   getRefreshToken(): string | null {
     return Cookies.get('refresh_token') || localStorage.getItem('refresh_token');
+  }
+
+  private async refreshAccessToken(): Promise<boolean> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = (async () => {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) return false;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const refreshRes = await response.json();
+        const newAccess =
+          refreshRes?.data?.access ||
+          refreshRes?.access ||
+          refreshRes?.data?.access_token ||
+          refreshRes?.access_token;
+        const newRefresh =
+          refreshRes?.data?.refresh ||
+          refreshRes?.refresh ||
+          refreshRes?.data?.refresh_token ||
+          refreshRes?.refresh_token;
+
+        if (!newAccess) {
+          return false;
+        }
+
+        this.setAccessToken(newAccess);
+        if (newRefresh) this.setRefreshToken(newRefresh);
+        return true;
+      } catch (error) {
+        console.error('[API] Silent refresh failed:', error);
+        return false;
+      } finally {
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
   }
 
   private getHeaders(isFormData = false): HeadersInit {
@@ -153,37 +204,19 @@ class ApiService {
 
     // Auto-refresh logic on 401 (but don't retry if the refresh request itself fails)
     if (response.status === 401 && retry && endpoint !== '/auth/token/refresh/') {
-      const refreshToken = this.getRefreshToken();
-      if (refreshToken) {
-        try {
-          console.log('[API] 401 Unauthorized, attempting to hit refresh token...');
-          const refreshRes = await authApi.refreshToken(refreshToken) as any;
-
-          // Handle both wrapped and unwrapped response styles
-          const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
-          const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
-
-          if (newAccess) {
-            console.log('[API] Refresh successful, retrying original request.');
-            this.setAccessToken(newAccess);
-            if (newRefresh) this.setRefreshToken(newRefresh);
-
-            // Retry the original request with new token
-            const newOptions = {
-              ...options,
-              headers: this.getHeaders(options.body instanceof FormData)
-            };
-            return this.request<T>(endpoint, newOptions, false);
-          } else {
-            console.error('[API] Refresh response missing tokens:', refreshRes);
-            throw new Error('Refresh failed');
-          }
-        } catch (error) {
-          console.error('[API] Recovery failed during silent refresh:', error);
-          this.setAccessToken(null);
-          this.setRefreshToken(null);
-        }
+      console.log('[API] 401 Unauthorized, attempting silent refresh...');
+      const refreshed = await this.refreshAccessToken();
+      if (refreshed) {
+        // Retry original request once with new token
+        const newOptions = {
+          ...options,
+          headers: this.getHeaders(options.body instanceof FormData)
+        };
+        return this.request<T>(endpoint, newOptions, false);
       }
+
+      this.setAccessToken(null);
+      this.setRefreshToken(null);
     }
 
     return this.handleResponse<T>(response);
@@ -385,6 +418,9 @@ export const productsApi = {
 
   getLowStock: () =>
     api.get<{ success: boolean; message: string; data: Product[]; errors: any }>('/inventory/products/low-stock/'),
+
+  getCategories: () =>
+    api.get<{ success: boolean; message: string; data: { categories: string[] }; errors: any }>('/inventory/products/categories/'),
 
   adjustStock: (data: { product_id: number; movement_type: 'IN' | 'OUT' | 'ADJUST'; quantity: number; reason?: string; reference?: string }) =>
     api.post<{ success: boolean; message: string; data: StockMovement; errors: any }>('/inventory/products/adjust-stock/', data),
