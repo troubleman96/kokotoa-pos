@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, Plus, Edit2, Trash2, Package,
   AlertTriangle, Save, XCircle, Image as ImageIcon,
-  ArrowUpCircle, ArrowDownCircle, RefreshCcw, History
+  ArrowUpCircle, ArrowDownCircle, RefreshCcw, History, Filter, MoreVertical
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { productsApi, Product } from '@/services/api';
@@ -16,6 +16,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import ProductDetailsModal from '@/components/ProductDetailsModal';
@@ -361,43 +364,46 @@ const Inventory = () => {
     >
       <div className="space-y-4" data-tour="inventory-header">
         <div className="p-4 lg:p-6 border-b border-border bg-card/50 space-y-4">
-          <div className="flex flex-col lg:flex-row gap-3 lg:items-center">
-            <div className="relative flex-[2.4] min-w-0">
+          <div className="space-y-3 lg:space-y-0 lg:flex lg:items-center lg:gap-3">
+            <div className="relative min-w-0 lg:flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 placeholder={language === 'sw' ? 'Tafuta bidhaa...' : 'Search products...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-card border-border text-base"
+                className="pl-12 pr-32 sm:pr-36 h-12 bg-card border-border text-base"
               />
+              <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-24 sm:w-28 h-8 bg-muted/70 text-[11px] border-border/60 gap-1.5 px-2">
+                    <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                    <SelectValue placeholder={language === 'sw' ? 'Aina' : 'Filter'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center lg:flex-[0.8] lg:justify-end">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-36 h-11 bg-card text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
+            <div className="grid grid-cols-8 gap-2 sm:flex sm:justify-end lg:shrink-0">
               <Button
                 variant={showLowStockOnly ? 'default' : 'outline'}
                 onClick={() => setShowLowStockOnly(!showLowStockOnly)}
-                className={`h-11 px-4 text-sm ${showLowStockOnly ? 'bg-destructive hover:bg-destructive/90' : ''}`}
+                className={`col-span-3 h-11 px-2 sm:px-4 text-sm ${showLowStockOnly ? 'bg-destructive hover:bg-destructive/90' : ''}`}
               >
-                <AlertTriangle className="w-4 h-4 mr-1.5" />
-                {language === 'sw' ? `Zinakwisha (${lowStockCount})` : `Low Stock (${lowStockCount})`}
+                <AlertTriangle className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">{language === 'sw' ? `Zinakwisha (${lowStockCount})` : `Low Stock (${lowStockCount})`}</span>
+                <span className="sm:hidden text-xs font-semibold">{lowStockCount}</span>
               </Button>
 
               <Button
                 onClick={openAddModal}
-                className="btn-kokotoa h-11 px-4 sm:px-5 text-sm font-bold"
+                className="btn-kokotoa col-span-5 h-11 px-4 sm:px-5 text-sm font-bold"
                 data-tour="add-product"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -535,8 +541,8 @@ const Inventory = () => {
                     onClick={() => handleViewProduct(product)}
                   >
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                      <div className="mb-4">
+                        <div className="flex items-start gap-3">
                           {(product.image_url || product.image) ? (
                             <img
                               src={product.image_url || product.image || ''}
@@ -548,31 +554,76 @@ const Inventory = () => {
                               {product.category.charAt(0).toUpperCase()}
                             </div>
                           )}
-                          <div>
-                            <h4 className="font-bold text-foreground leading-tight">{product.name}</h4>
-                            <p className="text-xs text-muted-foreground font-mono">{product.sku}</p>
-                            <span className="inline-block mt-1 px-2 py-0.5 bg-muted text-[10px] rounded text-muted-foreground uppercase tracking-wider font-semibold">
-                              {product.category}
-                            </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="grid w-full grid-cols-[1fr_1fr_auto] gap-4 items-center">
+                              <div className="min-w-0">
+                                <p className="text-base font-bold text-foreground leading-tight truncate">{product.name}</p>
+                                <p className="text-[10px] text-muted-foreground font-mono truncate mt-0.5">{product.sku}</p>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Aina' : 'Category'}</p>
+                                <p className="text-base font-bold text-foreground capitalize truncate">{product.category}</p>
+                              </div>
+                              <div className="flex items-center justify-end gap-3 justify-self-end">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-full bg-muted/50"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <MoreVertical className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-44">
+                                    <DropdownMenuItem
+                                      onClick={(e) => { e.stopPropagation(); openEditModal(product); }}
+                                    >
+                                      <Edit2 className="w-4 h-4 mr-2" />
+                                      {language === 'sw' ? 'Hariri' : 'Edit'}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
+                                      data-tour="adjust-stock"
+                                    >
+                                      <RefreshCcw className="w-4 h-4 mr-2" />
+                                      {language === 'sw' ? 'Rekebisha' : 'Adjust'}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => { e.stopPropagation(); navigate(`/stock-history?search=${product.sku}`); }}
+                                    >
+                                      <History className="w-4 h-4 mr-2" />
+                                      {language === 'sw' ? 'Historia' : 'Logs'}
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full bg-destructive/10 text-destructive"
+                                  onClick={(e) => { e.stopPropagation(); setProductToDelete(product); setIsDeleteModalOpen(true); }}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-primary">{formatPrice(product.selling_price)}</p>
-                          <p className="text-[10px] text-muted-foreground">{language === 'sw' ? 'Bei ya Mauzo' : 'Selling Price'}</p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 py-3 border-y border-border/50">
+                      <div className="grid grid-cols-3 gap-3 py-3 border-y border-border/50 items-center">
                         <div>
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Hesabu' : 'Stock Level'}</p>
-                          <p className={`text-lg font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`} data-tour="stock-level">
+                          <p className={`text-base font-bold ${product.is_low_stock ? 'text-destructive' : 'text-foreground'}`} data-tour="stock-level">
                             {product.quantity} <span className="text-xs font-normal text-muted-foreground">{product.unit}</span>
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-center flex flex-col items-center">
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Hali' : 'Status'}</p>
                           {product.is_low_stock ? (
-                            <span className="text-destructive font-bold flex items-center justify-end gap-1 text-sm">
+                            <span className="text-destructive font-bold flex items-center justify-center gap-1 text-sm">
                               <AlertTriangle className="w-3 h-3" />
                               {language === 'sw' ? 'Inaisha' : 'Low'}
                             </span>
@@ -582,47 +633,13 @@ const Inventory = () => {
                             </span>
                           )}
                         </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex gap-1.5">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="h-9 px-3 bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"
-                            onClick={(e) => { e.stopPropagation(); openAdjustModal(product); }}
-                            data-tour="adjust-stock"
-                          >
-                            <RefreshCcw className="w-3.5 h-3.5 mr-1.5" />
-                            {language === 'sw' ? 'Rekebisha' : 'Adjust'}
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="h-9 px-3 bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/20"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/stock-history?search=${product.sku}`); }}
-                          >
-                            <History className="w-3.5 h-3.5 mr-1.5" />
-                            {language === 'sw' ? 'Historia' : 'Logs'}
-                          </Button>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-full bg-muted/50"
-                            onClick={(e) => { e.stopPropagation(); openEditModal(product); }}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-full bg-destructive/10 text-destructive"
-                            onClick={(e) => { e.stopPropagation(); setProductToDelete(product); setIsDeleteModalOpen(true); }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                            {language === 'sw' ? 'Bei ya Mauzo' : 'Selling Price'}
+                          </p>
+                          <p className="text-sm font-bold text-primary truncate">
+                            {formatPrice(product.selling_price)}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
@@ -651,19 +668,49 @@ const Inventory = () => {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="bg-card border-border max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="bg-card border-border max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="font-display">
               {editingProduct ? (language === 'sw' ? 'Hariri Bidhaa' : 'Edit Product') : (language === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product')}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                {language === 'sw' ? 'Jina la Bidhaa *' : 'Product Name *'}
-              </label>
-              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={language === 'sw' ? 'Mfano: Coca Cola' : 'e.g., Coca Cola'} className="bg-background" />
+          <div className="space-y-3 py-2">
+            <div className="grid grid-cols-4 gap-3 items-end">
+              <div className="col-span-3">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  {language === 'sw' ? 'Jina la Bidhaa *' : 'Product Name *'}
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={language === 'sw' ? 'Mfano: Coca Cola' : 'e.g., Coca Cola'}
+                  className="bg-background"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  {language === 'sw' ? 'Kipimo' : 'Unit'}
+                </label>
+                <select
+                  value={formData.unit}
+                  onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                  className="bg-background border rounded px-2.5 py-2 w-full h-10"
+                >
+                  <option value="pcs">pcs</option>
+                  <option value="kg">kg</option>
+                  <option value="g">g</option>
+                  <option value="l">l</option>
+                  <option value="ml">ml</option>
+                  <option value="box">box</option>
+                  <option value="pack">pack</option>
+                  <option value="dozen">dozen</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -678,25 +725,7 @@ const Inventory = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Kipimo' : 'Unit'}</label>
-              <select
-                value={formData.unit}
-                onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                className="bg-background border rounded px-3 py-2 w-full"
-              >
-                <option value="pcs">{language === 'sw' ? 'Vipande (pcs)' : 'Pieces (pcs)'}</option>
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="l">l</option>
-                <option value="ml">ml</option>
-                <option value="box">{language === 'sw' ? 'Kisanduku (box)' : 'Box'}</option>
-                <option value="pack">{language === 'sw' ? 'Kifurushi (pack)' : 'Pack'}</option>
-                <option value="dozen">{language === 'sw' ? 'Dazeni (dozen)' : 'Dozen'}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">
+              <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
                 {language === 'sw' ? 'Picha ya Bidhaa' : 'Product Image'}
               </label>
               <input
@@ -717,7 +746,7 @@ const Inventory = () => {
                 className="hidden"
               />
               {imagePreview || (editingProduct?.image_url) ? (
-                <div className="relative w-full h-32 bg-muted/30 rounded-lg overflow-hidden border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <div className="relative w-full h-24 sm:h-32 bg-muted/30 rounded-lg overflow-hidden border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <img
                     src={imagePreview || editingProduct?.image_url}
                     alt="Product preview"
@@ -728,7 +757,7 @@ const Inventory = () => {
                   </div>
                 </div>
               ) : (
-                <div className="w-full h-32 bg-muted/30 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center" onClick={() => fileInputRef.current?.click()}>
+                <div className="w-full h-24 sm:h-32 bg-muted/30 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center" onClick={() => fileInputRef.current?.click()}>
                   <ImageIcon className="w-8 h-8 text-muted-foreground mb-2" />
                   <span className="text-sm text-muted-foreground">{language === 'sw' ? 'Chagua Picha' : 'Select Image'}</span>
                   <span className="text-xs text-muted-foreground mt-1">{language === 'sw' ? '(Hiari)' : '(Optional)'}</span>
@@ -770,20 +799,20 @@ const Inventory = () => {
                 <Input type="number" value={formData.minimum_stock} onChange={(e) => setFormData({ ...formData, minimum_stock: e.target.value })} placeholder="5" className="bg-background" />
               </div>
             </div>
-          </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-              <XCircle className="w-4 h-4 mr-2" />
-              {language === 'sw' ? 'Ghairi' : 'Cancel'}
-            </Button>
-            <Button onClick={handleSubmit} className="btn-kokotoa">
-              <Save className="w-4 h-4 mr-2" />
-              <span className="relative z-10">
-                {editingProduct ? (language === 'sw' ? 'Hifadhi' : 'Save') : (language === 'sw' ? 'Ongeza' : 'Add')}
-              </span>
-            </Button>
-          </DialogFooter>
+            <div className="flex flex-row items-center justify-center gap-2 pt-1">
+              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                <XCircle className="w-4 h-4 mr-2" />
+                {language === 'sw' ? 'Ghairi' : 'Cancel'}
+              </Button>
+              <Button onClick={handleSubmit} className="btn-kokotoa">
+                <Save className="w-4 h-4 mr-2" />
+                <span className="relative z-10">
+                  {editingProduct ? (language === 'sw' ? 'Hifadhi' : 'Save') : (language === 'sw' ? 'Ongeza' : 'Add')}
+                </span>
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

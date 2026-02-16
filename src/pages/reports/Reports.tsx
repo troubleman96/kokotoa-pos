@@ -14,7 +14,7 @@ import {
 import DashboardLayout from '@/components/DashboardLayout';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line
 } from 'recharts';
 import MathLoader from '@/components/ui/MathLoader';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
@@ -84,6 +84,9 @@ const Reports = () => {
 
   const [profitReport, setProfitReport] = useState<any | null>(null);
   const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
+  const [creditAnalytics, setCreditAnalytics] = useState<any | null>(null);
+  const [discountAnalytics, setDiscountAnalytics] = useState<any | null>(null);
+  const [analyticsTrend, setAnalyticsTrend] = useState<any[]>([]);
 
   const [dateRange, setDateRange] = useState('7');
 
@@ -97,18 +100,34 @@ const Reports = () => {
       const dateFrom = format(subDays(new Date(), days), 'yyyy-MM-dd');
 
       try {
-        const [dashboard, sales, inventory, dailyRec, profit] = await Promise.all([
+        const [dashboard, sales, inventory, dailyRec, profit, credit, discounts, unifiedTrend] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
           reportsApi.getSales({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
           reportsApi.getInventory().catch(() => null),
           reportsApi.getDailySummary().catch(() => null),
           reportsApi.getProfit({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
+          reportsApi.getCredit({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
+          reportsApi.getDiscounts({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
+          reportsApi.getAnalyticsTrend({ date_from: dateFrom, date_to: dateTo }).catch(() => null),
         ]);
 
         if (dashboard?.data) setDashboardData(dashboard.data);
         if (sales?.data) setSalesData(sales.data);
         if (inventory?.data) setInventoryData(inventory.data);
         if (dailyRec?.data) setDailySummary(dailyRec.data);
+        if (credit?.data) setCreditAnalytics(credit.data);
+        if (discounts?.data) setDiscountAnalytics(discounts.data);
+        if (unifiedTrend?.data?.trends) {
+          setAnalyticsTrend(
+            unifiedTrend.data.trends.map((t: any) => ({
+              name: new Date(t.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
+              sales: t.sales,
+              profit: t.profit,
+              credit: t.credit,
+              discounts: t.discounts,
+            }))
+          );
+        }
         if (profit?.data) {
           console.log('[Reports] Profit report data:', profit.data);
           setProfitReport(profit.data);
@@ -752,6 +771,130 @@ const Reports = () => {
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
           <div className="space-y-4 sm:space-y-6 overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+              <Card className="card-kokotoa">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">{language === 'sw' ? 'Jumla Credit' : 'Total Credit'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">{formatPrice(creditAnalytics?.summary?.total_credit_amount || 0)}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{creditAnalytics?.summary?.transaction_count || 0} {language === 'sw' ? 'miamala' : 'transactions'}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">{language === 'sw' ? 'Deni Lililobaki' : 'Outstanding Debt'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">{formatPrice(creditAnalytics?.summary?.total_outstanding_debt || 0)}</div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">{language === 'sw' ? 'Jumla Iliyorejeshwa' : 'Recovered Amount'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-foreground">{formatPrice(creditAnalytics?.summary?.total_recovered_amount || 0)}</div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">{language === 'sw' ? 'Kiwango cha Urejeshaji' : 'Recovery Rate'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-display font-bold text-primary">{(creditAnalytics?.summary?.recovery_rate || 0).toFixed(1)}%</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="card-kokotoa">
+              <CardHeader>
+                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Takwimu' : 'Analytics Trend'}</CardTitle>
+                <CardDescription className="text-xs">{language === 'sw' ? 'Mauzo, Faida, Credit na Punguzo' : 'Sales, Profit, Credit and Discounts'}</CardDescription>
+              </CardHeader>
+              <CardContent className="h-72 sm:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={analyticsTrend}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                    <Tooltip formatter={(v: number) => formatPrice(v)} />
+                    <Legend />
+                    <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="credit" stroke="#F59E0B" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="discounts" stroke="#EF4444" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Credit' : 'Credit Trend'}</CardTitle>
+                </CardHeader>
+                <CardContent className="h-64 sm:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={(creditAnalytics?.trend || []).map((t: any) => ({ name: new Date(t.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }), total: t.total }))}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                      <Tooltip formatter={(v: number) => formatPrice(v)} />
+                      <Area type="monotone" dataKey="total" stroke="#F59E0B" fill="#F59E0B33" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Punguzo' : 'Discount Trend'}</CardTitle>
+                </CardHeader>
+                <CardContent className="h-64 sm:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={(discountAnalytics?.trend || []).map((t: any) => ({ name: new Date(t.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }), total: t.total }))}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                      <Tooltip formatter={(v: number) => formatPrice(v)} />
+                      <Area type="monotone" dataKey="total" stroke="#EF4444" fill="#EF444433" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="card-kokotoa">
+              <CardHeader>
+                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Wateja wa Madeni Juu' : 'Top Debtors'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {(creditAnalytics?.top_customers || []).length ? (creditAnalytics.top_customers || []).map((c: any, i: number) => (
+                    <div key={`${c.customer_phone}-${i}`} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                      <div>
+                        <p className="font-semibold text-sm">{c.customer_name || (language === 'sw' ? 'Mteja' : 'Customer')}</p>
+                        <p className="text-xs text-muted-foreground">{c.customer_phone || '-'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-sm text-foreground">{formatPrice(c.total || 0)}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {language === 'sw' ? 'Deni:' : 'Outstanding:'} {formatPrice(c.outstanding || 0)}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">{c.count || 0} {language === 'sw' ? 'miamala' : 'tx'}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">{language === 'sw' ? 'Hakuna data ya credit' : 'No credit data found'}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Daily Sales Trend */}
               <Card className="card-kokotoa">

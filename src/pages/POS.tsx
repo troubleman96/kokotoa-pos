@@ -23,6 +23,9 @@ interface CartItem extends Product {
   quantity: number;
 }
 
+const POS_CART_HINT_VIEWS_KEY = 'kokotoa_pos_cart_hint_views';
+const POS_CART_HINT_MAX_VIEWS = 5;
+
 const POS = () => {
   const { language } = useLanguage();
   const { settings } = useSettings();
@@ -34,6 +37,11 @@ const POS = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [allowCartHint, setAllowCartHint] = useState(false);
+  const [showCartHint, setShowCartHint] = useState(false);
+  const [discountType, setDiscountType] = useState<'amount' | 'percent'>('amount');
+  const [discountValue, setDiscountValue] = useState(0);
 
   // Checkout & Receipt state
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -44,6 +52,7 @@ const POS = () => {
   const [customerPhone, setCustomerPhone] = useState('');
   const [paymentRef, setPaymentRef] = useState('');
   const [saleNotes, setSaleNotes] = useState('');
+  const [creditPaymentAmount, setCreditPaymentAmount] = useState('');
 
   const categories = useMemo(
     () => [
@@ -87,6 +96,35 @@ const POS = () => {
     fetchProducts();
   }, [language]);
 
+  useEffect(() => {
+    const updateMobile = () => setIsMobile(window.innerWidth < 1024);
+    updateMobile();
+    window.addEventListener('resize', updateMobile);
+    return () => window.removeEventListener('resize', updateMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const currentViews = Number(localStorage.getItem(POS_CART_HINT_VIEWS_KEY) || '0');
+    if (currentViews < POS_CART_HINT_MAX_VIEWS) {
+      localStorage.setItem(POS_CART_HINT_VIEWS_KEY, String(currentViews + 1));
+      setAllowCartHint(true);
+      return;
+    }
+    setAllowCartHint(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile || !allowCartHint || cart.length === 0) {
+      setShowCartHint(false);
+      return;
+    }
+
+    setShowCartHint(true);
+    const timer = setTimeout(() => setShowCartHint(false), 3000);
+    return () => clearTimeout(timer);
+  }, [isMobile, allowCartHint, cart.length]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -123,9 +161,16 @@ const POS = () => {
   };
 
   const total = cart.reduce((sum, item) => sum + (parseFloat(item.selling_price) * item.quantity), 0);
+  const discountAmount = discountType === 'percent'
+    ? Math.min(total, (total * discountValue) / 100)
+    : Math.min(total, discountValue);
+  const checkoutTotal = Math.max(0, total - discountAmount);
 
   const openCheckout = (method: string) => {
     setPaymentMethod(method);
+    if (method !== 'CREDIT') {
+      setCreditPaymentAmount('');
+    }
     setIsCheckoutModalOpen(true);
   };
 
@@ -154,13 +199,36 @@ const POS = () => {
         customer_phone: customerPhone,
         customer_name: customerName,
         payment_reference: paymentRef,
+        discount_amount: discountAmount,
         notes: saleNotes,
       });
 
       if (response.success) {
+        const initialCreditPayment = paymentMethod === 'CREDIT'
+          ? Math.max(0, Math.min(checkoutTotal, Number(creditPaymentAmount) || 0))
+          : 0;
+
+        if (paymentMethod === 'CREDIT' && initialCreditPayment > 0) {
+          try {
+            await salesApi.recordCreditPayment({
+              sale: response.data.id,
+              amount: initialCreditPayment,
+              payment_method: 'CASH',
+            });
+          } catch (creditPaymentError) {
+            console.error('Failed to record initial credit payment:', creditPaymentError);
+            toast({
+              title: language === 'sw' ? 'Tahadhari' : 'Notice',
+              description: language === 'sw'
+                ? 'Mauzo ya credit yamehifadhiwa lakini malipo ya awali hayakuweza kurekodiwa.'
+                : 'Credit sale was saved, but initial payment could not be recorded.',
+            });
+          }
+        }
+
         toast({
           title: language === 'sw' ? 'Mauzo Yamekamilika! ✓' : 'Sale Complete! ✓',
-          description: `${formatPrice(total)} - ${paymentMethod}`,
+          description: `${formatPrice(checkoutTotal)} - ${paymentMethod}`,
         });
 
         // Fetch receipt automatically
@@ -182,6 +250,9 @@ const POS = () => {
           setCustomerPhone('+255');
           setPaymentRef('');
           setSaleNotes('');
+          setCreditPaymentAmount('');
+          setDiscountType('amount');
+          setDiscountValue(0);
         }
       }
     } catch (error: any) {
@@ -209,20 +280,28 @@ const POS = () => {
         })}
         headerActions={
           cart.length > 0 && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="lg:hidden relative transition-all hover:bg-primary/5 border-primary/10"
-              onClick={() => {
-                const element = document.getElementById('cart-section');
-                element?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <ShoppingCart className="w-5 h-5 text-primary" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card animate-in zoom-in">
-                {cart.length}
-              </span>
-            </Button>
+            <div className="relative lg:hidden">
+              {showCartHint && (
+                <div className="absolute right-0 -top-11 whitespace-nowrap rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-semibold shadow-lg animate-in fade-in">
+                  {language === 'sw' ? 'Bofya kuona kikapu haraka' : 'Tap to open cart quickly'}
+                </div>
+              )}
+
+              <Button
+                variant="outline"
+                size="icon"
+                className={`relative transition-all hover:bg-primary/5 border-primary/10 ${showCartHint ? 'animate-bounce' : 'animate-pulse'}`}
+                onClick={() => {
+                  const element = document.getElementById('cart-section');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-card animate-in zoom-in">
+                  {cart.length}
+                </span>
+              </Button>
+            </div>
           )
         }
       >
@@ -384,14 +463,49 @@ const POS = () => {
             </div>
 
             <div className="p-4 lg:p-6 border-t border-border space-y-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  {language === 'sw' ? 'Punguzo:' : 'Discount:'}
+                </label>
+                <div className="flex items-center rounded-md border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('amount')}
+                    className={`px-2 py-1 text-xs font-semibold ${discountType === 'amount' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground'}`}
+                  >
+                    Amt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType('percent')}
+                    className={`px-2 py-1 text-xs font-semibold ${discountType === 'percent' ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground'}`}
+                  >
+                    %
+                  </button>
+                </div>
+                <Input
+                  type="number"
+                  min="0"
+                  max={discountType === 'percent' ? 100 : total}
+                  value={discountValue}
+                  onChange={(e) => {
+                    const raw = Number(e.target.value) || 0;
+                    const max = discountType === 'percent' ? 100 : total;
+                    setDiscountValue(Math.max(0, Math.min(max, raw)));
+                  }}
+                  placeholder="0"
+                  className="h-9 bg-background"
+                />
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-lg font-medium text-foreground">{language === 'sw' ? 'Jumla' : 'Total'}:</span>
                 <span className="text-2xl font-display font-bold text-primary">
-                  {formatPrice(total)}
+                  {formatPrice(checkoutTotal)}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2" data-tour="payment-methods">
+              <div className="grid grid-cols-4 gap-2" data-tour="payment-methods">
                 <Button
                   onClick={() => openCheckout('CASH')}
                   variant="outline"
@@ -402,13 +516,13 @@ const POS = () => {
                   <span className="text-xs">{language === 'sw' ? 'Taslimu' : 'Cash'}</span>
                 </Button>
                 <Button
-                  onClick={() => openCheckout('MPESA')}
+                  onClick={() => openCheckout('MOBILE_MONEY')}
                   variant="outline"
                   className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
                   disabled={isProcessing}
                 >
                   <Smartphone className="w-5 h-5" />
-                  <span className="text-xs">M-Pesa</span>
+                  <span className="text-xs">{language === 'sw' ? 'Simu' : 'Mobile'}</span>
                 </Button>
                 <Button
                   onClick={() => openCheckout('BANK')}
@@ -418,6 +532,15 @@ const POS = () => {
                 >
                   <CreditCard className="w-5 h-5" />
                   <span className="text-xs">{language === 'sw' ? 'Benki' : 'Bank'}</span>
+                </Button>
+                <Button
+                  onClick={() => openCheckout('CREDIT')}
+                  variant="outline"
+                  className="flex-col gap-1 h-auto py-3 hover:bg-primary/10 hover:border-primary/30"
+                  disabled={isProcessing}
+                >
+                  <Receipt className="w-5 h-5" />
+                  <span className="text-xs">{language === 'sw' ? 'Credit' : 'Credit'}</span>
                 </Button>
               </div>
 
@@ -439,7 +562,7 @@ const POS = () => {
           onClose={() => setIsCheckoutModalOpen(false)}
           onConfirm={completeSale}
           isProcessing={isProcessing}
-          total={total}
+          total={checkoutTotal}
           paymentMethod={paymentMethod}
           customerName={customerName}
           setCustomerName={setCustomerName}
@@ -449,6 +572,8 @@ const POS = () => {
           setPaymentRef={setPaymentRef}
           notes={saleNotes}
           setNotes={setSaleNotes}
+          creditPaymentAmount={creditPaymentAmount}
+          setCreditPaymentAmount={setCreditPaymentAmount}
           language={language}
         />
 
@@ -479,15 +604,25 @@ interface CheckoutModalProps {
   setPaymentRef: (v: string) => void;
   notes: string;
   setNotes: (v: string) => void;
+  creditPaymentAmount: string;
+  setCreditPaymentAmount: (v: string) => void;
   language: string;
 }
 
 const CheckoutModal = ({
   isOpen, onClose, onConfirm, isProcessing, total, paymentMethod,
   customerName, setCustomerName, customerPhone, setCustomerPhone,
-  paymentRef, setPaymentRef, notes, setNotes, language
+  paymentRef, setPaymentRef, notes, setNotes, creditPaymentAmount, setCreditPaymentAmount, language
 }: CheckoutModalProps) => {
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
+  const initialCreditPayment = Math.max(0, Math.min(total, Number(creditPaymentAmount) || 0));
+  const remainingCreditBalance = Math.max(0, total - initialCreditPayment);
+  const paymentMethodLabelMap: Record<string, string> = {
+    CASH: language === 'sw' ? 'Taslimu' : 'Cash',
+    MOBILE_MONEY: language === 'sw' ? 'Simu' : 'Mobile',
+    BANK: language === 'sw' ? 'Benki' : 'Bank',
+    CREDIT: language === 'sw' ? 'Credit' : 'Credit',
+  };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -499,6 +634,19 @@ const CheckoutModal = ({
       }
     }
     setCustomerPhone(value);
+  };
+
+  const handleCreditPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      setCreditPaymentAmount('');
+      return;
+    }
+
+    const value = Number(raw);
+    if (Number.isNaN(value)) return;
+    const clamped = Math.max(0, Math.min(total, value));
+    setCreditPaymentAmount(String(clamped));
   };
 
   return (
@@ -516,7 +664,7 @@ const CheckoutModal = ({
             <p className="text-sm text-muted-foreground mb-1">{language === 'sw' ? 'Jumla ya Kulipa' : 'Total Amount'}</p>
             <p className="text-3xl font-display font-bold text-primary">{formatPrice(total)}</p>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
-              {paymentMethod}
+              {paymentMethodLabelMap[paymentMethod] || paymentMethod}
             </div>
           </div>
 
@@ -548,7 +696,7 @@ const CheckoutModal = ({
                 {language === 'sw' ? 'Anza na +255' : 'Start with +255'}
               </p>
             </div>
-            {paymentMethod !== 'CASH' && (
+            {(paymentMethod === 'MOBILE_MONEY' || paymentMethod === 'BANK') && (
               <div className="space-y-2">
                 <label className="text-xs font-bold text-primary uppercase flex items-center gap-1">
                   <Hash className="w-3 h-3" />
@@ -560,6 +708,27 @@ const CheckoutModal = ({
                   placeholder={language === 'sw' ? 'Namba ya muamala...' : 'Transaction ID...'}
                   className="bg-background border-primary/30 focus-visible:ring-primary"
                 />
+              </div>
+            )}
+            {paymentMethod === 'CREDIT' && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-primary uppercase flex items-center gap-1">
+                  <Banknote className="w-3 h-3" />
+                  {language === 'sw' ? 'Malipo ya Awali' : 'Initial Payment'}
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  max={total}
+                  step="0.01"
+                  value={creditPaymentAmount}
+                  onChange={handleCreditPaymentChange}
+                  placeholder="0"
+                  className="bg-background border-primary/30 focus-visible:ring-primary"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  {language === 'sw' ? 'Deni litakalobaki:' : 'Remaining balance:'} <span className="font-semibold text-foreground">{formatPrice(remainingCreditBalance)}</span>
+                </p>
               </div>
             )}
             <div className="space-y-2">

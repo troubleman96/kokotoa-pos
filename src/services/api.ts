@@ -446,18 +446,22 @@ export const receiptsApi = {
 };
 
 export const salesApi = {
-  list: (params?: { date_from?: string; date_to?: string; payment_method?: string; is_returned?: boolean }) => {
+  list: (params?: { date_from?: string; date_to?: string; payment_method?: string; is_returned?: boolean; has_outstanding_balance?: boolean }) => {
     const queryParams = new URLSearchParams();
     if (params?.date_from) queryParams.append('date_from', params.date_from);
     if (params?.date_to) queryParams.append('date_to', params.date_to);
     if (params?.payment_method) queryParams.append('payment_method', params.payment_method);
     if (params?.is_returned !== undefined) queryParams.append('is_returned', String(params.is_returned));
+    if (params?.has_outstanding_balance !== undefined) queryParams.append('has_outstanding_balance', String(params.has_outstanding_balance));
     const query = queryParams.toString();
     return api.get<{ success: boolean; message: string; data: { sales: Sale[]; summary: { total_sales: number; transaction_count: number } }; errors: any }>(`/pos/sales${query ? `?${query}` : ''}`);
   },
 
   create: (data: { items: Array<{ product_id: number; quantity: number; unit_price: number; discount_percent?: number }>; payment_method: string; payment_reference?: string; customer_phone?: string; customer_name?: string; notes?: string; discount_amount?: number; tax_amount?: number }) =>
     api.post<{ success: boolean; message: string; data: Sale; errors: any }>('/pos/sales/', data),
+
+  recordCreditPayment: (data: { sale: number; amount: number; payment_method?: 'CASH' | 'MOBILE_MONEY' | 'BANK' | 'CREDIT'; payment_reference?: string }) =>
+    api.post<{ success: boolean; message: string; data: any; errors: any }>('/pos/credit-payments/', data),
 
   get: (id: number) =>
     api.get<{ success: boolean; message: string; data: Sale; errors: any }>(`/pos/sales/${id}/`),
@@ -493,6 +497,60 @@ export const reportsApi = {
 
   getDailySummary: (date?: string) =>
     api.get<{ success: boolean; message: string; data: DailySummaryReport; errors: any }>(`/reports/daily-summary${date ? `?date=${date}` : ''}`),
+
+  getCredit: (params?: { date_from?: string; date_to?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.date_from) queryParams.append('date_from', params.date_from);
+    if (params?.date_to) queryParams.append('date_to', params.date_to);
+    const query = queryParams.toString();
+    return api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        summary: {
+          total_credit_amount: number;
+          total_outstanding_debt: number;
+          total_recovered_amount: number;
+          recovery_rate: number;
+          transaction_count: number;
+        };
+        trend: Array<{ date: string; total: number }>;
+        top_customers: Array<{ customer_name: string; customer_phone: string; total: number; outstanding: number; count: number }>;
+        period: { start: string; end: string };
+      };
+      errors: any;
+    }>(`/reports/credit${query ? `?${query}` : ''}`);
+  },
+
+  getDiscounts: (params?: { date_from?: string; date_to?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.date_from) queryParams.append('date_from', params.date_from);
+    if (params?.date_to) queryParams.append('date_to', params.date_to);
+    const query = queryParams.toString();
+    return api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        summary: { total_discount_amount: number; average_discount_per_sale: number; discount_ratio: number; transaction_count: number };
+        trend: Array<{ date: string; total: number }>;
+        period: { start: string; end: string };
+      };
+      errors: any;
+    }>(`/reports/discounts${query ? `?${query}` : ''}`);
+  },
+
+  getAnalyticsTrend: (params?: { date_from?: string; date_to?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.date_from) queryParams.append('date_from', params.date_from);
+    if (params?.date_to) queryParams.append('date_to', params.date_to);
+    const query = queryParams.toString();
+    return api.get<{
+      success: boolean;
+      message: string;
+      data: { trends: Array<{ date: string; sales: number; profit: number; discounts: number; credit: number }> };
+      errors: any;
+    }>(`/reports/analytics-trend${query ? `?${query}` : ''}`);
+  },
 };
 
 export const graphsApi = {
@@ -600,10 +658,21 @@ export interface Sale {
   is_returned: boolean;
   returned_at: string | null;
   formatted_total: string;
+  balance_due?: string;
+  payments?: CreditPayment[];
   total_profit: number | string; // Changed to match API response/type flexibility
   has_receipt: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreditPayment {
+  id: number;
+  sale: number;
+  amount: string;
+  payment_method: 'CASH' | 'MOBILE_MONEY' | 'BANK' | 'CREDIT' | string;
+  payment_reference?: string;
+  created_at: string;
 }
 
 export interface SaleItem {

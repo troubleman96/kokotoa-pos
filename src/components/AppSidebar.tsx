@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt, Users, Compass, Languages
+    ShoppingCart, Package, BarChart3, Settings, LogOut, X, Home, History, Receipt, Users, Compass, Languages, CreditCard, BookOpen
 } from 'lucide-react';
 
 interface AppSidebarProps {
@@ -24,6 +24,8 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
         { path: '/inventory', icon: Package, label: language === 'sw' ? 'Bidhaa' : 'Inventory' },
         { path: '/stock-history', icon: History, label: language === 'sw' ? 'Logi ya Bidhaa' : 'Stock History' },
         { path: '/sales-history', icon: Receipt, label: language === 'sw' ? 'Miamala' : 'Transactions' },
+        { path: '/credit-debts', icon: CreditCard, label: language === 'sw' ? 'Madeni' : 'Credit Debts' },
+        { path: '/notebook', icon: BookOpen, label: language === 'sw' ? 'Daftari' : 'Notebook' },
         ...(user?.role === 'OWNER' ? [
             { path: '/reports', icon: BarChart3, label: language === 'sw' ? 'Ripoti' : 'Reports' },
             { path: '/subscription', icon: Package, label: language === 'sw' ? 'Kifurushi' : 'Subscription' },
