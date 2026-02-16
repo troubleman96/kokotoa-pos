@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    X, ShoppingBag, User, Calendar, CreditCard,
+    ShoppingBag, User, Calendar, CreditCard,
     ChevronRight, ArrowLeftRight, Printer, RefreshCcw,
     AlertCircle, FileText, Receipt
 } from 'lucide-react';
@@ -114,9 +114,6 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
                                     {sale?.transaction_number}
                                 </p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-muted">
-                                <X className="w-6 h-6" />
-                            </Button>
                         </div>
                     </DialogHeader>
 

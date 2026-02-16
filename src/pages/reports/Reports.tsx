@@ -315,34 +315,37 @@ const Reports = () => {
       subtitle={language === 'sw' ? 'Angalia utendaji wa biashara yako' : 'View your business performance'}
     >
       <div className="space-y-4 sm:space-y-6" data-tour="reports-header">
-        {/* Date Range Selector */}
-        <div className="flex justify-end" data-tour="reports-date-filter">
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-40">
-              <Calendar className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">{language === 'sw' ? 'Wiki 1' : '1 Week'}</SelectItem>
-              <SelectItem value="30">{language === 'sw' ? 'Mwezi 1' : '1 Month'}</SelectItem>
-              <SelectItem value="90">{language === 'sw' ? 'Miezi 3' : '3 Months'}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Tabs + Date Filter (Single Row) */}
+        <div className="flex items-center gap-3 mb-4 sm:mb-6" data-tour="reports-tabs">
+          <div className="flex-1 min-w-0">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? 'default' : 'outline'}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  data-tour={`reports-tab-${tab.id}`}
+                  className={`whitespace-nowrap flex-shrink-0 shrink-0 text-[11px] sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
+                >
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+          </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide" data-tour="reports-tabs">
-          {tabs.map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'outline'}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              data-tour={`reports-tab-${tab.id}`}
-              className={`whitespace-nowrap flex-shrink-0 shrink-0 text-[11px] sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
-            >
-              {tab.label}
-            </Button>
-          ))}
+          <div className="shrink-0" data-tour="reports-date-filter">
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="w-28 sm:w-40">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">{language === 'sw' ? 'Wiki 1' : '1 Week'}</SelectItem>
+                <SelectItem value="30">{language === 'sw' ? 'Mwezi 1' : '1 Month'}</SelectItem>
+                <SelectItem value="90">{language === 'sw' ? 'Miezi 3' : '3 Months'}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Overview Tab (Daily Summary) */}
