@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BookOpen,
   Download,
   FilePlus2,
   Folder,
+  Loader2,
   Pin,
   Search,
-  Sparkles,
   Trash2,
 } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -16,86 +16,90 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { Note, notebookApi } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+import MathLoader from '@/components/ui/MathLoader';
 
 type NoteCategory = 'expense' | 'debt' | 'useful' | 'general';
 type NotesView = 'all' | 'pinned' | NoteCategory;
-
-interface NoteItem {
-  id: string;
-  title: string;
-  content: string;
-  category: NoteCategory;
-  folder: string;
-  tags: string[];
-  pinned: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const DEFAULT_FOLDER = 'My Notes';
 
 const Notebook = () => {
   const { language } = useLanguage();
-  const { user } = useAuth();
-
-  const storageKey = `kokotoa_notebook_${user?.id || 'guest'}`;
-  const [notes, setNotes] = useState<NoteItem[]>([]);
+  const { toast } = useToast();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState<NotesView>('all');
   const [activeFolder, setActiveFolder] = useState<string>('all');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const saveTimerRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const loadFolders = async () => {
     try {
-      const raw = localStorage.getItem(storageKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as NoteItem[];
-      if (Array.isArray(parsed)) {
-        setNotes(parsed);
-        if (parsed[0]) setSelectedId(parsed[0].id);
+      const response = await notebookApi.getFolders();
+      if (response.success && response.data?.folders) {
+        const fromApi = response.data.folders.filter(Boolean);
+        setFolders(Array.from(new Set([DEFAULT_FOLDER, ...fromApi])));
       }
     } catch (error) {
-      console.error('Failed to load notes:', error);
+      console.error('Failed to load folders:', error);
     }
-  }, [storageKey]);
+  };
+
+  const loadNotes = async () => {
+    setIsLoading(true);
+    try {
+      const response = await notebookApi.list({
+        search: searchQuery.trim() || undefined,
+        category: activeView !== 'all' && activeView !== 'pinned' ? activeView : undefined,
+        is_pinned: activeView === 'pinned' ? true : undefined,
+        folder: activeFolder !== 'all' ? activeFolder : undefined,
+      });
+
+      if (response.success && response.data?.notes) {
+        setNotes(response.data.notes);
+
+        setSelectedId((currentId) => {
+          if (currentId && response.data.notes.some((n) => n.id === currentId)) return currentId;
+          return response.data.notes[0]?.id ?? null;
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: error?.message || (language === 'sw' ? 'Imeshindwa kupata notes.' : 'Failed to load notes.'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(notes));
-  }, [notes, storageKey]);
+    loadFolders();
+  }, []);
 
-  const folders = useMemo(() => {
-    const unique = new Set<string>();
-    notes.forEach((note) => unique.add(note.folder || DEFAULT_FOLDER));
-    return [DEFAULT_FOLDER, ...Array.from(unique).filter((f) => f !== DEFAULT_FOLDER)];
-  }, [notes]);
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        window.clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
 
-  const filteredNotes = useMemo(() => {
-    let data = [...notes];
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      loadNotes();
+    }, 250);
 
-    if (activeView === 'pinned') {
-      data = data.filter((n) => n.pinned);
-    } else if (activeView !== 'all') {
-      data = data.filter((n) => n.category === activeView);
-    }
-
-    if (activeFolder !== 'all') {
-      data = data.filter((n) => (n.folder || DEFAULT_FOLDER) === activeFolder);
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      data = data.filter((n) => {
-        return (
-          n.title.toLowerCase().includes(q) ||
-          n.content.toLowerCase().includes(q) ||
-          n.tags.join(' ').toLowerCase().includes(q)
-        );
-      });
-    }
-
-    return data.sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt));
-  }, [notes, activeView, activeFolder, searchQuery]);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery, activeView, activeFolder]);
 
   const selectedNote = useMemo(() => {
     if (!selectedId) return null;
@@ -110,45 +114,106 @@ const Notebook = () => {
   };
 
   const createNote = () => {
-    const now = new Date().toISOString();
-    const item: NoteItem = {
-      id: `note_${Date.now()}`,
-      title: language === 'sw' ? 'Dokezo Jipya' : 'New Note',
-      content: '',
-      category: 'general',
-      folder: DEFAULT_FOLDER,
-      tags: [],
-      pinned: false,
-      createdAt: now,
-      updatedAt: now,
+    const run = async () => {
+      setIsCreating(true);
+      try {
+        const response = await notebookApi.create({
+          title: language === 'sw' ? 'Dokezo Jipya' : 'New Note',
+          content: '',
+          category: 'general',
+          folder: DEFAULT_FOLDER,
+          tags: [],
+          is_pinned: false,
+        });
+
+        if (response.success && response.data) {
+          setNotes((prev) => [response.data, ...prev]);
+          setSelectedId(response.data.id);
+          await loadFolders();
+        }
+      } catch (error: any) {
+        toast({
+          title: language === 'sw' ? 'Kosa!' : 'Error!',
+          description: error?.message || (language === 'sw' ? 'Imeshindwa kuunda dokezo.' : 'Failed to create note.'),
+          variant: 'destructive',
+        });
+      } finally {
+        setIsCreating(false);
+      }
     };
-    setNotes((prev) => [item, ...prev]);
-    setSelectedId(item.id);
+    run();
   };
 
-  const updateSelected = (patch: Partial<NoteItem>) => {
+  const queueSave = (id: number, patch: Partial<Note>) => {
+    if (saveTimerRef.current) {
+      window.clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = window.setTimeout(async () => {
+      setIsSaving(true);
+      try {
+        const response = await notebookApi.update(id, {
+          title: patch.title,
+          content: patch.content,
+          category: patch.category,
+          folder: patch.folder,
+          tags: patch.tags,
+          is_pinned: patch.is_pinned,
+          is_archived: patch.is_archived,
+        });
+
+        if (response.success && response.data) {
+          setNotes((prev) => prev.map((n) => (n.id === id ? response.data : n)));
+          await loadFolders();
+        }
+      } catch (error: any) {
+        toast({
+          title: language === 'sw' ? 'Kosa!' : 'Error!',
+          description: error?.message || (language === 'sw' ? 'Imeshindwa kuhifadhi dokezo.' : 'Failed to save note.'),
+          variant: 'destructive',
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    }, 650);
+  };
+
+  const updateSelected = (patch: Partial<Note>) => {
     if (!selectedId) return;
     setNotes((prev) =>
       prev.map((item) =>
         item.id === selectedId
-          ? { ...item, ...patch, updatedAt: new Date().toISOString() }
+          ? { ...item, ...patch, updated_at: new Date().toISOString() }
           : item
       )
     );
+    queueSave(selectedId, patch);
   };
 
   const deleteSelected = () => {
     if (!selectedId) return;
-    setNotes((prev) => prev.filter((item) => item.id !== selectedId));
-    setSelectedId((current) => {
-      if (current !== selectedId) return current;
-      const next = filteredNotes.find((n) => n.id !== selectedId);
-      return next?.id || null;
-    });
+    const run = async () => {
+      try {
+        await notebookApi.delete(selectedId);
+        setNotes((prev) => prev.filter((item) => item.id !== selectedId));
+        setSelectedId((current) => {
+          if (current !== selectedId) return current;
+          const next = notes.find((n) => n.id !== selectedId);
+          return next?.id || null;
+        });
+      } catch (error: any) {
+        toast({
+          title: language === 'sw' ? 'Kosa!' : 'Error!',
+          description: error?.message || (language === 'sw' ? 'Imeshindwa kufuta dokezo.' : 'Failed to delete note.'),
+          variant: 'destructive',
+        });
+      }
+    };
+    run();
   };
 
-  const downloadNote = (note: NoteItem) => {
-    const text = `Title: ${note.title}\nCategory: ${categoryLabel(note.category)}\nFolder: ${note.folder}\nTags: ${note.tags.join(', ')}\nCreated: ${note.createdAt}\nUpdated: ${note.updatedAt}\n\n${note.content}`;
+  const downloadNote = (note: Note) => {
+    const text = `Title: ${note.title}\nCategory: ${categoryLabel(note.category)}\nFolder: ${note.folder}\nTags: ${note.tags.join(', ')}\nCreated: ${note.created_at}\nUpdated: ${note.updated_at}\n\n${note.content}`;
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -158,14 +223,33 @@ const Notebook = () => {
     URL.revokeObjectURL(url);
   };
 
-  const downloadAll = () => {
-    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kokotoa-notes.json';
-    a.click();
-    URL.revokeObjectURL(url);
+  const downloadAll = async () => {
+    setIsExporting(true);
+    try {
+      const response = await notebookApi.export({
+        search: searchQuery.trim() || undefined,
+        category: activeView !== 'all' && activeView !== 'pinned' ? activeView : undefined,
+        is_pinned: activeView === 'pinned' ? true : undefined,
+        folder: activeFolder !== 'all' ? activeFolder : undefined,
+      });
+
+      const payload = response?.data?.notes || notes;
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kokotoa-notes.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: error?.message || (language === 'sw' ? 'Imeshindwa kupakua notes.' : 'Failed to export notes.'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const parseTags = (raw: string) => {
@@ -184,17 +268,17 @@ const Notebook = () => {
         <div className="rounded-2xl p-4 sm:p-5 border border-primary/20 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
+              <BookOpen className="w-5 h-5 text-primary" />
               <p className="font-semibold">
-                {language === 'sw' ? 'Notebook ya kisasa kama Apple Notes' : 'Apple-notes style workspace'}
+                {language === 'sw' ? 'Daftari' : 'Notebook'}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={downloadAll}>
+              <Button variant="outline" onClick={downloadAll} isLoading={isExporting}>
                 <Download className="w-4 h-4 mr-2" />
                 {language === 'sw' ? 'Pakua Zote' : 'Download All'}
               </Button>
-              <Button className="btn-kokotoa" onClick={createNote}>
+              <Button className="btn-kokotoa" onClick={createNote} isLoading={isCreating}>
                 <FilePlus2 className="w-4 h-4 mr-2" />
                 {language === 'sw' ? 'Dokezo Jipya' : 'New Note'}
               </Button>
@@ -262,13 +346,17 @@ const Notebook = () => {
               </div>
 
               <div className="space-y-2 max-h-[50vh] overflow-auto pr-1">
-                {filteredNotes.length === 0 ? (
+                {isLoading ? (
+                  <div className="py-10 flex justify-center">
+                    <MathLoader size="md" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
+                  </div>
+                ) : notes.length === 0 ? (
                   <div className="rounded-xl border border-dashed p-6 text-center text-muted-foreground">
                     <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>{language === 'sw' ? 'Hakuna notes zilizopatikana.' : 'No notes found.'}</p>
                   </div>
                 ) : (
-                  filteredNotes.map((note) => (
+                  notes.map((note) => (
                     <button
                       key={note.id}
                       onClick={() => setSelectedId(note.id)}
@@ -280,13 +368,13 @@ const Notebook = () => {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-semibold text-sm line-clamp-1">{note.title || (language === 'sw' ? 'Bila kichwa' : 'Untitled')}</p>
-                        {note.pinned && <Pin className="w-3.5 h-3.5 text-primary" />}
+                        {note.is_pinned && <Pin className="w-3.5 h-3.5 text-primary" />}
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{note.content || (language === 'sw' ? 'Hakuna maudhui bado' : 'No content yet')}</p>
                       <div className="flex items-center justify-between mt-2">
                         <Badge variant="outline" className="text-[10px]">{categoryLabel(note.category)}</Badge>
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(note.updatedAt).toLocaleDateString()}
+                          {new Date(note.updated_at).toLocaleDateString()}
                         </span>
                       </div>
                     </button>
@@ -308,8 +396,8 @@ const Notebook = () => {
                       className="text-base font-semibold"
                     />
                     <Button
-                      variant={selectedNote.pinned ? 'default' : 'outline'}
-                      onClick={() => updateSelected({ pinned: !selectedNote.pinned })}
+                      variant={selectedNote.is_pinned ? 'default' : 'outline'}
+                      onClick={() => updateSelected({ is_pinned: !selectedNote.is_pinned })}
                     >
                       <Pin className="w-4 h-4 mr-2" />
                       {language === 'sw' ? 'Bandika' : 'Pin'}
@@ -364,9 +452,12 @@ const Notebook = () => {
                   />
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      {language === 'sw' ? 'Imehaririwa:' : 'Updated:'} {new Date(selectedNote.updatedAt).toLocaleString()}
-                    </p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>
+                        {language === 'sw' ? 'Imehaririwa:' : 'Updated:'} {new Date(selectedNote.updated_at).toLocaleString()}
+                      </span>
+                      {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    </div>
                     <div className="flex gap-2">
                       <Button variant="outline" onClick={() => downloadNote(selectedNote)}>
                         <Download className="w-4 h-4 mr-2" />

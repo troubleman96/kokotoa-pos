@@ -553,6 +553,85 @@ export const reportsApi = {
   },
 };
 
+export const notebookApi = {
+  list: (params?: {
+    search?: string;
+    category?: 'expense' | 'debt' | 'useful' | 'general';
+    folder?: string;
+    is_pinned?: boolean;
+    is_archived?: boolean;
+    page?: number;
+    page_size?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.folder) queryParams.append('folder', params.folder);
+    if (params?.is_pinned !== undefined) queryParams.append('is_pinned', String(params.is_pinned));
+    if (params?.is_archived !== undefined) queryParams.append('is_archived', String(params.is_archived));
+    if (params?.page) queryParams.append('page', String(params.page));
+    if (params?.page_size) queryParams.append('page_size', String(params.page_size));
+    const query = queryParams.toString();
+
+    return api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        notes: Note[];
+        summary?: { count: number; pinned_count: number };
+      };
+      errors: any;
+    }>(`/notebook/notes/${query ? `?${query}` : ''}`);
+  },
+
+  create: (data: {
+    title: string;
+    content?: string;
+    category?: 'expense' | 'debt' | 'useful' | 'general';
+    folder?: string;
+    tags?: string[];
+    is_pinned?: boolean;
+  }) =>
+    api.post<{ success: boolean; message: string; data: Note; errors: any }>('/notebook/notes/', data),
+
+  get: (id: number) =>
+    api.get<{ success: boolean; message: string; data: Note; errors: any }>(`/notebook/notes/${id}/`),
+
+  update: (id: number, data: Partial<Pick<Note, 'title' | 'content' | 'category' | 'folder' | 'tags' | 'is_pinned' | 'is_archived'>>) =>
+    api.patch<{ success: boolean; message: string; data: Note; errors: any }>(`/notebook/notes/${id}/`, data),
+
+  delete: (id: number) =>
+    api.delete<{ success: boolean; message: string; errors: any }>(`/notebook/notes/${id}/`),
+
+  getFolders: () =>
+    api.get<{ success: boolean; message: string; data: { folders: string[] }; errors: any }>('/notebook/notes/folders/'),
+
+  export: (params?: {
+    search?: string;
+    category?: 'expense' | 'debt' | 'useful' | 'general';
+    folder?: string;
+    is_pinned?: boolean;
+    is_archived?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.folder) queryParams.append('folder', params.folder);
+    if (params?.is_pinned !== undefined) queryParams.append('is_pinned', String(params.is_pinned));
+    if (params?.is_archived !== undefined) queryParams.append('is_archived', String(params.is_archived));
+    const query = queryParams.toString();
+
+    return api.get<{
+      success: boolean;
+      message: string;
+      data: {
+        notes: Note[];
+      };
+      errors: any;
+    }>(`/notebook/notes/export/${query ? `?${query}` : ''}`);
+  },
+};
+
 export const graphsApi = {
   getDailySales: (days?: number) =>
     api.get<{ success: boolean; message: string; data: { data: number[]; labels: string[]; period: { start: string; end: string; days: number }; summary: { total_sales: number; transaction_count: number; average_sale: number } }; errors: any }>(`/graphs/daily-sales${days ? `?days=${days}` : ''}`),
@@ -675,6 +754,20 @@ export interface CreditPayment {
   created_at: string;
 }
 
+export interface Note {
+  id: number;
+  title: string;
+  content: string;
+  category: 'expense' | 'debt' | 'useful' | 'general';
+  folder: string;
+  tags: string[];
+  is_pinned: boolean;
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by_name?: string;
+}
+
 export interface SaleItem {
   id: number;
   product: number;
@@ -695,6 +788,7 @@ export interface SalesReport {
     transaction_number: string;
     date: string;
     items_count: number;
+    items?: string[];
     total_amount: number;
     discount: number;
     tax: number;

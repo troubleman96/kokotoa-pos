@@ -32,6 +32,7 @@ const Reports = () => {
     sales: Array<{
       id: number;
       transaction_number: string;
+      items?: string[];
       product_names?: string;
       date: string;
       items_count: number;
@@ -269,6 +270,13 @@ const Reports = () => {
   };
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
+
+  const getSaleProductsLabel = (sale: { items?: string[]; product_names?: string }) => {
+    if (sale.items?.length) {
+      return sale.items.join(', ');
+    }
+    return sale.product_names || (language === 'sw' ? 'Hakuna bidhaa...' : 'No products listed');
+  };
 
   const tabs = [
     { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview' },
@@ -567,9 +575,11 @@ const Reports = () => {
                                   onClick={() => handleRowClick(sale)}
                                 >
                                   <td className="p-4">
-                                    <p className="font-mono text-xs font-black text-foreground mb-0.5 group-hover:text-primary transition-colors">{sale.transaction_number}</p>
                                     <p className="text-[10px] font-bold text-muted-foreground line-clamp-1 max-w-[300px] uppercase tracking-tighter">
-                                      {sale.product_names || (language === 'sw' ? 'Hakuna maelezo...' : 'No items listed')}
+                                      {getSaleProductsLabel(sale)}
+                                    </p>
+                                    <p className="font-mono text-xs font-black text-foreground mt-0.5 group-hover:text-primary transition-colors">
+                                      {sale.transaction_number}
                                     </p>
                                   </td>
                                   <td className="p-4">
@@ -604,12 +614,12 @@ const Reports = () => {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
+                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
+                                    {getSaleProductsLabel(sale)}
+                                  </p>
                                   <div className="font-mono text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-lg inline-block">
                                     {sale.transaction_number}
                                   </div>
-                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
-                                    {sale.product_names}
-                                  </p>
                                 </div>
                                 <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
                                   {new Date(sale.date).toLocaleDateString()}
