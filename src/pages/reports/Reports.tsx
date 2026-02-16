@@ -21,11 +21,13 @@ import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { reportsTourSteps } from '@/data/tourSteps';
 import SaleDetailsModal from '@/components/SaleDetailsModal';
 import { Sale } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 
 const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 const Reports = () => {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics' | 'profit'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [salesData, setSalesData] = useState<{
@@ -88,6 +90,8 @@ const Reports = () => {
   const [creditAnalytics, setCreditAnalytics] = useState<any | null>(null);
   const [discountAnalytics, setDiscountAnalytics] = useState<any | null>(null);
   const [analyticsTrend, setAnalyticsTrend] = useState<any[]>([]);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [isSaleDetailsOpen, setIsSaleDetailsOpen] = useState(false);
 
   const [dateRange, setDateRange] = useState('7');
 
@@ -276,6 +280,25 @@ const Reports = () => {
       return sale.items.join(', ');
     }
     return sale.product_names || (language === 'sw' ? 'Hakuna bidhaa...' : 'No products listed');
+  };
+
+  const handleRowClick = async (sale: { id: number }) => {
+    try {
+      const response = await reportsApi.getSaleDetail(sale.id);
+      if (response.success && response.data) {
+        setSelectedSale(response.data);
+        setIsSaleDetailsOpen(true);
+      }
+    } catch (error: any) {
+      console.error('Error loading sale detail from report endpoint:', error);
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: language === 'sw'
+          ? 'Imeshindwa kupata maelezo ya muamala.'
+          : 'Failed to load sale details.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const tabs = [
@@ -611,6 +634,7 @@ const Reports = () => {
                             <div
                               key={sale.id}
                               className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-3 relative overflow-hidden"
+                              onClick={() => handleRowClick(sale)}
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
@@ -1396,6 +1420,11 @@ const Reports = () => {
         )}
       </div>
       <OnboardingTour page="reports" steps={reportsTourSteps} />
+      <SaleDetailsModal
+        isOpen={isSaleDetailsOpen}
+        onClose={() => setIsSaleDetailsOpen(false)}
+        sale={selectedSale}
+      />
     </DashboardLayout >
   );
 };

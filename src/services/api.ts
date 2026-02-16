@@ -484,6 +484,9 @@ export const reportsApi = {
     return api.get<{ success: boolean; message: string; data: SalesReport; errors: any }>(`/reports/sales${query ? `?${query}` : ''}`);
   },
 
+  getSaleDetail: (id: number) =>
+    api.get<{ success: boolean; message: string; data: Sale; errors: any }>(`/reports/sales/${id}/`),
+
   getProfit: (params?: { date_from?: string; date_to?: string }) => {
     const queryParams = new URLSearchParams();
     if (params?.date_from) queryParams.append('date_from', params.date_from);
