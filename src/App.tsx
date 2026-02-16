@@ -15,7 +15,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import POS from "./pages/POS";
 import Inventory from "./pages/Inventory";
-import Reports from "./pages/reports/Reports";
+import Reports from "./pages/reports";
 import Settings from "./pages/Settings";
 import StockHistory from "./pages/StockHistory";
 import SalesHistory from "./pages/SalesHistory";
