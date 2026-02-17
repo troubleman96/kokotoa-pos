@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
@@ -80,6 +80,55 @@ const Footer = () => {
           {/* Contact Info */}
           <div>
             <h4 className="font-display font-semibold text-foreground mb-4">
+              Other Services
+            </h4>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href="https://kokotoa.online"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kokotoa
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://kalendafy.online"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kalendafy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://kwepajua.africa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kwepajua
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://kibegi.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Kibegi
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h4 className="font-display font-semibold text-foreground mb-4">
               {t('footer.contact')}
             </h4>
             <ul className="space-y-3">
@@ -102,6 +151,17 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
           <p>© 2026 KOKOTOA. {t('footer.rights')}.</p>
+          <p className="mt-2">
+            Built by:{' '}
+            <a
+              href="https://cameltech.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              camelTech
+            </a>
+          </p>
         </div>
       </div>
     </footer>
