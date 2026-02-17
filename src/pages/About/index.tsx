@@ -139,9 +139,9 @@ const About = () => {
                 Watu walioundwa kukusaidia kufanikiwa
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 max-w-2xl mx-auto place-items-center">
               {team.map((member, index) => (
-                <div key={index} className="text-center group">
+                <div key={index} className="text-center group w-full">
                   <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-4 text-4xl group-hover:scale-110 transition-transform">
                     {member.emoji}
                   </div>
