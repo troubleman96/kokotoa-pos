@@ -19,7 +19,7 @@ const Privacy = () => {
                 </section>
 
                 <section className="py-12 md:py-20">
-                    <div className="container mx-auto px-4 max-w-4xl space-y-8 text-lg">
+                    <div className="container mx-auto px-4 max-w-4xl space-y-8 text-lg card-kokotoa rounded-2xl p-8 md:p-10 pb-16 relative overflow-hidden">
                         <p>
                             KOKOTOA inaheshimu faragha yako. Sera hii inaelezea jinsi tunavyokusanya, kutumia, na kulinda taarifa zako.
                         </p>
@@ -62,6 +62,15 @@ const Privacy = () => {
                                 Tunatumia vidakuzi kuboresha uzoefu wako kwenye tovuti yetu.
                                 Unaweza kurekebisha mipangilio ya kivinjari chako kukataa vidakuzi ikiwa unapenda.
                             </p>
+                        </div>
+
+                        <div className="absolute bottom-0 left-0 w-full leading-none">
+                            <svg viewBox="0 0 1200 120" className="block w-full h-12 md:h-14" preserveAspectRatio="none" aria-hidden="true">
+                                <path
+                                    d="M0,48L60,58.7C120,69,240,91,360,90.7C480,91,600,69,720,58.7C840,48,960,48,1080,58.7L1200,69V120H1080C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120H0Z"
+                                    className="fill-primary/15"
+                                />
+                            </svg>
                         </div>
                     </div>
                 </section>
