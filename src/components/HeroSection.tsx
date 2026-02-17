@@ -159,6 +159,20 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
+      <div className="absolute bottom-0 left-0 w-full leading-none">
+        <svg
+          viewBox="0 0 1440 140"
+          className="block w-full h-[72px] md:h-[96px]"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,64L80,74.7C160,85,320,107,480,106.7C640,107,800,85,960,69.3C1120,53,1280,43,1360,37.3L1440,32V140H1360C1280,140,1120,140,960,140C800,140,640,140,480,140C320,140,160,140,80,140H0Z"
+            className="fill-background"
+          />
+        </svg>
+      </div>
     </section>
   );
 };

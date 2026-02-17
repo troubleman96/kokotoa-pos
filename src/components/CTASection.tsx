@@ -16,7 +16,7 @@ const CTASection = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center card-kokotoa rounded-3xl px-6 md:px-10 pt-12 pb-20 relative overflow-hidden">
           {/* Icon */}
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 mb-8 animate-pulse-glow">
             <Sparkles className="w-8 h-8 text-primary" />
@@ -46,6 +46,20 @@ const CTASection = () => {
           <p className="mt-6 text-sm text-muted-foreground">
             ✓ Hakuna malipo ya kuanza • ✓ Usanidi rahisi wa dakika 5 • ✓ Msaada wa Kiswahili
           </p>
+
+          <div className="absolute bottom-0 left-0 w-full leading-none">
+            <svg
+              viewBox="0 0 1200 120"
+              className="block w-full h-14 md:h-16"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M0,48L60,58.7C120,69,240,91,360,90.7C480,91,600,69,720,58.7C840,48,960,48,1080,58.7L1200,69V120H1080C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120H0Z"
+                className="fill-primary/15"
+              />
+            </svg>
+          </div>
         </div>
       </div>
     </section>
