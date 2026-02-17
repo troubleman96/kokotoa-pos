@@ -37,8 +37,8 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Barua Pepe',
-      value: 'habari@kokotoa.co.tz',
-      link: 'mailto:habari@kokotoa.co.tz',
+      value: 'kokotoapos@gmail.com',
+      link: 'mailto:kokotoapos@gmail.com',
     },
     {
       icon: MapPin,

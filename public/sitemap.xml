@@ -2,52 +2,52 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
-    <loc>https://kokotoa.online/</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <!-- Authentication Pages -->
   <url>
-    <loc>https://kokotoa.online/login</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/login</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://kokotoa.online/register</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/register</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <!-- Information Pages -->
   <url>
-    <loc>https://kokotoa.online/about</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/about</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://kokotoa.online/contact</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/contact</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://kokotoa.online/privacy</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/privacy</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://kokotoa.online/terms</loc>
-    <lastmod>2026-02-02</lastmod>
+    <loc>https://pos.kokotoa.online/terms</loc>
+    <lastmod>2026-02-17</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>

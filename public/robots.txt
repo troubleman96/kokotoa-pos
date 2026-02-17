@@ -24,4 +24,4 @@ Disallow: /verify-otp
 Disallow: /forgot-password
 
 # Sitemap location
-Sitemap: https://kokotoa.online/sitemap.xml
+Sitemap: https://pos.kokotoa.online/sitemap.xml
