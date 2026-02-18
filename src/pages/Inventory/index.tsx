@@ -669,7 +669,7 @@ const Inventory = () => {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="bg-card border-border max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+          className="bg-card border-border max-w-md w-[95vw] sm:w-full max-h-[96dvh] sm:max-h-[90vh] overflow-hidden"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -678,7 +678,7 @@ const Inventory = () => {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3 py-2">
+          <div className="space-y-3 py-2 overflow-y-auto pr-1 max-h-[calc(96dvh-7.5rem)] sm:max-h-[calc(90vh-7.5rem)]">
             <div className="grid grid-cols-4 gap-3 items-end">
               <div className="col-span-3">
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -800,7 +800,7 @@ const Inventory = () => {
               </div>
             </div>
 
-            <div className="flex flex-row items-center justify-center gap-2 pt-1">
+            <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm flex flex-row items-center justify-center gap-2 pt-2 pb-1">
               <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                 <XCircle className="w-4 h-4 mr-2" />
                 {language === 'sw' ? 'Ghairi' : 'Cancel'}
