@@ -669,7 +669,7 @@ const Inventory = () => {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
-          className="bg-card border-border max-w-md w-[95vw] sm:w-full max-h-[96dvh] sm:max-h-[90vh] overflow-y-auto"
+          className="bg-card border-border max-w-md w-[95vw] sm:w-full top-3 sm:top-[50%] translate-y-0 sm:translate-y-[-50%] max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y [WebkitOverflowScrolling:touch]"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -678,7 +678,7 @@ const Inventory = () => {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3 py-2 pr-1">
+          <div className="space-y-3 py-2 pr-1 pb-3">
             <div className="grid grid-cols-4 gap-3 items-end">
               <div className="col-span-3">
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
