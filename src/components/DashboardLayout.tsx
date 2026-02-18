@@ -32,7 +32,7 @@ const DashboardLayout = ({
         <div className="min-h-screen bg-background flex">
             <AppSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 min-h-0 flex flex-col">
                 <AppHeader
                     title={title}
                     subtitle={subtitle}
@@ -43,7 +43,7 @@ const DashboardLayout = ({
                     titleTourId={headerTitleTourId}
                 />
 
-                <main className="flex-1 p-4 lg:p-6 overflow-auto">
+                <main className="flex-1 min-h-0 p-4 lg:p-6 overflow-auto">
                     {children}
                 </main>
             </div>

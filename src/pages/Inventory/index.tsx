@@ -379,7 +379,7 @@ const Inventory = () => {
   };
 
   const renderProductForm = () => (
-    <div className="space-y-3 py-2 pr-1 pb-3">
+    <div className="space-y-3 py-2 pr-1 pb-[calc(1rem+env(safe-area-inset-bottom))]">
       <div className="grid grid-cols-4 gap-3 items-end">
         <div className="col-span-3">
           <label className="text-sm font-medium text-muted-foreground mb-2 block">
@@ -522,13 +522,11 @@ const Inventory = () => {
         title={language === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product'}
         subtitle={language === 'sw' ? 'Jaza taarifa za bidhaa' : 'Fill in product details'}
       >
-        <main className="p-4 lg:p-6">
-          <Card className="card-kokotoa">
-            <CardContent className="p-4 max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain touch-pan-y [WebkitOverflowScrolling:touch]">
-              {renderProductForm()}
-            </CardContent>
-          </Card>
-        </main>
+        <Card className="card-kokotoa">
+          <CardContent className="p-4">
+            {renderProductForm()}
+          </CardContent>
+        </Card>
       </DashboardLayout>
     );
   }
