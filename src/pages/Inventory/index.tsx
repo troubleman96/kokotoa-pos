@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Search, Plus, Edit2, Trash2, Package,
   AlertTriangle, Save, XCircle, Image as ImageIcon,
@@ -25,11 +25,16 @@ import ProductDetailsModal from '@/components/ProductDetailsModal';
 import MathLoader from '@/components/ui/MathLoader';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { inventoryTourSteps } from '@/data/tourSteps';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Inventory = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const isAddRoute = location.pathname === '/inventory/add';
+  const isMobileAddRoute = isMobile && isAddRoute;
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -235,6 +240,10 @@ const Inventory = () => {
       image: null,
     });
     setImagePreview(null);
+    if (isMobile) {
+      navigate('/inventory/add');
+      return;
+    }
     setIsModalOpen(true);
   };
 
@@ -321,7 +330,11 @@ const Inventory = () => {
           description: language === 'sw' ? 'Bidhaa mpya imeongezwa' : 'New product added successfully',
         });
       }
-      setIsModalOpen(false);
+      if (isMobileAddRoute) {
+        navigate('/inventory');
+      } else {
+        setIsModalOpen(false);
+      }
       fetchProducts();
     } catch (error: unknown) {
       const err = error as { message?: string };
@@ -356,6 +369,169 @@ const Inventory = () => {
       setIsDeleting(false);
     }
   };
+
+  const closeProductForm = () => {
+    if (isMobileAddRoute) {
+      navigate('/inventory');
+      return;
+    }
+    setIsModalOpen(false);
+  };
+
+  const renderProductForm = () => (
+    <div className="space-y-3 py-2 pr-1 pb-3">
+      <div className="grid grid-cols-4 gap-3 items-end">
+        <div className="col-span-3">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+            {language === 'sw' ? 'Jina la Bidhaa *' : 'Product Name *'}
+          </label>
+          <Input
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder={language === 'sw' ? 'Mfano: Coca Cola' : 'e.g., Coca Cola'}
+            className="bg-background"
+          />
+        </div>
+
+        <div className="col-span-1">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+            {language === 'sw' ? 'Kipimo' : 'Unit'}
+          </label>
+          <select
+            value={formData.unit}
+            onChange={e => setFormData({ ...formData, unit: e.target.value })}
+            className="bg-background border rounded px-2.5 py-2 w-full h-10"
+          >
+            <option value="pcs">pcs</option>
+            <option value="kg">kg</option>
+            <option value="g">g</option>
+            <option value="l">l</option>
+            <option value="ml">ml</option>
+            <option value="box">box</option>
+            <option value="pack">pack</option>
+            <option value="dozen">dozen</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'SKU' : 'SKU'}</label>
+          <Input value={formData.sku} onChange={(e) => setFormData({ ...formData, sku: e.target.value })} className="bg-background" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Aina' : 'Category'}</label>
+          <Input value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="bg-background" />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+          {language === 'sw' ? 'Picha ya Bidhaa' : 'Product Image'}
+        </label>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setFormData({ ...formData, image: file });
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+              };
+              reader.readAsDataURL(file);
+            }
+          }}
+          accept="image/*"
+          className="hidden"
+        />
+        {imagePreview || (editingProduct?.image_url) ? (
+          <div className="relative w-full h-24 sm:h-32 bg-muted/30 rounded-lg overflow-hidden border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <img
+              src={imagePreview || editingProduct?.image_url}
+              alt="Product preview"
+              className="w-full h-full object-contain"
+            />
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+              <span className="text-white text-sm">{language === 'sw' ? 'Badilisha Picha' : 'Change Image'}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full h-24 sm:h-32 bg-muted/30 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center" onClick={() => fileInputRef.current?.click()}>
+            <ImageIcon className="w-8 h-8 text-muted-foreground mb-2" />
+            <span className="text-sm text-muted-foreground">{language === 'sw' ? 'Chagua Picha' : 'Select Image'}</span>
+            <span className="text-xs text-muted-foreground mt-1">{language === 'sw' ? '(Hiari)' : '(Optional)'}</span>
+          </div>
+        )}
+        {formData.image && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFormData({ ...formData, image: null });
+              setImagePreview(null);
+            }}
+            className="mt-2 text-sm text-destructive hover:underline"
+          >
+            {language === 'sw' ? 'Ondoa Picha' : 'Remove Image'}
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Bei ya Ununuzi' : 'Buy Price'}</label>
+          <Input type="number" value={formData.cost_price} onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })} placeholder="0" className="bg-background" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Bei ya Mauzo *' : 'Sell Price *'}</label>
+          <Input type="number" value={formData.selling_price} onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })} placeholder="0" className="bg-background" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Kiasi cha Sasa *' : 'Current Stock *'}</label>
+          <Input type="number" value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} placeholder="0" className="bg-background" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Kiwango Chini' : 'Min Stock'}</label>
+          <Input type="number" value={formData.minimum_stock} onChange={(e) => setFormData({ ...formData, minimum_stock: e.target.value })} placeholder="5" className="bg-background" />
+        </div>
+      </div>
+
+      <div className="flex flex-row items-center justify-center gap-2 pt-1">
+        <Button variant="outline" onClick={closeProductForm}>
+          <XCircle className="w-4 h-4 mr-2" />
+          {language === 'sw' ? 'Ghairi' : 'Cancel'}
+        </Button>
+        <Button onClick={handleSubmit} className="btn-kokotoa">
+          <Save className="w-4 h-4 mr-2" />
+          <span className="relative z-10">
+            {editingProduct ? (language === 'sw' ? 'Hifadhi' : 'Save') : (language === 'sw' ? 'Ongeza' : 'Add')}
+          </span>
+        </Button>
+      </div>
+    </div>
+  );
+
+  if (isMobileAddRoute) {
+    return (
+      <DashboardLayout
+        title={language === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product'}
+        subtitle={language === 'sw' ? 'Jaza taarifa za bidhaa' : 'Fill in product details'}
+      >
+        <main className="p-4 lg:p-6">
+          <Card className="card-kokotoa">
+            <CardContent className="p-4 max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain touch-pan-y [WebkitOverflowScrolling:touch]">
+              {renderProductForm()}
+            </CardContent>
+          </Card>
+        </main>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
@@ -677,142 +853,7 @@ const Inventory = () => {
               {editingProduct ? (language === 'sw' ? 'Hariri Bidhaa' : 'Edit Product') : (language === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product')}
             </DialogTitle>
           </DialogHeader>
-
-          <div className="space-y-3 py-2 pr-1 pb-3">
-            <div className="grid grid-cols-4 gap-3 items-end">
-              <div className="col-span-3">
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                  {language === 'sw' ? 'Jina la Bidhaa *' : 'Product Name *'}
-                </label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={language === 'sw' ? 'Mfano: Coca Cola' : 'e.g., Coca Cola'}
-                  className="bg-background"
-                />
-              </div>
-
-              <div className="col-span-1">
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                  {language === 'sw' ? 'Kipimo' : 'Unit'}
-                </label>
-                <select
-                  value={formData.unit}
-                  onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                  className="bg-background border rounded px-2.5 py-2 w-full h-10"
-                >
-                  <option value="pcs">pcs</option>
-                  <option value="kg">kg</option>
-                  <option value="g">g</option>
-                  <option value="l">l</option>
-                  <option value="ml">ml</option>
-                  <option value="box">box</option>
-                  <option value="pack">pack</option>
-                  <option value="dozen">dozen</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'SKU' : 'SKU'}</label>
-                <Input value={formData.sku} onChange={(e) => setFormData({ ...formData, sku: e.target.value })} className="bg-background" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Aina' : 'Category'}</label>
-                <Input value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="bg-background" />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                {language === 'sw' ? 'Picha ya Bidhaa' : 'Product Image'}
-              </label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setFormData({ ...formData, image: file });
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setImagePreview(reader.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                accept="image/*"
-                className="hidden"
-              />
-              {imagePreview || (editingProduct?.image_url) ? (
-                <div className="relative w-full h-24 sm:h-32 bg-muted/30 rounded-lg overflow-hidden border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                  <img
-                    src={imagePreview || editingProduct?.image_url}
-                    alt="Product preview"
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <span className="text-white text-sm">{language === 'sw' ? 'Badilisha Picha' : 'Change Image'}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full h-24 sm:h-32 bg-muted/30 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center" onClick={() => fileInputRef.current?.click()}>
-                  <ImageIcon className="w-8 h-8 text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">{language === 'sw' ? 'Chagua Picha' : 'Select Image'}</span>
-                  <span className="text-xs text-muted-foreground mt-1">{language === 'sw' ? '(Hiari)' : '(Optional)'}</span>
-                </div>
-              )}
-              {formData.image && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setFormData({ ...formData, image: null });
-                    setImagePreview(null);
-                  }}
-                  className="mt-2 text-sm text-destructive hover:underline"
-                >
-                  {language === 'sw' ? 'Ondoa Picha' : 'Remove Image'}
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Bei ya Ununuzi' : 'Buy Price'}</label>
-                <Input type="number" value={formData.cost_price} onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })} placeholder="0" className="bg-background" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Bei ya Mauzo *' : 'Sell Price *'}</label>
-                <Input type="number" value={formData.selling_price} onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })} placeholder="0" className="bg-background" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Kiasi cha Sasa *' : 'Current Stock *'}</label>
-                <Input type="number" value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} placeholder="0" className="bg-background" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">{language === 'sw' ? 'Kiwango Chini' : 'Min Stock'}</label>
-                <Input type="number" value={formData.minimum_stock} onChange={(e) => setFormData({ ...formData, minimum_stock: e.target.value })} placeholder="5" className="bg-background" />
-              </div>
-            </div>
-
-            <div className="flex flex-row items-center justify-center gap-2 pt-1">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                <XCircle className="w-4 h-4 mr-2" />
-                {language === 'sw' ? 'Ghairi' : 'Cancel'}
-              </Button>
-              <Button onClick={handleSubmit} className="btn-kokotoa">
-                <Save className="w-4 h-4 mr-2" />
-                <span className="relative z-10">
-                  {editingProduct ? (language === 'sw' ? 'Hifadhi' : 'Save') : (language === 'sw' ? 'Ongeza' : 'Add')}
-                </span>
-              </Button>
-            </div>
-          </div>
+          {renderProductForm()}
         </DialogContent>
       </Dialog>
 
@@ -840,7 +881,10 @@ const Inventory = () => {
                         if (placeholder) placeholder.style.display = 'flex';
                       }}
                     />
-                    <div className="hidden absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    <div
+                      className="absolute inset-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold"
+                      style={{ display: 'none' }}
+                    >
                       {productToDelete.category.charAt(0).toUpperCase()}
                     </div>
                   </div>
