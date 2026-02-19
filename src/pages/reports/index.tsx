@@ -306,13 +306,13 @@ const Reports = () => {
   };
 
   const tabs = [
-    { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview' },
-    { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics' },
-    { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales' },
-    { id: 'profit', label: language === 'sw' ? 'Faida' : 'Profit' },
-    { id: 'credit', label: language === 'sw' ? 'Madeni' : 'Credit' },
-    { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory' },
-  ];
+    { id: 'overview', label: language === 'sw' ? 'Muhtasari' : 'Overview', icon: BarChart3 },
+    { id: 'analytics', label: language === 'sw' ? 'Takwimu' : 'Analytics', icon: TrendingUp },
+    { id: 'sales', label: language === 'sw' ? 'Mauzo' : 'Sales', icon: DollarSign },
+    { id: 'profit', label: language === 'sw' ? 'Faida' : 'Profit', icon: PiggyBank },
+    { id: 'credit', label: language === 'sw' ? 'Madeni' : 'Credit', icon: CreditCard },
+    { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory', icon: Package },
+  ] as const;
 
   const checkTabsScroll = () => {
     const container = tabsScrollRef.current;
@@ -351,43 +351,53 @@ const Reports = () => {
         {/* Tabs + Date Filter (Single Row) */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6" data-tour="reports-tabs">
           <div className="w-full min-w-0">
-            <div className="relative">
+            <div className="relative w-full min-w-0">
               <div
                 ref={tabsScrollRef}
-                className="w-full min-w-0 overflow-x-auto overscroll-x-contain pb-2 pr-6 scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none]"
+                className="flex overflow-x-auto hide-scrollbar flex-1 relative w-full min-w-0 touch-pan-x"
               >
-                <div className="inline-flex min-w-max gap-2 whitespace-nowrap snap-x snap-mandatory">
-                  {tabs.map((tab) => (
-                    <Button
-                      key={tab.id}
-                      ref={activeTab === tab.id ? activeTabRef : null}
-                      variant={activeTab === tab.id ? 'default' : 'outline'}
-                      onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                      data-tour={`reports-tab-${tab.id}`}
-                      className={`whitespace-nowrap flex-none snap-start text-[10px] sm:text-sm px-1.5 sm:px-4 h-9 sm:h-10 min-w-[25vw] max-w-[25vw] sm:min-w-0 sm:max-w-none truncate ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
-                    >
-                      {tab.label}
-                    </Button>
-                  ))}
-                </div>
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+
+                  return (
+                    <button
+                    key={tab.id}
+                    ref={isActive ? activeTabRef : null}
+                    onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                    data-tour={`reports-tab-${tab.id}`}
+                    className={[
+                      'flex-none w-[25%] min-w-[25%] max-w-[25%] sm:flex-1 sm:w-auto sm:min-w-fit sm:max-w-none',
+                      'py-2 sm:py-1.5 px-1.5 sm:px-3',
+                      'flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5',
+                      'text-[9px] sm:text-sm font-bold sm:font-medium leading-tight whitespace-nowrap transition-all duration-200',
+                      'hover:bg-secondary/80 active:scale-95',
+                      isActive
+                        ? 'bg-card text-primary border-b-2 border-primary shadow-sm sm:rounded-md sm:border sm:border-primary/40'
+                        : 'text-muted-foreground sm:border sm:border-input sm:rounded-md',
+                    ].join(' ')}
+                  >
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="uppercase tracking-wide sm:normal-case sm:tracking-normal">{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {showLeftScroll && (
-                <div className="pointer-events-none absolute left-0 top-0 h-10 w-10 bg-gradient-to-r from-background/90 via-background/60 to-transparent flex items-center justify-start pl-1">
+                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-secondary/90 via-secondary/60 to-transparent flex items-center justify-start pl-1 z-10">
                   <ChevronLeft className="w-4 h-4 text-primary animate-pulse" />
                 </div>
               )}
 
               {showRightScroll && (
-                <div className="pointer-events-none absolute right-0 top-0 h-10 w-10 bg-gradient-to-l from-background/90 via-background/60 to-transparent flex items-center justify-end pr-1">
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-secondary/90 via-secondary/60 to-transparent flex items-center justify-end pr-1 z-10">
                   <ChevronRight className="w-4 h-4 text-primary animate-pulse" />
                 </div>
               )}
             </div>
 
-            <p className="text-sm text-muted-foreground sm:hidden">
-              {language === 'sw' ? 'Telezesha kushoto/kulia kuona tab zote' : 'Swipe left/right to view all tabs'}
-            </p>
+            
           </div>
 
           <div className="w-full sm:w-auto shrink-0" data-tour="reports-date-filter">
