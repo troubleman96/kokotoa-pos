@@ -99,6 +99,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(response.data.user);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
+      const isWorker = response.data.user.role === 'CASHIER' || response.data.user.role === 'STAFF';
+      if (isWorker) {
+        window.location.href = 'https://worker-pos.kokotoa.online';
+        return;
+      }
+
       // Profile completion logic
       if (response.data.user.is_profile_complete) {
         navigate('/dashboard');
