@@ -316,16 +316,16 @@ const Reports = () => {
     >
       <div className="space-y-4 sm:space-y-6" data-tour="reports-header">
         {/* Tabs + Date Filter (Single Row) */}
-        <div className="flex items-center gap-3 mb-4 sm:mb-6" data-tour="reports-tabs">
-          <div className="flex-1 min-w-0">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6" data-tour="reports-tabs">
+          <div className="w-full min-w-0">
+            <div className="flex w-max min-w-full gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {tabs.map((tab) => (
                 <Button
                   key={tab.id}
                   variant={activeTab === tab.id ? 'default' : 'outline'}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   data-tour={`reports-tab-${tab.id}`}
-                  className={`whitespace-nowrap flex-shrink-0 shrink-0 text-[11px] sm:text-sm px-2.5 sm:px-4 h-8 sm:h-10 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
+                  className={`whitespace-nowrap flex-shrink-0 shrink-0 text-xs sm:text-sm px-3 sm:px-4 h-9 sm:h-10 ${activeTab === tab.id ? 'btn-kokotoa' : ''}`}
                 >
                   {tab.label}
                 </Button>
@@ -333,9 +333,9 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="shrink-0" data-tour="reports-date-filter">
+          <div className="w-full sm:w-auto shrink-0" data-tour="reports-date-filter">
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-28 sm:w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <Calendar className="w-4 h-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -369,11 +369,11 @@ const Reports = () => {
                       <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-colors hover:bg-muted/80">
                         <div className="flex flex-col">
                           <span className="font-bold text-sm sm:text-base">{p.product_name}</span>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">{p.product_sku}</span>
+                          <span className="text-xs sm:text-xs text-muted-foreground font-mono">{p.product_sku}</span>
                         </div>
                         <div className="text-right">
                           <div className="font-black text-primary text-sm sm:text-base">{formatPrice(p.revenue)}</div>
-                          <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{p.quantity} {language === 'sw' ? 'zimeuzwa' : 'sold'}</div>
+                          <div className="text-xs sm:text-xs text-muted-foreground font-medium">{p.quantity} {language === 'sw' ? 'zimeuzwa' : 'sold'}</div>
                         </div>
                       </div>
                     )) : (
@@ -402,11 +402,11 @@ const Reports = () => {
                       <div key={i} className="flex items-center justify-between p-3 border border-destructive/20 rounded-lg bg-destructive/5">
                         <div>
                           <span className="font-bold text-sm sm:text-base text-foreground">{p.name}</span>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground block font-mono">{p.sku}</span>
+                          <span className="text-xs sm:text-xs text-muted-foreground block font-mono">{p.sku}</span>
                         </div>
                         <div className="text-right">
                           <div className="font-black text-destructive text-sm sm:text-base">{p.quantity}</div>
-                          <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{language === 'sw' ? 'Baki (Min: ' : 'Left (Min: '}{p.minimum_stock})</div>
+                          <div className="text-xs sm:text-xs text-muted-foreground font-medium">{language === 'sw' ? 'Baki (Min: ' : 'Left (Min: '}{p.minimum_stock})</div>
                         </div>
                       </div>
                     )) : (
@@ -428,14 +428,14 @@ const Reports = () => {
                     {dailySummary?.payment_methods && Object.entries(dailySummary.payment_methods).map(([method, data]: [string, any]) => (
                       <div key={method} className="p-3 sm:p-4 rounded-xl border border-border bg-muted/30 shadow-sm flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] text-muted-foreground mb-1 font-bold uppercase tracking-wider">{method}</div>
+                          <div className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wider">{method}</div>
                           <div className="text-base sm:text-lg font-black text-foreground">{formatPrice(data.total)}</div>
                         </div>
                         <div className="text-right">
                           <div className="w-8 h-8 sm:w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
                             <span className="text-primary font-bold text-xs">{data.count}</span>
                           </div>
-                          <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
+                          <div className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
                         </div>
                       </div>
                     ))}
@@ -448,7 +448,7 @@ const Reports = () => {
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 overflow-hidden">
               <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Leo' : "Today"}</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Leo' : "Today"}</CardTitle>
                   <DollarSign className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
                 <CardContent className="pb-3 sm:pb-6">
@@ -456,7 +456,7 @@ const Reports = () => {
                     {formatPrice(dashboardData?.today.sales || 0)}
                   </div>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[10px] sm:text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                    <span className="text-xs sm:text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                       {dashboardData?.today.transactions || 0} {language === 'sw' ? 'Miamala' : 'Tx'}
                     </span>
                   </div>
@@ -465,7 +465,7 @@ const Reports = () => {
 
               <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Mweziu' : 'Month'}</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Mweziu' : 'Month'}</CardTitle>
                   <TrendingUp className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
                 <CardContent className="pb-3 sm:pb-6">
@@ -473,7 +473,7 @@ const Reports = () => {
                     {formatPrice(dashboardData?.this_month.sales || 0)}
                   </div>
                   <div className="mt-1">
-                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground italic">
+                    <span className="text-xs sm:text-xs font-bold text-muted-foreground italic">
                       {dashboardData?.this_month.transactions || 0} {language === 'sw' ? 'miamala' : 'tx'}
                     </span>
                   </div>
@@ -482,7 +482,7 @@ const Reports = () => {
 
               <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                  <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">{language === 'sw' ? 'Bidhaa' : 'Items'}</CardTitle>
                   <Package className="w-4 h-4 text-primary opacity-50" />
                 </CardHeader>
                 <CardContent className="pb-3 sm:pb-6">
@@ -491,14 +491,14 @@ const Reports = () => {
                   </div>
                   <div className="mt-1 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase">{language === 'sw' ? 'ghalani' : 'stock'}</span>
+                    <span className="text-xs sm:text-xs text-muted-foreground font-medium uppercase">{language === 'sw' ? 'ghalani' : 'stock'}</span>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="card-kokotoa border-destructive/10 overflow-hidden relative">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                  <CardTitle className="text-[10px] sm:text-sm font-bold text-destructive/80 uppercase tracking-wider">{language === 'sw' ? 'Chini' : 'Low'}</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-bold text-destructive/80 uppercase tracking-wider">{language === 'sw' ? 'Chini' : 'Low'}</CardTitle>
                   <AlertTriangle className="w-4 h-4 text-destructive opacity-50" />
                 </CardHeader>
                 <CardContent className="pb-3 sm:pb-6">
@@ -506,7 +506,7 @@ const Reports = () => {
                     {dashboardData?.inventory.low_stock_count || 0}
                   </div>
                   <div className="mt-1">
-                    <span className="text-[10px] sm:text-xs text-destructive font-bold uppercase">{language === 'sw' ? 'zimebaki' : 'alerts'}</span>
+                    <span className="text-xs sm:text-xs text-destructive font-bold uppercase">{language === 'sw' ? 'zimebaki' : 'alerts'}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -527,7 +527,7 @@ const Reports = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 overflow-hidden">
                   <Card className="card-kokotoa border-primary/20 overflow-hidden">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider truncate">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider truncate">
                         {language === 'sw' ? 'Mauzo' : 'Sales'}
                       </CardTitle>
                       <DollarSign className="w-4 h-4 text-primary opacity-50" />
@@ -541,7 +541,7 @@ const Reports = () => {
 
                   <Card className="card-kokotoa border-primary/10">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Miamala' : 'Tx'}
                       </CardTitle>
                       <BarChart3 className="w-4 h-4 text-primary opacity-50" />
@@ -555,7 +555,7 @@ const Reports = () => {
 
                   <Card className="card-kokotoa border-primary/10 col-span-2 sm:col-span-1">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Wastani' : 'Avg'}
                       </CardTitle>
                       <TrendingUp className="w-4 h-4 text-primary opacity-50" />
@@ -586,11 +586,11 @@ const Reports = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="border-b border-border bg-muted/30">
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Kiasi' : 'Qty'}</th>
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest text-primary">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Kiasi' : 'Qty'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-xs uppercase tracking-widest text-primary">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
@@ -601,7 +601,7 @@ const Reports = () => {
                                   onClick={() => handleRowClick(sale)}
                                 >
                                   <td className="p-4">
-                                    <p className="text-[10px] font-bold text-muted-foreground line-clamp-1 max-w-[300px] uppercase tracking-tighter">
+                                    <p className="text-xs font-bold text-muted-foreground line-clamp-1 max-w-[300px] uppercase tracking-tighter">
                                       {getSaleProductsLabel(sale)}
                                     </p>
                                     <p className="font-mono text-xs font-black text-foreground mt-0.5 group-hover:text-primary transition-colors">
@@ -611,16 +611,16 @@ const Reports = () => {
                                   <td className="p-4">
                                     <div className="text-xs">
                                       <p className="font-black text-foreground">{new Date(sale.date).toLocaleDateString()}</p>
-                                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                      <p className="text-xs font-bold text-muted-foreground uppercase">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </div>
                                   </td>
                                   <td className="p-4">
-                                    <span className="px-2.5 py-1 bg-muted group-hover:bg-primary/10 rounded-lg text-[10px] font-black uppercase transition-colors">
+                                    <span className="px-2.5 py-1 bg-muted group-hover:bg-primary/10 rounded-lg text-xs font-black uppercase transition-colors">
                                       {sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}
                                     </span>
                                   </td>
                                   <td className="p-4">
-                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{sale.payment_method}</span>
+                                    <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">{sale.payment_method}</span>
                                   </td>
                                   <td className="p-4 text-right">
                                     <p className="font-black text-base text-primary tabular-nums">{formatPrice(sale.total_amount)}</p>
@@ -641,14 +641,14 @@ const Reports = () => {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
+                                  <p className="text-xs font-black text-muted-foreground uppercase line-clamp-1">
                                     {getSaleProductsLabel(sale)}
                                   </p>
-                                  <div className="font-mono text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-lg inline-block">
+                                  <div className="font-mono text-xs font-black text-primary bg-primary/5 px-2 py-0.5 rounded-lg inline-block">
                                     {sale.transaction_number}
                                   </div>
                                 </div>
-                                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+                                <div className="text-xs font-black text-muted-foreground uppercase tracking-wider">
                                   {new Date(sale.date).toLocaleDateString()}
                                 </div>
                               </div>
@@ -658,9 +658,9 @@ const Reports = () => {
                                     <div className="p-1 rounded bg-muted/50">
                                       {sale.payment_method === 'CASH' ? <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> : <CreditCard className="w-3.5 h-3.5 text-blue-500" />}
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{sale.payment_method}</span>
+                                    <span className="text-xs font-black uppercase tracking-widest">{sale.payment_method}</span>
                                   </div>
-                                  <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                                  <div className="text-xs font-bold text-muted-foreground uppercase">
                                     {sale.items_count} {language === 'sw' ? 'Vitu' : 'Items'}
                                   </div>
                                 </div>
@@ -728,7 +728,7 @@ const Reports = () => {
                           <tr key={product.id} className="hover:bg-muted/20 transition-colors">
                             <td className="p-4">
                               <span className="font-bold text-sm text-foreground">{product.name}</span>
-                              <span className="text-[10px] text-muted-foreground font-mono block">{product.sku}</span>
+                              <span className="text-xs text-muted-foreground font-mono block">{product.sku}</span>
                             </td>
                             <td className="p-4">
                               <span className="text-xs font-medium text-muted-foreground">{product.category}</span>
@@ -741,11 +741,11 @@ const Reports = () => {
                             <td className="p-4 text-right font-mono text-xs text-muted-foreground">{formatPrice(product.retail_value)}</td>
                             <td className="p-4 text-center">
                               {product.is_low_stock ? (
-                                <span className="px-2.5 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                <span className="px-2.5 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-xs font-bold uppercase tracking-wider">
                                   {language === 'sw' ? 'Chini' : 'Low'}
                                 </span>
                               ) : (
-                                <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
                                   {language === 'sw' ? 'Sawa' : 'OK'}
                                 </span>
                               )}
@@ -763,7 +763,7 @@ const Reports = () => {
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="font-bold text-sm text-foreground mb-0.5">{product.name}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground">{product.sku}</p>
+                            <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>
                           </div>
                           {product.is_low_stock ? (
                             <span className="px-2 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-full text-[9px] font-black uppercase">
@@ -787,7 +787,7 @@ const Reports = () => {
                           </div>
                         </div>
 
-                        <div className="text-[10px] text-muted-foreground flex items-center justify-between bg-muted/30 p-2 rounded-lg">
+                        <div className="text-xs text-muted-foreground flex items-center justify-between bg-muted/30 p-2 rounded-lg">
                           <span className="font-bold uppercase tracking-widest">{language === 'sw' ? 'Aina:' : 'Category:'}</span>
                           <span className="font-medium">{product.category}</span>
                         </div>
@@ -919,10 +919,10 @@ const Reports = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-sm text-foreground">{formatPrice(c.total || 0)}</p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {language === 'sw' ? 'Deni:' : 'Outstanding:'} {formatPrice(c.outstanding || 0)}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">{c.count || 0} {language === 'sw' ? 'miamala' : 'tx'}</p>
+                        <p className="text-xs text-muted-foreground">{c.count || 0} {language === 'sw' ? 'miamala' : 'tx'}</p>
                       </div>
                     </div>
                   )) : (
@@ -1103,7 +1103,7 @@ const Reports = () => {
                         <AlertTriangle className="w-5 h-5" />
                         {language === 'sw' ? 'Bidhaa Chache (Low Stock)' : 'Low Stock Analysis'}
                       </CardTitle>
-                      <CardDescription className="text-[10px] sm:text-xs">
+                      <CardDescription className="text-xs sm:text-xs">
                         {language === 'sw' ? 'Bidhaa zilizofikia kiwango cha chini' : 'Products below minimum threshold'}
                       </CardDescription>
                     </div>
@@ -1114,11 +1114,11 @@ const Reports = () => {
                         <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                           <div>
                             <p className="text-sm font-bold">{p.name}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase">{p.category} • SKU: {p.sku}</p>
+                            <p className="text-xs text-muted-foreground uppercase">{p.category} • SKU: {p.sku}</p>
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-bold text-red-500">{p.current_stock} {p.unit}</p>
-                            <p className="text-[10px] text-muted-foreground">Min: {p.minimum_stock}</p>
+                            <p className="text-xs text-muted-foreground">Min: {p.minimum_stock}</p>
                           </div>
                         </div>
                       ))}
@@ -1165,7 +1165,7 @@ const Reports = () => {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 overflow-hidden">
                   <Card className="card-kokotoa border-emerald-500/20 overflow-hidden relative">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Faida' : 'Profit'}
                       </CardTitle>
                       <PiggyBank className="w-4 h-4 text-emerald-500 opacity-50" />
@@ -1175,7 +1175,7 @@ const Reports = () => {
                         {formatPrice(profitReport.summary?.total_profit || 0)}
                       </div>
                       <div className="mt-1">
-                        <span className="text-[10px] sm:text-xs font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        <span className="text-xs sm:text-xs font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                           {profitReport.summary?.total_transactions || 0} {language === 'sw' ? 'Miamala' : 'Tx'}
                         </span>
                       </div>
@@ -1184,7 +1184,7 @@ const Reports = () => {
 
                   <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Mauzo' : 'Sales'}
                       </CardTitle>
                       <DollarSign className="w-4 h-4 text-primary opacity-50" />
@@ -1198,7 +1198,7 @@ const Reports = () => {
 
                   <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Margin' : 'Margin'}
                       </CardTitle>
                       <Percent className="w-4 h-4 text-primary opacity-50" />
@@ -1208,14 +1208,14 @@ const Reports = () => {
                         {(profitReport.summary?.average_profit_margin || 0).toFixed(1)}%
                       </div>
                       <div className="mt-1">
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Wastani' : 'Average'}</span>
+                        <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Wastani' : 'Average'}</span>
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="card-kokotoa border-primary/10 overflow-hidden relative">
                     <CardHeader className="flex flex-row items-center justify-between pb-1 sm:pb-2 pt-3 sm:pt-6">
-                      <CardTitle className="text-[10px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
                         {language === 'sw' ? 'Wastani' : 'Avg'}
                       </CardTitle>
                       <TrendingUp className="w-4 h-4 text-primary opacity-50" />
@@ -1225,7 +1225,7 @@ const Reports = () => {
                         {formatPrice(profitReport.summary?.average_profit || 0)}
                       </div>
                       <div className="mt-1">
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Kwa Muamala' : 'Per Tx'}</span>
+                        <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">{language === 'sw' ? 'Kwa Muamala' : 'Per Tx'}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1250,12 +1250,12 @@ const Reports = () => {
                           <table className="w-full">
                             <thead>
                               <tr className="border-b border-border bg-muted/30">
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
-                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Mauzo' : 'Sales'}</th>
-                                <th className="text-right p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest text-emerald-500">{language === 'sw' ? 'Faida' : 'Profit'}</th>
-                                <th className="text-center p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Margin' : 'Margin'}</th>
-                                <th className="text-left p-4 font-black text-muted-foreground text-[10px] uppercase tracking-widest">{language === 'sw' ? 'Keshia' : 'Cashier'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Mauzo' : 'Sales'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-xs uppercase tracking-widest text-emerald-500">{language === 'sw' ? 'Faida' : 'Profit'}</th>
+                                <th className="text-center p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Margin' : 'Margin'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-xs uppercase tracking-widest">{language === 'sw' ? 'Keshia' : 'Cashier'}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
@@ -1266,14 +1266,14 @@ const Reports = () => {
                                 >
                                   <td className="p-4">
                                     <p className="font-mono text-xs font-black text-foreground mb-0.5 group-hover:text-primary transition-colors">{tx.transaction_number}</p>
-                                    <p className="text-[10px] font-bold text-muted-foreground line-clamp-1 max-w-[250px] uppercase tracking-tighter">
+                                    <p className="text-xs font-bold text-muted-foreground line-clamp-1 max-w-[250px] uppercase tracking-tighter">
                                       {tx.product_names || (language === 'sw' ? 'Hakuna maelezo...' : 'No items listed')}
                                     </p>
                                   </td>
                                   <td className="p-4">
                                     <div className="text-xs">
                                       <p className="font-black text-foreground">{new Date(tx.date).toLocaleDateString()}</p>
-                                      <p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                      <p className="text-xs font-bold text-muted-foreground uppercase">{new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                     </div>
                                   </td>
                                   <td className="p-4 text-right">
@@ -1283,12 +1283,12 @@ const Reports = () => {
                                     <p className="text-sm font-black text-emerald-500 tabular-nums">{formatPrice(tx.total_profit)}</p>
                                   </td>
                                   <td className="p-4 text-center">
-                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-lg text-[10px] font-black uppercase">
+                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-lg text-xs font-black uppercase">
                                       {tx.profit_margin.toFixed(1)}%
                                     </span>
                                   </td>
                                   <td className="p-4">
-                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{tx.cashier}</p>
+                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">{tx.cashier}</p>
                                   </td>
                                 </tr>
                               ))}
@@ -1305,28 +1305,28 @@ const Reports = () => {
                             >
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                  <div className="font-mono text-[10px] font-black text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded-lg inline-block">
+                                  <div className="font-mono text-xs font-black text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded-lg inline-block">
                                     {tx.transaction_number}
                                   </div>
-                                  <p className="text-[10px] font-black text-muted-foreground uppercase line-clamp-1">
+                                  <p className="text-xs font-black text-muted-foreground uppercase line-clamp-1">
                                     {tx.product_names}
                                   </p>
                                 </div>
-                                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+                                <div className="text-xs font-black text-muted-foreground uppercase tracking-wider">
                                   {new Date(tx.date).toLocaleDateString()}
                                 </div>
                               </div>
                               <div className="flex items-end justify-between pt-1 border-t border-border/50">
                                 <div className="space-y-1">
-                                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                                  <div className="text-xs font-black text-muted-foreground uppercase tracking-widest">
                                     {tx.cashier}
                                   </div>
-                                  <div className="text-[10px] font-bold bg-muted px-2 py-0.5 rounded-full inline-block">
+                                  <div className="text-xs font-bold bg-muted px-2 py-0.5 rounded-full inline-block">
                                     {tx.profit_margin.toFixed(1)}% margin
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">{language === 'sw' ? 'Faida' : 'Profit'}</p>
+                                  <p className="text-xs font-bold text-muted-foreground uppercase mb-0.5">{language === 'sw' ? 'Faida' : 'Profit'}</p>
                                   <p className="text-lg font-black text-emerald-500 tabular-nums">{formatPrice(tx.total_profit)}</p>
                                 </div>
                               </div>

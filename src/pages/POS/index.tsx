@@ -41,7 +41,7 @@ const POS = () => {
   const [allowCartHint, setAllowCartHint] = useState(false);
   const [showCartHint, setShowCartHint] = useState(false);
   const [discountType, setDiscountType] = useState<'amount' | 'percent'>('amount');
-  const [discountValue, setDiscountValue] = useState(0);
+  const [discountValue, setDiscountValue] = useState('');
 
   // Checkout & Receipt state
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -161,9 +161,10 @@ const POS = () => {
   };
 
   const total = cart.reduce((sum, item) => sum + (parseFloat(item.selling_price) * item.quantity), 0);
+  const discountNumericValue = Number(discountValue) || 0;
   const discountAmount = discountType === 'percent'
-    ? Math.min(total, (total * discountValue) / 100)
-    : Math.min(total, discountValue);
+    ? Math.min(total, (total * discountNumericValue) / 100)
+    : Math.min(total, discountNumericValue);
   const checkoutTotal = Math.max(0, total - discountAmount);
 
   const openCheckout = (method: string) => {
@@ -252,7 +253,7 @@ const POS = () => {
           setSaleNotes('');
           setCreditPaymentAmount('');
           setDiscountType('amount');
-          setDiscountValue(0);
+          setDiscountValue('');
         }
       }
     } catch (error: any) {
@@ -489,11 +490,19 @@ const POS = () => {
                   max={discountType === 'percent' ? 100 : total}
                   value={discountValue}
                   onChange={(e) => {
-                    const raw = Number(e.target.value) || 0;
+                    const raw = e.target.value;
+                    if (raw === '') {
+                      setDiscountValue('');
+                      return;
+                    }
+
+                    const parsed = Number(raw);
+                    if (Number.isNaN(parsed)) return;
                     const max = discountType === 'percent' ? 100 : total;
-                    setDiscountValue(Math.max(0, Math.min(max, raw)));
+                    const clamped = Math.max(0, Math.min(max, parsed));
+                    setDiscountValue(String(clamped));
                   }}
-                  placeholder="0"
+                  placeholder={language === 'sw' ? 'Weka punguzo' : 'Enter discount'}
                   className="h-9 bg-background"
                 />
               </div>
