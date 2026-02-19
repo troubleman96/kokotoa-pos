@@ -365,7 +365,7 @@ const POS = () => {
                       variant={selectedCategory === cat.id ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`${selectedCategory === cat.id ? 'btn-kokotoa' : ''} flex-1 min-w-[25%] max-w-[25%] sm:min-w-0 sm:max-w-none h-8 sm:h-9 px-2 sm:px-3 whitespace-nowrap truncate`}
+                      className={`${selectedCategory === cat.id ? 'btn-kokotoa' : ''} flex-none w-[25%] min-w-[25%] max-w-[25%] sm:w-auto sm:min-w-fit sm:max-w-none h-8 sm:h-9 px-2 sm:px-3 whitespace-nowrap truncate`}
                     >
                       {cat.label}
                     </Button>
