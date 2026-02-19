@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Search, Plus, Minus, Trash2, ShoppingCart,
   CreditCard, Smartphone, Banknote, User, Phone,
-  MapPin, StickyNote, Receipt, CheckCircle2, X, Hash
+  MapPin, StickyNote, Receipt, CheckCircle2, X, Hash, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import ReceiptModal from '@/components/ReceiptModal';
 import {
@@ -34,6 +34,10 @@ const POS = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const categoriesScrollRef = useRef<HTMLDivElement>(null);
+  const activeCategoryRef = useRef<HTMLButtonElement>(null);
+  const [showCategoryLeft, setShowCategoryLeft] = useState(false);
+  const [showCategoryRight, setShowCategoryRight] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,6 +65,34 @@ const POS = () => {
     ],
     [language, categoryList]
   );
+
+  const checkCategoryScroll = () => {
+    const container = categoriesScrollRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setShowCategoryLeft(scrollLeft > 6);
+    setShowCategoryRight(scrollLeft < scrollWidth - clientWidth - 6);
+  };
+
+  useEffect(() => {
+    if (activeCategoryRef.current) {
+      activeCategoryRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    checkCategoryScroll();
+    const container = categoriesScrollRef.current;
+    if (!container) return undefined;
+
+    container.addEventListener('scroll', checkCategoryScroll);
+    return () => container.removeEventListener('scroll', checkCategoryScroll);
+  }, [categories]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -320,18 +352,36 @@ const POS = () => {
                 />
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-2 whitespace-nowrap">
-                {categories.map((cat) => (
-                  <Button
-                    key={cat.id}
-                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={selectedCategory === cat.id ? 'btn-kokotoa whitespace-nowrap' : 'whitespace-nowrap'}
-                  >
-                    {cat.label}
-                  </Button>
-                ))}
+              <div className="relative">
+                <div
+                  ref={categoriesScrollRef}
+                  className="flex gap-2 overflow-x-auto pb-2 pr-6 whitespace-nowrap scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none]"
+                >
+                  {categories.map((cat) => (
+                    <Button
+                      key={cat.id}
+                      ref={selectedCategory === cat.id ? activeCategoryRef : null}
+                      variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`${selectedCategory === cat.id ? 'btn-kokotoa' : ''} whitespace-nowrap flex-none`}
+                    >
+                      {cat.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {showCategoryLeft && (
+                  <div className="pointer-events-none absolute left-0 top-0 h-8 w-8 bg-gradient-to-r from-background/90 via-background/60 to-transparent flex items-center justify-start pl-0.5">
+                    <ChevronLeft className="w-4 h-4 text-primary animate-pulse" />
+                  </div>
+                )}
+
+                {showCategoryRight && (
+                  <div className="pointer-events-none absolute right-0 top-0 h-8 w-8 bg-gradient-to-l from-background/90 via-background/60 to-transparent flex items-center justify-end pr-0.5">
+                    <ChevronRight className="w-4 h-4 text-primary animate-pulse" />
+                  </div>
+                )}
               </div>
             </div>
 
