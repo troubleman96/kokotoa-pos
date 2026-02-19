@@ -489,7 +489,7 @@ const Reports = () => {
                           <div className="text-base sm:text-lg font-black text-foreground">{formatPrice(data.total)}</div>
                         </div>
                         <div className="text-right">
-                          <div className="w-8 h-8 sm:w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1 ml-auto">
                             <span className="text-primary font-bold text-base">{data.count}</span>
                           </div>
                           <div className="text-base text-muted-foreground font-medium uppercase tracking-tighter">{language === 'sw' ? 'Miamala' : 'Transactions'}</div>
@@ -647,7 +647,7 @@ const Reports = () => {
                                 <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
                                 <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Kiasi' : 'Qty'}</th>
                                 <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
-                                <th className="text-right p-4 font-black text-muted-foreground text-base uppercase tracking-widest text-primary">{language === 'sw' ? 'Jumla' : 'Total'}</th>
+                                <th className="text-right p-4 font-black text-primary text-base uppercase tracking-widest">{language === 'sw' ? 'Jumla' : 'Total'}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">

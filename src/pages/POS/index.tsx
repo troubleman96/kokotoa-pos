@@ -107,8 +107,9 @@ const POS = () => {
           setProducts(productsResponse.data);
         }
 
-        if (categoriesResponse?.data?.categories) {
-          setCategoryList([...new Set(categoriesResponse.data.categories)]);
+        if (Array.isArray(categoriesResponse?.data?.categories)) {
+          const normalized = categoriesResponse.data.categories.filter((cat): cat is string => typeof cat === 'string');
+          setCategoryList([...new Set(normalized)]);
         } else if (productsResponse.data) {
           // Fallback if category endpoint fails: derive from available products.
           const uniqueCategories = [...new Set(productsResponse.data.map((p: Product) => p.category))];
@@ -338,9 +339,9 @@ const POS = () => {
           )
         }
       >
-        <div className="flex flex-col lg:flex-row gap-4 h-full" data-tour="pos-header">
+        <div className="flex flex-col lg:flex-row gap-4 h-full min-w-0 overflow-x-hidden" data-tour="pos-header">
           {/* Products Section */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 min-w-0">
             <div className="space-y-4">
               <div className="relative" data-tour="product-search">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -352,10 +353,10 @@ const POS = () => {
                 />
               </div>
 
-              <div className="relative">
+              <div className="relative w-full min-w-0">
                 <div
                   ref={categoriesScrollRef}
-                  className="flex gap-2 overflow-x-auto pb-2 pr-6 whitespace-nowrap scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none]"
+                  className="flex overflow-x-auto hide-scrollbar flex-1 relative w-full min-w-0 touch-pan-x"
                 >
                   {categories.map((cat) => (
                     <Button
@@ -364,7 +365,7 @@ const POS = () => {
                       variant={selectedCategory === cat.id ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`${selectedCategory === cat.id ? 'btn-kokotoa' : ''} whitespace-nowrap flex-none`}
+                      className={`${selectedCategory === cat.id ? 'btn-kokotoa' : ''} flex-1 min-w-[25%] max-w-[25%] sm:min-w-0 sm:max-w-none h-8 sm:h-9 px-2 sm:px-3 whitespace-nowrap truncate`}
                     >
                       {cat.label}
                     </Button>
@@ -372,17 +373,20 @@ const POS = () => {
                 </div>
 
                 {showCategoryLeft && (
-                  <div className="pointer-events-none absolute left-0 top-0 h-8 w-8 bg-gradient-to-r from-background/90 via-background/60 to-transparent flex items-center justify-start pl-0.5">
+                  <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background/90 via-background/60 to-transparent pointer-events-none flex items-center justify-start pl-1">
                     <ChevronLeft className="w-4 h-4 text-primary animate-pulse" />
                   </div>
                 )}
 
                 {showCategoryRight && (
-                  <div className="pointer-events-none absolute right-0 top-0 h-8 w-8 bg-gradient-to-l from-background/90 via-background/60 to-transparent flex items-center justify-end pr-0.5">
+                  <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background/90 via-background/60 to-transparent pointer-events-none flex items-center justify-end pr-1">
                     <ChevronRight className="w-4 h-4 text-primary animate-pulse" />
                   </div>
                 )}
               </div>
+              <p className="text-xs text-muted-foreground sm:hidden">
+                {language === 'sw' ? 'Telezesha kushoto/kulia kuona aina zote' : 'Swipe left/right to view all filters'}
+              </p>
             </div>
 
             {isLoading ? (
