@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Store, MapPin, Phone, ArrowRight, CheckCircle } from 'lucide-react';
+import LogoSpinner from '@/components/ui/LogoSpinner';
 
 const CreateStore = () => {
   const { language } = useLanguage();
@@ -120,7 +121,7 @@ const CreateStore = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <LogoSpinner size="md" />
       </div>
     );
   }
@@ -244,7 +245,7 @@ const CreateStore = () => {
               <Button type="submit" className="w-full btn-kokotoa h-11 text-base" disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    <LogoSpinner size="xs" />
                     {language === 'sw' ? 'Inaunda...' : 'Creating...'}
                   </span>
                 ) : (

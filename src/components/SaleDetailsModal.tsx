@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Sale, salesApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import MathLoader from '@/components/ui/MathLoader';
 
 interface SaleDetailsModalProps {
     isOpen: boolean;
@@ -119,10 +120,7 @@ const SaleDetailsModal = ({ isOpen, onClose, sale: initialSale, onReturnSuccess,
 
                     {isLoading ? (
                         <div className="flex-1 flex flex-col items-center justify-center p-20 gap-4">
-                            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                            <p className="text-sm font-bold text-muted-foreground animate-pulse">
-                                {language === 'sw' ? 'Inapakia maelezo...' : 'Loading details...'}
-                            </p>
+                            <MathLoader size="lg" text={language === 'sw' ? 'Inapakia maelezo...' : 'Loading details...'} />
                         </div>
                     ) : sale && (
                         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">

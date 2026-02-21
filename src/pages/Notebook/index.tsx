@@ -4,7 +4,6 @@ import {
   Download,
   FilePlus2,
   Folder,
-  Loader2,
   Pin,
   Search,
   Trash2,
@@ -19,6 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Note, notebookApi } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import MathLoader from '@/components/ui/MathLoader';
+import LogoSpinner from '@/components/ui/LogoSpinner';
 
 type NoteCategory = 'expense' | 'debt' | 'useful' | 'general';
 type NotesView = 'all' | 'pinned' | NoteCategory;
@@ -456,7 +456,7 @@ const Notebook = () => {
                       <span>
                         {language === 'sw' ? 'Imehaririwa:' : 'Updated:'} {new Date(selectedNote.updated_at).toLocaleString()}
                       </span>
-                      {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      {isSaving && <LogoSpinner size="xs" />}
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" onClick={() => downloadNote(selectedNote)}>
