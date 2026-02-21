@@ -4,9 +4,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Package, ArrowRight, Lock, Phone, User, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Lock, Phone, User, CheckCircle, Eye, EyeOff, Mail } from 'lucide-react';
 
 const Register = () => {
   const { language, t } = useLanguage();
@@ -20,6 +20,8 @@ const Register = () => {
     first_name: '',
     last_name: '',
     phone: '+255',
+    email: '',
+    promo_code: 'MKT2026A',
     password: '',
     password_confirm: '',
   });
@@ -61,7 +63,11 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      await register(formData);
+      await register({
+        ...formData,
+        promo_code: formData.promo_code.trim() || undefined,
+        email: formData.email.trim() || undefined,
+      });
       toast({
         title: language === 'sw' ? 'Mnakaribishwa KOKOTOA!' : 'Welcome to KOKOTOA!',
         description: language === 'sw'
@@ -126,15 +132,7 @@ const Register = () => {
 
         <Card className="card-kokotoa">
           <CardHeader className="text-center pb-2">
-            <div className="flex items-center justify-center gap-3">
-              <Link to="/">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent hover:opacity-80 transition-opacity">
-                  <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
-                </div>
-              </Link>
-              <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Jisajili Sasa' : 'Create Account'}</CardTitle>
-            </div>
-            <CardDescription className="mt-2">{language === 'sw' ? 'Fungua akaunti yako ya KOKOTOA' : 'Open your KOKOTOA account'}</CardDescription>
+            <CardDescription>{language === 'sw' ? 'Fungua akaunti yako ya KOKOTOA' : 'Open your KOKOTOA account'}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -170,24 +168,55 @@ const Register = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <div className="grid grid-cols-10 gap-3">
+                <div className="col-span-6">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      type="tel"
+                      placeholder="+255xxxxxxxxx"
+                      value={formData.phone}
+                      onChange={handlePhoneChange}
+                      className="pl-12 h-12 bg-background"
+                      required
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {language === 'sw' ? 'Anza na +255 (Mfano: +255712345678)' : 'Start with +255 (e.g., +255712345678)'}
+                  </p>
+                </div>
+
+                <div className="col-span-4">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Promo Code (Hiari)
+                  </label>
                   <Input
-                    type="tel"
-                    placeholder="+255xxxxxxxxx"
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    className="pl-12 h-12 bg-background"
-                    required
+                    type="text"
+                    placeholder="MKT2026A"
+                    value={formData.promo_code}
+                    onChange={(e) => setFormData({ ...formData, promo_code: e.target.value })}
+                    className="h-12 bg-background"
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {language === 'sw' ? 'Anza na +255 (Mfano: +255712345678)' : 'Start with +255 (e.g., +255712345678)'}
-                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  {language === 'sw' ? 'Barua Pepe (Hiari)' : 'Email (Optional)'}
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    placeholder="owner@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="pl-12 h-12 bg-background"
+                  />
+                </div>
               </div>
 
               <div>

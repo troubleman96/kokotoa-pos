@@ -40,6 +40,16 @@ interface AuthResponse {
   errors: any;
 }
 
+export interface RegisterPayload {
+  phone: string;
+  password: string;
+  password_confirm: string;
+  first_name: string;
+  last_name: string;
+  promo_code?: string;
+  email?: string;
+}
+
 
 interface SubscriptionPackage {
   id: number;
@@ -307,7 +317,7 @@ class ApiService {
 export const api = new ApiService();
 
 export const authApi = {
-  register: (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) =>
+  register: (data: RegisterPayload) =>
     api.post<AuthResponse & { errors: any }>('/auth/register/', data),
 
   verifyOtp: (data: { phone: string; otp_code: string }) =>

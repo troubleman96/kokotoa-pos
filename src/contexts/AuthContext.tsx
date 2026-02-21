@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, api, User, storesApi, accountsApi } from '@/services/api';
+import { authApi, api, User, storesApi, accountsApi, RegisterPayload } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (phone: string, password: string) => Promise<void>;
-  register: (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) => Promise<void>;
+  register: (data: RegisterPayload) => Promise<void>;
   verifyOtp: (phone: string, otpCode: string) => Promise<{ can_create_store: boolean; subscription_status?: string }>;
   requestPhoneVerification: (phone: string) => Promise<void>;
   resendOtp: (phone: string) => Promise<void>;
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (data: { phone: string; password: string; password_confirm: string; first_name: string; last_name: string }) => {
+  const register = async (data: RegisterPayload) => {
     const response = await authApi.register(data);
 
     // New flow: Registration returns tokens directly
