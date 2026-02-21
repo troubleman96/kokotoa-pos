@@ -100,7 +100,7 @@ const Login = () => {
             <div className="flex items-center justify-center gap-3">
               <Link to="/">
                 <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent hover:opacity-80 transition-opacity">
-                  <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+                  <img src="/pos-kokotoa_faviconupdate/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                 </div>
               </Link>
               <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Ingia Ukae' : 'Sign In'}</CardTitle>

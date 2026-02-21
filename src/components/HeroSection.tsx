@@ -85,7 +85,7 @@ const HeroSection = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
-                    <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
+                    <img src="/pos-kokotoa_faviconupdate/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <h3 className="font-display font-semibold text-foreground">KOKOTOA POS</h3>

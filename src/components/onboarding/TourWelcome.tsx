@@ -100,7 +100,7 @@ const TourWelcome = () => {
                         <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
                             <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 p-2">
                                 <img
-                                    src="/pos-kokotoa_favicon/web-app-manifest-192x192.png"
+                                    src="/pos-kokotoa_faviconupdate/web-app-manifest-192x192.png"
                                     alt="KOKOTOA POS"
                                     className="w-full h-full object-contain"
                                 />

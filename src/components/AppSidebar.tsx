@@ -43,7 +43,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
                         <Link to="/dashboard" className="flex flex-col gap-4 group">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-105 shadow-inner">
-                                    <img src="/pos-kokotoa_favicon/favicon.svg" alt="KOKOTOA Logo" className="w-8 h-8 object-contain" />
+                                    <img src="/pos-kokotoa_faviconupdate/favicon.svg" alt="KOKOTOA Logo" className="w-8 h-8 object-contain" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-display font-black text-xl tracking-tight text-foreground uppercase">KOKOTOA</span>
