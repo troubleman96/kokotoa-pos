@@ -21,7 +21,7 @@ const Register = () => {
     last_name: '',
     phone: '+255',
     email: '',
-    promo_code: 'MKT2026A',
+    promo_code: '',
     password: '',
     password_confirm: '',
   });
