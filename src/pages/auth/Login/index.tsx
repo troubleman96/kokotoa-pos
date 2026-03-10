@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Package, ArrowRight, Lock, Phone, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Lock, Phone, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -92,98 +92,101 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-background flex items-start pt-16 md:items-center md:pt-0 justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-[100svh] items-center justify-center bg-gradient-to-br from-primary/5 via-background to-background p-3 sm:p-4">
+      <div className="w-full max-w-sm sm:max-w-md">
 
-        <Card className="card-kokotoa">
-          <CardHeader className="text-center pb-2">
+        <Card className="card-kokotoa rounded-2xl">
+          <CardHeader className="px-4 pb-1 pt-4 text-center sm:px-6 sm:pb-2 sm:pt-6">
             <div className="flex items-center justify-center gap-3">
               <Link to="/">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-transparent hover:opacity-80 transition-opacity">
+                <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-transparent transition-opacity hover:opacity-80 sm:h-12 sm:w-12">
                   <img src="/pos-kokotoa_faviconupdate/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                 </div>
               </Link>
-              <CardTitle className="font-display text-2xl">{language === 'sw' ? 'Ingia Ukae' : 'Sign In'}</CardTitle>
+              <CardTitle className="font-display text-xl sm:text-2xl">{language === 'sw' ? 'Ingia Ukae' : 'Sign In'}</CardTitle>
             </div>
-            <CardDescription>{language === 'sw' ? 'Ingia kwenye akaunti yako ya Kokotoa' : 'Log in to your Kokotoa account'}</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
+              {language === 'sw' ? 'Ingia kwenye akaunti yako ya Kokotoa' : 'Log in to your Kokotoa account'}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+          <CardContent className="px-4 pb-4 pt-0 sm:px-6 sm:pb-6">
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="mb-1.5 block text-sm font-medium text-foreground sm:mb-2">
                   {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Phone className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
                   <Input
                     type="tel"
                     placeholder="+255xxxxxxxxx"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    className="pl-12 h-12 bg-background"
+                    className="h-11 bg-background pl-11 text-sm sm:h-12 sm:pl-12"
                     required
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
+                <p className="mt-1 text-[10px] leading-tight text-muted-foreground">
                   {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
                 </p>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-foreground block">
+                <div className="mb-1.5 flex items-center justify-between sm:mb-2">
+                  <label className="block text-sm font-medium text-foreground">
                     {language === 'sw' ? 'Nenosiri' : 'Password'}
                   </label>
-                  <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                    {language === 'sw' ? 'Umesahau nenosiri?' : 'Forgot password?'}
-                  </Link>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="pl-12 pr-12 h-12 bg-background"
+                    className="h-11 bg-background pl-11 pr-11 text-sm sm:h-12 sm:pl-12 sm:pr-12"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none sm:right-4"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
+                      <EyeOff className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                     ) : (
-                      <Eye className="w-5 h-5" />
+                      <Eye className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                     )}
                   </button>
                 </div>
+                <div className="mt-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-background/60 px-2.5 py-1.5 text-muted-foreground">
+                    <input type="checkbox" className="rounded border-border accent-primary" />
+                    <span>{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
+                  </label>
+                  <Link to="/forgot-password" className="font-medium text-primary hover:underline">
+                    {language === 'sw' ? 'Umesahau?' : 'Forgot password?'}
+                  </Link>
+                </div>
               </div>
 
-
-              <Button type="submit" className="w-full btn-kokotoa h-12 text-lg" isLoading={isLoading}>
-                {language === 'sw' ? 'Ingia' : 'Sign In'}
-                {!isLoading && <ArrowRight className="w-5 h-5" />}
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  asChild
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full border-primary/30 bg-background/70 text-sm hover:bg-muted sm:h-12 sm:text-base"
+                >
+                  <Link to="/register">
+                    {language === 'sw' ? 'Jisajili' : 'Register'}
+                  </Link>
+                </Button>
+                <Button type="submit" className="h-11 w-full text-base btn-kokotoa sm:h-12 sm:text-lg" isLoading={isLoading}>
+                  {language === 'sw' ? 'Ingia' : 'Sign In'}
+                  {!isLoading && <ArrowRight className="w-5 h-5" />}
+                </Button>
+              </div>
             </form>
-
-            <div className="mt-6 flex items-center justify-center gap-4 text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-border" />
-                <span className="text-muted-foreground">{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
-              </label>
-
-              <div>
-                <span className="text-muted-foreground mr-1">
-                  {language === 'sw' ? 'Huna akaunti?' : "No account?"}
-                </span>
-                <Link to="/register" className="text-primary font-medium hover:underline">
-                  {language === 'sw' ? 'Jisajili' : 'Register'}
-                </Link>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -10,29 +10,29 @@ const HeroSection = () => {
   const { hero } = content;
 
   return (
-    <section className="relative min-h-screen flex items-center hero-pattern overflow-hidden">
+    <section className="relative flex min-h-[100svh] items-start overflow-hidden hero-pattern pt-20 sm:pt-24 lg:items-center lg:pt-0">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
       </div>
 
-      <div className="container mx-auto px-4 pt-24 pb-8 md:pt-28 md:pb-10 relative z-10">
-        <div className="grid lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] gap-8 lg:gap-12 items-center">
+      <div className="container mx-auto px-4 pb-10 pt-10 sm:pb-12 sm:pt-12 md:pt-14 lg:pb-16 lg:pt-28 relative z-10">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-12">
           {/* Left Content */}
-          <div className="space-y-6 lg:space-y-7 animate-slide-up max-w-2xl">
+          <div className="space-y-5 lg:space-y-7 animate-slide-up max-w-2xl">
             {/* Title */}
-            <h1 className="font-display text-[2.6rem] sm:text-[3.2rem] lg:text-[3.6rem] xl:text-[3.9rem] font-bold leading-[1.02] tracking-[-0.04em] space-y-1.5">
+            <h1 className="font-display text-[2.15rem] min-[380px]:text-[2.4rem] sm:text-[2.85rem] md:text-[3.2rem] lg:text-[3.5rem] xl:text-[3.75rem] font-bold leading-[1.02] tracking-[-0.045em] space-y-1 sm:space-y-1.5">
               {hero.title.lineOne && (
-                <span className="block text-foreground whitespace-nowrap">{hero.title.lineOne}</span>
+                <span className="block text-foreground">{hero.title.lineOne}</span>
               )}
               {hero.title.lineTwo && (
-                <span className="block text-foreground whitespace-nowrap">{hero.title.lineTwo}</span>
+                <span className="block text-foreground">{hero.title.lineTwo}</span>
               )}
               {hero.title.highlight && (
-                <span className="block mt-2">
-                  <span className="inline-flex -rotate-1">
-                    <span className="rotate-1 inline-flex items-center whitespace-nowrap px-5 py-2.5 md:px-6 md:py-3 bg-[#2BFF68] text-[#04210F] font-semibold rounded-3xl shadow-[0_18px_60px_rgba(43,255,104,0.45)]">
+                <span className="block pt-1.5 sm:pt-2">
+                  <span className="group/hero-highlight inline-flex max-w-full">
+                    <span className="inline-block max-w-full origin-left rotate-[-4deg] rounded-3xl bg-[#2BFF68] px-4 py-2 text-[0.95em] font-semibold text-[#04210F] shadow-[0_18px_60px_rgba(43,255,104,0.45)] transition-transform duration-300 ease-out group-hover/hero-highlight:rotate-0 motion-reduce:transform-none sm:px-5 sm:py-2.5 md:px-6 md:py-3">
                       {hero.title.highlight}
                     </span>
                   </span>
@@ -41,25 +41,25 @@ const HeroSection = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
               {hero.subtitle}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 overflow-x-visible">
-              <Link to="/register" className="w-full sm:w-auto">
-                <Button size="lg" className="btn-kokotoa text-primary-foreground w-full h-11 md:h-12 sm:min-w-[170px] px-4 sm:px-7 text-sm md:text-base">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:items-center sm:gap-4">
+              <Link to="/login" className="min-w-0">
+                <Button size="lg" className="btn-kokotoa text-primary-foreground h-10 w-full px-3 text-xs min-[380px]:text-sm sm:h-11 sm:min-w-[170px] sm:px-7 md:h-12 md:text-base">
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {hero.primaryCta}
                     <ArrowRight className="w-4 h-4" />
                   </span>
                 </Button>
               </Link>
-              <Link to="/demo" className="w-full sm:w-auto">
+              <Link to="/demo" className="min-w-0">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full h-11 md:h-12 sm:min-w-[170px] px-4 sm:px-7 text-sm md:text-base border-border hover:bg-muted"
+                  className="h-10 w-full px-3 text-xs min-[380px]:text-sm sm:h-11 sm:min-w-[170px] sm:px-7 md:h-12 md:text-base border-border hover:bg-muted"
                 >
                   <Play className="w-4 h-4 mr-2" />
                   {hero.secondaryCta}
@@ -67,39 +67,45 @@ const HeroSection = () => {
               </Link>
             </div>
 
-            <div className="space-y-5 pt-1">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-3 max-w-3xl">
-                {hero.proofPoints.map((point) => (
-                  <div
-                    key={point}
-                    className="rounded-2xl border border-border/60 bg-card/35 px-3.5 py-3 text-xs md:text-sm text-muted-foreground backdrop-blur-sm"
-                  >
-                    {point}
+            {(hero.proofPoints.length > 0 || hero.trustedBy) && (
+              <div className="space-y-5 pt-1">
+                {hero.proofPoints.length > 0 && (
+                  <div className="grid max-w-3xl grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 lg:grid-cols-4 lg:gap-3">
+                    {hero.proofPoints.map((point) => (
+                      <div
+                        key={point}
+                        className="rounded-2xl border border-border/60 bg-card/35 px-3.5 py-3 text-xs text-muted-foreground backdrop-blur-sm md:text-sm"
+                      >
+                        {point}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
 
-              <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-2">
-                <span className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary border-2 border-background"
-                    />
-                  ))}
-                </span>
-                <span>{hero.trustedBy}</span>
-              </p>
-            </div>
+                {hero.trustedBy && (
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <span className="flex -space-x-2">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className="h-7 w-7 rounded-full border-2 border-background bg-gradient-to-br from-primary to-secondary sm:h-8 sm:w-8"
+                        />
+                      ))}
+                    </span>
+                    <span>{hero.trustedBy}</span>
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Content - POS Preview */}
-          <div className="relative animate-slide-up lg:pl-2" style={{ animationDelay: '0.2s' }}>
-            <div className="card-kokotoa rounded-2xl p-5 md:p-6">
+          <div className="relative mx-auto w-full max-w-[34rem] animate-slide-up lg:mx-0 lg:pl-2" style={{ animationDelay: '0.2s' }}>
+            <div className="card-kokotoa rounded-2xl p-4 sm:p-5 md:p-6">
               {/* Mock POS Header */}
-              <div className="flex items-center justify-between mb-5">
+              <div className="mb-4 flex items-center justify-between sm:mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-transparent">
                     <img src="/pos-kokotoa_faviconupdate/favicon.svg" alt="KOKOTOA Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
@@ -114,7 +120,7 @@ const HeroSection = () => {
               </div>
 
               {/* Mock Products Grid */}
-              <div className="grid grid-cols-3 gap-2.5 mb-5">
+              <div className="mb-5 grid grid-cols-2 gap-2.5 min-[420px]:grid-cols-3">
                 {hero.preview.products.map((product, i) => (
                   <div
                     key={i}
@@ -128,7 +134,7 @@ const HeroSection = () => {
               </div>
 
               {/* Mock Cart Summary */}
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2.5">
+              <div className="space-y-2.5 rounded-xl bg-muted/30 p-3.5 sm:p-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{hero.preview.itemCount}</span>
                   <span className="text-foreground font-medium">{hero.preview.total}</span>
@@ -141,7 +147,7 @@ const HeroSection = () => {
             </div>
 
             {/* Floating Elements */}
-            <div className="absolute top-4 -right-3 md:-right-4 bg-card/95 rounded-xl p-3 shadow-lg border border-border animate-float">
+            <div className="absolute right-2 top-3 max-w-[9.5rem] rounded-xl border border-border bg-card/95 p-2.5 shadow-lg animate-float sm:-right-3 sm:top-4 sm:max-w-none sm:p-3 md:-right-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                   <Package className="w-4 h-4 text-primary" />
@@ -153,7 +159,7 @@ const HeroSection = () => {
               </div>
             </div>
 
-            <div className="absolute bottom-6 -left-3 md:-left-4 bg-card/95 rounded-xl p-3 shadow-lg border border-border animate-float" style={{ animationDelay: '-2s' }}>
+            <div className="absolute bottom-4 left-2 max-w-[9.5rem] rounded-xl border border-border bg-card/95 p-2.5 shadow-lg animate-float sm:-left-3 sm:bottom-6 sm:max-w-none sm:p-3 md:-left-4" style={{ animationDelay: '-2s' }}>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                   <BarChart3 className="w-4 h-4 text-primary" />

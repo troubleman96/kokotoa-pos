@@ -54,7 +54,7 @@ const PackagesSection = () => {
                             </div>
 
                             <Button className="w-full h-12 btn-kokotoa text-lg shadow-lg shadow-primary/20" asChild>
-                                <Link to="/register">
+                                <Link to="/login">
                                     {packages.cta}
                                 </Link>
                             </Button>

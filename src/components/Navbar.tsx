@@ -32,7 +32,7 @@ const Navbar = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 min-w-0">
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent">
               <img
                 src="/pos-kokotoa_faviconupdate/favicon.svg"
@@ -40,17 +40,17 @@ const Navbar = () => {
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="font-display font-bold text-xl text-foreground">
+            <span className="font-display font-bold text-lg sm:text-xl text-foreground">
               KOKOTOA
             </span>
           </Link>
 
           {/* Unified Controls (Language first, then Menu) */}
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setLanguage(nextLanguage)}
-              className="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-border bg-transparent text-foreground hover:bg-muted transition-colors"
+              className="rounded-lg border border-border bg-transparent px-2 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-muted sm:px-2.5 sm:text-xs"
               aria-label={nextLanguage === 'en' ? 'Switch to English' : 'Switch to Swahili'}
             >
               {nextLanguage === 'en' ? '🇺🇸 EN' : '🇹🇿 SW'}
@@ -62,7 +62,7 @@ const Navbar = () => {
               className="p-2 text-foreground"
               aria-label="Open menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </div>
           </div>

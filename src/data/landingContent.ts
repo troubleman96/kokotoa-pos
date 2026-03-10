@@ -103,13 +103,8 @@ export const landingContent: Record<LandingLanguage, LandingContent> = {
         'Mfumo rahisi kwa biashara za Tanzania kuuza haraka, kufuatilia bidhaa, na kuona faida ya biashara yako bila usumbufu.',
       primaryCta: 'Anza Sasa',
       secondaryCta: 'Tazama Demo',
-      trustedBy: 'Inatumiwa na biashara 1,000+ Tanzania',
-      proofPoints: [
-        'Dakika 5 kuanza',
-        'Kiswahili kwanza',
-        'Hakuna malipo ya kuanza',
-        'Ripoti rahisi kuelewa',
-      ],
+      trustedBy: '',
+      proofPoints: [],
       preview: {
         storeName: 'Duka la Mjini',
         status: 'Mtandaoni',
