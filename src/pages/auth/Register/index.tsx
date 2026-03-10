@@ -168,8 +168,8 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-10 gap-3">
-                <div className="col-span-6">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-10 sm:gap-3">
+                <div className="col-span-3 sm:col-span-6">
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     {language === 'sw' ? 'Namba ya Simu' : 'Phone Number'}
                   </label>
@@ -189,16 +189,19 @@ const Register = () => {
                   </p>
                 </div>
 
-                <div className="col-span-4">
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Promo Code (Hiari)
+                <div className="col-span-1 sm:col-span-4">
+                  <label className="mb-2 flex flex-col gap-0.5 text-xs font-medium leading-none text-foreground sm:flex-row sm:items-center sm:gap-2 sm:text-sm">
+                    <span>Promo</span>
+                    <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      (HIARI)
+                    </span>
                   </label>
                   <Input
                     type="text"
                     placeholder="MKT2026A"
                     value={formData.promo_code}
                     onChange={(e) => setFormData({ ...formData, promo_code: e.target.value })}
-                    className="h-12 bg-background"
+                    className="h-12 bg-background px-3 text-xs sm:text-sm"
                   />
                 </div>
               </div>
