@@ -1,46 +1,19 @@
-import { ShoppingCart, Package, BarChart3, Smartphone, Shield, Users, Receipt, Cloud } from 'lucide-react';
+import { ShoppingCart, Package, BarChart3, Smartphone, TrendingUp, Users } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { landingContent } from '@/data/landingContent';
 
 const FeaturesSection = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const { benefits } = landingContent[language];
+  const icons = [ShoppingCart, Package, BarChart3, Users, TrendingUp, Smartphone];
 
-  const features = [
-    {
-      icon: ShoppingCart,
-      title: t('features.pos.title'),
-      description: t('features.pos.desc'),
-      color: 'from-primary to-primary/70',
-    },
-    {
-      icon: Package,
-      title: t('features.inventory.title'),
-      description: t('features.inventory.desc'),
-      color: 'from-secondary to-secondary/70',
-    },
-    {
-      icon: BarChart3,
-      title: t('features.reports.title'),
-      description: t('features.reports.desc'),
-      color: 'from-primary to-secondary',
-    },
-    {
-      icon: Users,
-      title: t('features.staff.title'),
-      description: t('features.staff.desc'),
-      color: 'from-blue-500 to-indigo-600',
-    },
-    {
-      icon: Receipt,
-      title: t('features.receipts.title'),
-      description: t('features.receipts.desc'),
-      color: 'from-emerald-500 to-teal-600',
-    },
-    {
-      icon: Cloud,
-      title: t('features.offline.title'),
-      description: t('features.offline.desc'),
-      color: 'from-orange-500 to-red-600',
-    },
+  const colors = [
+    'from-primary to-primary/70',
+    'from-secondary to-secondary/70',
+    'from-primary to-secondary',
+    'from-blue-500 to-indigo-600',
+    'from-emerald-500 to-teal-600',
+    'from-orange-500 to-red-600',
   ];
 
   return (
@@ -49,17 +22,17 @@ const FeaturesSection = () => {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {t('features.title')}
+            {benefits.title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            {t('features.subtitle')}
+            {benefits.subtitle}
           </p>
         </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
+          {benefits.items.map((benefit, index) => {
+            const Icon = icons[index];
             return (
               <div
                 key={index}
@@ -67,16 +40,19 @@ const FeaturesSection = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Icon */}
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${colors[index]} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <Icon className="w-7 h-7 text-primary-foreground" />
                 </div>
 
                 {/* Content */}
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary mb-3">
+                  {benefit.tag}
+                </p>
                 <h3 className="font-display text-xl font-semibold text-foreground mb-3">
-                  {feature.title}
+                  {benefit.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
+                  {benefit.description}
                 </p>
               </div>
             );

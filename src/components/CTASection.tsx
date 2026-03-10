@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
+import { landingContent } from '@/data/landingContent';
 
 const CTASection = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const { cta } = landingContent[language];
 
   return (
     <section className="py-20 lg:py-32 relative overflow-hidden">
@@ -24,19 +26,19 @@ const CTASection = () => {
 
           {/* Title */}
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            {t('cta.title')}
+            {cta.title}
           </h2>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-            {t('cta.subtitle')}
+            {cta.subtitle}
           </p>
 
           {/* CTA Button */}
-          <Link to="/pos">
+          <Link to="/register">
             <Button size="lg" className="btn-kokotoa text-primary-foreground px-10 h-16 text-lg">
               <span className="relative z-10 flex items-center gap-2">
-                {t('cta.button')}
+                {cta.button}
                 <ArrowRight className="w-5 h-5" />
               </span>
             </Button>
@@ -44,7 +46,7 @@ const CTASection = () => {
 
           {/* Trust Note */}
           <p className="mt-6 text-sm text-muted-foreground">
-            ✓ Hakuna malipo ya kuanza • ✓ Usanidi rahisi wa dakika 5 • ✓ Msaada wa Kiswahili
+            {cta.notes.map((note) => `✓ ${note}`).join(' • ')}
           </p>
 
           <div className="absolute bottom-0 left-0 w-full leading-none">
