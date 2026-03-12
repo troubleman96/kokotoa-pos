@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { format, subDays } from 'date-fns';
+import { eachDayOfInterval, format, subDays } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { reportsApi, graphsApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,18 @@ import { Sale } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 
 const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+
+const buildTrendDates = (dateFrom: string, dateTo: string) =>
+  eachDayOfInterval({
+    start: new Date(`${dateFrom}T00:00:00`),
+    end: new Date(`${dateTo}T00:00:00`),
+  }).map((date) => format(date, 'yyyy-MM-dd'));
+
+const formatTrendDateLabel = (date: string, language: 'sw' | 'en') =>
+  new Date(`${date}T00:00:00`).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+  });
 
 const Reports = () => {
   const { language } = useLanguage();
@@ -94,6 +106,7 @@ const Reports = () => {
   const [creditAnalytics, setCreditAnalytics] = useState<any | null>(null);
   const [discountAnalytics, setDiscountAnalytics] = useState<any | null>(null);
   const [analyticsTrend, setAnalyticsTrend] = useState<any[]>([]);
+  const [discountTrendData, setDiscountTrendData] = useState<any[]>([]);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isSaleDetailsOpen, setIsSaleDetailsOpen] = useState(false);
 
@@ -107,6 +120,7 @@ const Reports = () => {
 
       const dateTo = format(new Date(), 'yyyy-MM-dd');
       const dateFrom = format(subDays(new Date(), days), 'yyyy-MM-dd');
+      const trendDates = buildTrendDates(dateFrom, dateTo);
 
       try {
         const [dashboard, sales, inventory, dailyRec, profit, credit, discounts, unifiedTrend] = await Promise.all([
@@ -125,17 +139,46 @@ const Reports = () => {
         if (inventory?.data) setInventoryData(inventory.data);
         if (dailyRec?.data) setDailySummary(dailyRec.data);
         if (credit?.data) setCreditAnalytics(credit.data);
-        if (discounts?.data) setDiscountAnalytics(discounts.data);
-        if (unifiedTrend?.data?.trends) {
-          setAnalyticsTrend(
-            unifiedTrend.data.trends.map((t: any) => ({
-              name: new Date(t.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }),
-              sales: t.sales,
-              profit: t.profit,
-              credit: t.credit,
-              discounts: t.discounts,
-            }))
+        if (discounts?.data) {
+          setDiscountAnalytics(discounts.data);
+
+          const discountTrendMap = new Map(
+            (discounts.data.trend || []).map((entry: any) => [entry.date, Number(entry.total) || 0])
           );
+
+          setDiscountTrendData(
+            (discounts.data.trend || []).length
+              ? trendDates.map((date) => ({
+                  name: formatTrendDateLabel(date, language),
+                  total: discountTrendMap.get(date) || 0,
+                }))
+              : []
+          );
+        } else {
+          setDiscountAnalytics(null);
+          setDiscountTrendData([]);
+        }
+
+        if (unifiedTrend?.data?.trends?.length) {
+          const analyticsTrendMap = new Map(
+            unifiedTrend.data.trends.map((entry: any) => [entry.date, entry])
+          );
+
+          setAnalyticsTrend(
+            trendDates.map((date) => {
+              const entry = analyticsTrendMap.get(date);
+
+              return {
+                name: formatTrendDateLabel(date, language),
+                sales: Number(entry?.sales) || 0,
+                profit: Number(entry?.profit) || 0,
+                credit: Number(entry?.credit) || 0,
+                discounts: Number(entry?.discounts) || 0,
+              };
+            })
+          );
+        } else {
+          setAnalyticsTrend([]);
         }
         if (profit?.data) {
           console.log('[Reports] Profit report data:', profit.data);
@@ -278,6 +321,8 @@ const Reports = () => {
   };
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
+  const hasAnalyticsTrendData = analyticsTrend.some((point) => point.sales > 0 || point.profit > 0 || point.discounts > 0);
+  const hasDiscountTrendData = discountTrendData.some((point) => point.total > 0);
 
   const getSaleProductsLabel = (sale: { items?: string[]; product_names?: string }) => {
     if (sale.items?.length) {
@@ -881,18 +926,27 @@ const Reports = () => {
                 <CardDescription className="text-base">{language === 'sw' ? 'Mauzo, Faida na Punguzo' : 'Sales, Profit and Discounts'}</CardDescription>
               </CardHeader>
               <CardContent className="min-w-0 overflow-hidden h-72 sm:h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={analyticsTrend}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
-                    <Tooltip formatter={(v: number) => formatPrice(v)} />
-                    <Legend />
-                    <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="discounts" stroke="#EF4444" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
+                {hasAnalyticsTrendData ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analyticsTrend} barGap={10}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                      <Tooltip formatter={(v: number) => formatPrice(v)} />
+                      <Legend />
+                      <Bar dataKey="sales" fill="#3B82F6" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="profit" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="discounts" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                    <div>
+                      <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                      <p>{language === 'sw' ? 'Hakuna takwimu za punguzo kwa kipindi hiki.' : 'No discount analytics for this period.'}</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -902,15 +956,30 @@ const Reports = () => {
                   <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Punguzo' : 'Discount Trend'}</CardTitle>
                 </CardHeader>
                 <CardContent className="min-w-0 overflow-hidden h-64 sm:h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={(discountAnalytics?.trend || []).map((t: any) => ({ name: new Date(t.date).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', { day: 'numeric', month: 'short' }), total: t.total }))}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
-                      <Tooltip formatter={(v: number) => formatPrice(v)} />
-                      <Area type="monotone" dataKey="total" stroke="#EF4444" fill="#EF444433" strokeWidth={2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {hasDiscountTrendData ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={discountTrendData}>
+                        <defs>
+                          <linearGradient id="discountBarFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#EF4444" stopOpacity={0.95} />
+                            <stop offset="100%" stopColor="#F87171" stopOpacity={0.45} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                        <Tooltip formatter={(v: number) => formatPrice(v)} />
+                        <Bar dataKey="total" fill="url(#discountBarFill)" radius={[8, 8, 0, 0]} maxBarSize={42} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                      <div>
+                        <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                        <p>{language === 'sw' ? 'Hakuna punguzo lililorekodiwa kwa kipindi hiki.' : 'No discounts recorded for this period.'}</p>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
