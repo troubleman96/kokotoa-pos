@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { eachDayOfInterval, format, subDays } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { reportsApi, graphsApi } from '@/services/api';
@@ -40,7 +40,7 @@ const formatTrendDateLabel = (date: string, language: 'sw' | 'en') =>
 const Reports = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics' | 'profit' | 'credit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'inventory' | 'analytics' | 'profit' | 'credit' | 'discounts'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
@@ -55,8 +55,13 @@ const Reports = () => {
       date: string;
       items_count: number;
       total_amount: number;
+      discount: number;
+      tax: number;
+      net_amount: number;
+      profit?: number;
       payment_method: string;
-      cashier: string;
+      cashier: string | null;
+      is_returned: boolean;
     }>;
     summary: {
       total_sales: number;
@@ -321,14 +326,61 @@ const Reports = () => {
   };
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
-  const hasAnalyticsTrendData = analyticsTrend.some((point) => point.sales > 0 || point.profit > 0 || point.discounts > 0);
-  const hasDiscountTrendData = discountTrendData.some((point) => point.total > 0);
+  const formatPercent = (value: number) => (Number.isFinite(value) ? `${value.toFixed(1)}%` : '0.0%');
+  const hasAnalyticsTrendData = analyticsTrend.some((point) => point.sales > 0 || point.profit > 0 || point.credit > 0 || point.discounts > 0);
+  const effectiveDiscountTrendData = discountTrendData.length
+    ? discountTrendData
+    : analyticsTrend.map((point) => ({ name: point.name, total: point.discounts }));
+  const hasDiscountTrendData = effectiveDiscountTrendData.some((point) => point.total > 0);
+  const discountedSales = useMemo(
+    () =>
+      [...(salesData?.sales || [])]
+        .filter((sale) => Number(sale.discount) > 0 && !sale.is_returned)
+        .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime()),
+    [salesData]
+  );
+  const discountSummary = useMemo(() => {
+    const totalDiscountFromSales = discountedSales.reduce((sum, sale) => sum + (Number(sale.discount) || 0), 0);
+    const transactionCount = discountAnalytics?.summary?.transaction_count ?? discountedSales.length;
+    const totalDiscountAmount = discountAnalytics?.summary?.total_discount_amount ?? totalDiscountFromSales;
+    const averageDiscountPerSale =
+      discountAnalytics?.summary?.average_discount_per_sale ??
+      (transactionCount ? totalDiscountAmount / transactionCount : 0);
+    const discountRatio =
+      discountAnalytics?.summary?.discount_ratio ??
+      (salesData?.summary?.total_sales ? (totalDiscountAmount / salesData.summary.total_sales) * 100 : 0);
+
+    return {
+      totalDiscountAmount,
+      averageDiscountPerSale,
+      discountRatio,
+      transactionCount,
+    };
+  }, [discountAnalytics, discountedSales, salesData]);
 
   const getSaleProductsLabel = (sale: { items?: string[]; product_names?: string }) => {
     if (sale.items?.length) {
       return sale.items.join(', ');
     }
     return sale.product_names || (language === 'sw' ? 'Hakuna bidhaa...' : 'No products listed');
+  };
+
+  const handleDiscountsExport = () => {
+    if (!discountedSales.length) return;
+
+    const exportData = discountedSales.map((sale) => ({
+      Transaction: sale.transaction_number,
+      Date: format(new Date(sale.date), 'yyyy-MM-dd HH:mm'),
+      Items: sale.items_count,
+      Gross: sale.total_amount,
+      Discount: sale.discount,
+      Net: sale.net_amount,
+      Profit: sale.profit || 0,
+      Payment: sale.payment_method,
+      Cashier: sale.cashier || '',
+    }));
+
+    exportToCSV(exportData, 'discounts_report');
   };
 
   const handleRowClick = async (sale: { id: number }) => {
@@ -357,6 +409,7 @@ const Reports = () => {
     { id: 'profit', label: language === 'sw' ? 'Faida' : 'Profit', icon: PiggyBank },
     { id: 'credit', label: language === 'sw' ? 'Madeni' : 'Credit', icon: CreditCard },
     { id: 'inventory', label: language === 'sw' ? 'Hesabu' : 'Inventory', icon: Package },
+    { id: 'discounts', label: language === 'sw' ? 'Punguzo' : 'Discounts', icon: Percent },
   ] as const;
 
   const checkTabsScroll = () => {
@@ -943,7 +996,7 @@ const Reports = () => {
                   <div className="flex h-full items-center justify-center text-center text-muted-foreground">
                     <div>
                       <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
-                      <p>{language === 'sw' ? 'Hakuna takwimu za punguzo kwa kipindi hiki.' : 'No discount analytics for this period.'}</p>
+                      <p>{language === 'sw' ? 'Hakuna data ya takwimu kwa kipindi hiki.' : 'No analytics data for this period.'}</p>
                     </div>
                   </div>
                 )}
@@ -1046,7 +1099,7 @@ const Reports = () => {
                 <CardContent className="min-w-0 overflow-hidden h-64 sm:h-72">
                   {hasDiscountTrendData ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={discountTrendData}>
+                      <BarChart data={effectiveDiscountTrendData}>
                         <defs>
                           <linearGradient id="discountBarFill" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor="#EF4444" stopOpacity={0.95} />
@@ -1203,6 +1256,287 @@ const Reports = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Discounts Tab */}
+        {activeTab === 'discounts' && (
+          <div className="space-y-6">
+            {isLoading ? (
+              <div className="flex text-center py-8 justify-center">
+                <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+                  <Card className="card-kokotoa border-destructive/20 overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Jumla ya Punguzo' : 'Total Discount'}
+                      </CardTitle>
+                      <Percent className="w-4 h-4 text-destructive opacity-60" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
+                        {formatPrice(discountSummary.totalDiscountAmount || 0)}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Wastani kwa Muamala' : 'Average / Sale'}
+                      </CardTitle>
+                      <DollarSign className="w-4 h-4 text-primary opacity-60" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
+                        {formatPrice(discountSummary.averageDiscountPerSale || 0)}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Uwiano wa Punguzo' : 'Discount Ratio'}
+                      </CardTitle>
+                      <TrendingUp className="w-4 h-4 text-primary opacity-60" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
+                        {formatPercent(discountSummary.discountRatio || 0)}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa border-primary/10 overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base font-bold text-muted-foreground uppercase tracking-wider">
+                        {language === 'sw' ? 'Miamala Yenye Punguzo' : 'Discounted Transactions'}
+                      </CardTitle>
+                      <BarChart3 className="w-4 h-4 text-primary opacity-60" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg sm:text-2xl font-black text-foreground">
+                        {discountSummary.transactionCount || 0}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+                  <Card className="card-kokotoa">
+                    <CardHeader>
+                      <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Punguzo' : 'Discount Trend'}</CardTitle>
+                      <CardDescription className="text-base">
+                        {language === 'sw' ? 'Punguzo lililotolewa kwa kila siku ndani ya kipindi hiki' : 'Daily discount amount across the selected period'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="min-w-0 overflow-hidden h-72 sm:h-80">
+                      {hasDiscountTrendData ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={effectiveDiscountTrendData}>
+                            <defs>
+                              <linearGradient id="discountsTabBarFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#EF4444" stopOpacity={0.95} />
+                                <stop offset="100%" stopColor="#F87171" stopOpacity={0.45} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                            <Tooltip formatter={(v: number) => formatPrice(v)} />
+                            <Bar dataKey="total" fill="url(#discountsTabBarFill)" radius={[8, 8, 0, 0]} maxBarSize={42} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                          <div>
+                            <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                            <p>{language === 'sw' ? 'Hakuna punguzo lililorekodiwa kwa kipindi hiki.' : 'No discounts recorded for this date range.'}</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="card-kokotoa">
+                    <CardHeader>
+                      <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Punguzo dhidi ya Mauzo, Faida na Credit' : 'Discounts vs Sales, Profit and Credit'}</CardTitle>
+                      <CardDescription className="text-base">
+                        {language === 'sw' ? 'Linganisha punguzo na vipimo vingine vya biashara kwenye kipindi hiki' : 'Compare discounts against the other core business metrics'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="min-w-0 overflow-hidden h-72 sm:h-80">
+                      {hasAnalyticsTrendData ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={analyticsTrend}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                            <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                            <Tooltip formatter={(v: number) => formatPrice(v)} />
+                            <Legend />
+                            <Line type="monotone" dataKey="discounts" stroke="#EF4444" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                            <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} dot={{ r: 2 }} />
+                            <Line type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} dot={{ r: 2 }} />
+                            <Line type="monotone" dataKey="credit" stroke="#F59E0B" strokeWidth={2} dot={{ r: 2 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                          <div>
+                            <TrendingUp className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                            <p>{language === 'sw' ? 'Hakuna data ya mwenendo wa takwimu kwa kipindi hiki.' : 'No analytics trend data available for this date range.'}</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="card-kokotoa">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Miamala Yenye Punguzo' : 'Discounted Sales Transactions'}</CardTitle>
+                      <CardDescription className="text-base">
+                        {language === 'sw' ? 'Muhtasari wa miamala yote yenye punguzo ndani ya kipindi hiki' : 'All sales where a discount was applied during the selected period'}
+                      </CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={handleDiscountsExport} disabled={!discountedSales.length} className="w-full sm:w-auto">
+                      <Download className="w-4 h-4 mr-2" />
+                      {language === 'sw' ? 'Pakua (CSV)' : 'Download (CSV)'}
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    {discountedSales.length ? (
+                      <div className="space-y-4">
+                        <div className="hidden md:block overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b border-border bg-muted/30">
+                                <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Muamala & Bidhaa' : 'Transaction & Products'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Tarehe' : 'Date'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Vitu' : 'Items'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Bruto' : 'Gross'}</th>
+                                <th className="text-right p-4 font-black text-destructive text-base uppercase tracking-widest">{language === 'sw' ? 'Punguzo' : 'Discount'}</th>
+                                <th className="text-right p-4 font-black text-primary text-base uppercase tracking-widest">{language === 'sw' ? 'Neti' : 'Net'}</th>
+                                <th className="text-right p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Faida' : 'Profit'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Malipo' : 'Payment'}</th>
+                                <th className="text-left p-4 font-black text-muted-foreground text-base uppercase tracking-widest">{language === 'sw' ? 'Cashier' : 'Cashier'}</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/50">
+                              {discountedSales.slice(0, 25).map((sale) => (
+                                <tr
+                                  key={sale.id}
+                                  className="hover:bg-primary/5 transition-all cursor-pointer group border-b border-border/50 last:border-0"
+                                  onClick={() => handleRowClick(sale)}
+                                >
+                                  <td className="p-4">
+                                    <p className="text-base font-bold text-muted-foreground line-clamp-1 max-w-[300px] uppercase tracking-tighter">
+                                      {getSaleProductsLabel(sale)}
+                                    </p>
+                                    <p className="font-mono text-base font-black text-foreground mt-0.5 group-hover:text-primary transition-colors">
+                                      {sale.transaction_number}
+                                    </p>
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="text-base">
+                                      <p className="font-black text-foreground">{new Date(sale.date).toLocaleDateString()}</p>
+                                      <p className="text-base font-bold text-muted-foreground uppercase">{new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                  </td>
+                                  <td className="p-4">
+                                    <span className="px-2.5 py-1 bg-muted rounded-lg text-base font-black uppercase">
+                                      {sale.items_count}
+                                    </span>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="font-black text-base text-foreground tabular-nums">{formatPrice(sale.total_amount)}</p>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="font-black text-base text-destructive tabular-nums">{formatPrice(sale.discount)}</p>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="font-black text-base text-primary tabular-nums">{formatPrice(sale.net_amount)}</p>
+                                  </td>
+                                  <td className="p-4 text-right">
+                                    <p className="font-black text-base text-foreground tabular-nums">
+                                      {typeof sale.profit === 'number' ? formatPrice(sale.profit) : '-'}
+                                    </p>
+                                  </td>
+                                  <td className="p-4">
+                                    <span className="text-base font-black text-muted-foreground uppercase tracking-widest">{sale.payment_method}</span>
+                                  </td>
+                                  <td className="p-4">
+                                    <span className="text-base font-medium text-muted-foreground">{sale.cashier || '-'}</span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 md:hidden">
+                          {discountedSales.slice(0, 20).map((sale) => (
+                            <div
+                              key={sale.id}
+                              className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-3"
+                              onClick={() => handleRowClick(sale)}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                  <p className="text-base font-black text-muted-foreground uppercase line-clamp-1">
+                                    {getSaleProductsLabel(sale)}
+                                  </p>
+                                  <p className="font-mono text-base font-black text-primary truncate">{sale.transaction_number}</p>
+                                </div>
+                                <span className="text-base font-black text-muted-foreground uppercase tracking-wider">
+                                  {new Date(sale.date).toLocaleDateString()}
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div className="rounded-xl bg-muted/30 p-3">
+                                  <p className="text-muted-foreground uppercase tracking-widest text-[10px]">{language === 'sw' ? 'Bruto' : 'Gross'}</p>
+                                  <p className="font-black text-foreground">{formatPrice(sale.total_amount)}</p>
+                                </div>
+                                <div className="rounded-xl bg-destructive/10 p-3">
+                                  <p className="text-destructive uppercase tracking-widest text-[10px]">{language === 'sw' ? 'Punguzo' : 'Discount'}</p>
+                                  <p className="font-black text-destructive">{formatPrice(sale.discount)}</p>
+                                </div>
+                                <div className="rounded-xl bg-primary/10 p-3">
+                                  <p className="text-primary uppercase tracking-widest text-[10px]">{language === 'sw' ? 'Neti' : 'Net'}</p>
+                                  <p className="font-black text-primary">{formatPrice(sale.net_amount)}</p>
+                                </div>
+                                <div className="rounded-xl bg-muted/30 p-3">
+                                  <p className="text-muted-foreground uppercase tracking-widest text-[10px]">{language === 'sw' ? 'Faida' : 'Profit'}</p>
+                                  <p className="font-black text-foreground">{typeof sale.profit === 'number' ? formatPrice(sale.profit) : '-'}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between text-base text-muted-foreground">
+                                <span className="font-bold uppercase">{sale.payment_method}</span>
+                                <span>{sale.cashier || '-'}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Percent className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                        <p className="text-muted-foreground">
+                          {language === 'sw' ? 'Hakuna miamala yenye punguzo kwa kipindi hiki.' : 'No discounted sales found for this period.'}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         )}
 
