@@ -920,6 +920,36 @@ const Reports = () => {
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
           <div className="space-y-4 sm:space-y-6 overflow-hidden">
+            <Card className="card-kokotoa">
+              <CardHeader>
+                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Takwimu' : 'Analytics Trend'}</CardTitle>
+                <CardDescription className="text-base">{language === 'sw' ? 'Mauzo, Faida na Punguzo' : 'Sales, Profit and Discounts'}</CardDescription>
+              </CardHeader>
+              <CardContent className="min-w-0 overflow-hidden h-72 sm:h-80">
+                {hasAnalyticsTrendData ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analyticsTrend} barGap={10}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
+                      <Tooltip formatter={(v: number) => formatPrice(v)} />
+                      <Legend />
+                      <Bar dataKey="sales" fill="#3B82F6" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="profit" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                      <Bar dataKey="discounts" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={28} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                    <div>
+                      <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                      <p>{language === 'sw' ? 'Hakuna takwimu za punguzo kwa kipindi hiki.' : 'No discount analytics for this period.'}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Daily Profit Trend */}
               <Card className="card-kokotoa">
@@ -1007,36 +1037,6 @@ const Reports = () => {
                 </CardContent>
               </Card>
             </div>
-
-            <Card className="card-kokotoa">
-              <CardHeader>
-                <CardTitle className="text-base sm:text-lg">{language === 'sw' ? 'Mwenendo wa Takwimu' : 'Analytics Trend'}</CardTitle>
-                <CardDescription className="text-base">{language === 'sw' ? 'Mauzo, Faida na Punguzo' : 'Sales, Profit and Discounts'}</CardDescription>
-              </CardHeader>
-              <CardContent className="min-w-0 overflow-hidden h-72 sm:h-80">
-                {hasAnalyticsTrendData ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analyticsTrend} barGap={10}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `TSh ${v >= 1000 ? `${Math.round(v / 1000)}k` : v}`} />
-                      <Tooltip formatter={(v: number) => formatPrice(v)} />
-                      <Legend />
-                      <Bar dataKey="sales" fill="#3B82F6" radius={[6, 6, 0, 0]} maxBarSize={28} />
-                      <Bar dataKey="profit" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={28} />
-                      <Bar dataKey="discounts" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={28} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex h-full items-center justify-center text-center text-muted-foreground">
-                    <div>
-                      <Percent className="mx-auto mb-3 h-10 w-10 opacity-50" />
-                      <p>{language === 'sw' ? 'Hakuna takwimu za punguzo kwa kipindi hiki.' : 'No discount analytics for this period.'}</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6">
               <Card className="card-kokotoa">
