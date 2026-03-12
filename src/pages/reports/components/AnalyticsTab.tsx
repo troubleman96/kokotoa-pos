@@ -2,6 +2,8 @@ import { AlertTriangle, Percent, TrendingUp } from 'lucide-react';
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   Cell,
   Legend,
