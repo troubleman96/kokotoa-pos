@@ -2,11 +2,11 @@ import { AlertTriangle, Percent, TrendingUp } from 'lucide-react';
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { REPORT_CHART_COLORS } from '../config';
 import type {
   AnalyticsTrendPoint,
+  CreditTrendPoint,
   DiscountTrendPoint,
   LowStockProductPoint,
   NamedProfitPoint,
@@ -30,10 +31,12 @@ import { formatCurrencyTick, formatPrice } from '../utils';
 
 interface AnalyticsTabProps {
   analyticsTrend: AnalyticsTrendPoint[];
+  creditTrendData: CreditTrendPoint[];
   dailyProfitTrend: NamedProfitPoint[];
   dailyTrend: NamedSalesPoint[];
   effectiveDiscountTrendData: DiscountTrendPoint[];
   hasAnalyticsTrendData: boolean;
+  hasCreditTrendData: boolean;
   hasDiscountTrendData: boolean;
   inventoryValue: NamedValuePoint[];
   language: ReportLanguage;
@@ -45,10 +48,12 @@ interface AnalyticsTabProps {
 
 const AnalyticsTab = ({
   analyticsTrend,
+  creditTrendData,
   dailyProfitTrend,
   dailyTrend,
   effectiveDiscountTrendData,
   hasAnalyticsTrendData,
+  hasCreditTrendData,
   hasDiscountTrendData,
   inventoryValue,
   language,
@@ -64,22 +69,25 @@ const AnalyticsTab = ({
           {language === 'sw' ? 'Mwenendo wa Takwimu' : 'Analytics Trend'}
         </CardTitle>
         <CardDescription className="text-base">
-          {language === 'sw' ? 'Mauzo, Faida na Punguzo' : 'Sales, Profit and Discounts'}
+          {language === 'sw'
+            ? 'Mauzo, Faida, Punguzo na Credit'
+            : 'Sales, Profit, Discounts and Credit'}
         </CardDescription>
       </CardHeader>
       <CardContent className="h-72 min-w-0 overflow-hidden sm:h-80">
         {hasAnalyticsTrendData ? (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={analyticsTrend} barGap={10}>
+            <LineChart data={analyticsTrend}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
               <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrencyTick} />
               <Tooltip formatter={(value: number) => formatPrice(value)} />
               <Legend />
-              <Bar dataKey="sales" fill="#3B82F6" radius={[6, 6, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="profit" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="discounts" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={28} />
-            </BarChart>
+              <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={3} dot={{ r: 2 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={3} dot={{ r: 2 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="discounts" stroke="#EF4444" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="credit" stroke="#F59E0B" strokeWidth={3} dot={{ r: 2 }} activeDot={{ r: 5 }} />
+            </LineChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex h-full items-center justify-center text-center text-muted-foreground">
@@ -195,29 +203,34 @@ const AnalyticsTab = ({
       </Card>
     </div>
 
-    <div className="grid grid-cols-1 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
       <Card className="card-kokotoa">
         <CardHeader>
           <CardTitle className="text-base sm:text-lg">
             {language === 'sw' ? 'Mwenendo wa Punguzo' : 'Discount Trend'}
           </CardTitle>
+          <CardDescription className="text-base">
+            {language === 'sw'
+              ? 'Punguzo kwa muda mrefu ndani ya kipindi kilichochaguliwa'
+              : 'Discount movement over the selected period'}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="h-64 min-w-0 overflow-hidden sm:h-72">
+        <CardContent className="h-64 min-w-0 overflow-hidden sm:h-80">
           {hasDiscountTrendData ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={effectiveDiscountTrendData}>
+              <AreaChart data={effectiveDiscountTrendData}>
                 <defs>
-                  <linearGradient id="discountBarFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#EF4444" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#F87171" stopOpacity={0.45} />
+                  <linearGradient id="discountAreaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.32} />
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
                 <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrencyTick} />
                 <Tooltip formatter={(value: number) => formatPrice(value)} />
-                <Bar dataKey="total" fill="url(#discountBarFill)" radius={[8, 8, 0, 0]} maxBarSize={42} />
-              </BarChart>
+                <Area type="monotone" dataKey="total" stroke="#EF4444" strokeWidth={3} fillOpacity={1} fill="url(#discountAreaFill)" />
+              </AreaChart>
             </ResponsiveContainer>
           ) : (
             <div className="flex h-full items-center justify-center text-center text-muted-foreground">
@@ -227,6 +240,49 @@ const AnalyticsTab = ({
                   {language === 'sw'
                     ? 'Hakuna punguzo lililorekodiwa kwa kipindi hiki.'
                     : 'No discounts recorded for this period.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="card-kokotoa">
+        <CardHeader>
+          <CardTitle className="text-base sm:text-lg">
+            {language === 'sw' ? 'Mwenendo wa Credit' : 'Credit Trend'}
+          </CardTitle>
+          <CardDescription className="text-base">
+            {language === 'sw'
+              ? 'Credit kwa muda mrefu ndani ya kipindi kilichochaguliwa'
+              : 'Credit movement over the selected period'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="h-64 min-w-0 overflow-hidden sm:h-80">
+          {hasCreditTrendData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={creditTrendData}>
+                <defs>
+                  <linearGradient id="creditAreaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.32} />
+                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={formatCurrencyTick} />
+                <Tooltip formatter={(value: number) => formatPrice(value)} />
+                <Area type="monotone" dataKey="total" stroke="#F59E0B" strokeWidth={3} fillOpacity={1} fill="url(#creditAreaFill)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+              <div>
+                <TrendingUp className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                <p>
+                  {language === 'sw'
+                    ? 'Hakuna credit iliyorekodiwa kwa kipindi hiki.'
+                    : 'No credit recorded for this period.'}
                 </p>
               </div>
             </div>

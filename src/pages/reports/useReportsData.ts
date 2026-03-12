@@ -5,6 +5,7 @@ import { graphsApi, reportsApi, Sale } from '@/services/api';
 import type {
   AnalyticsTrendPoint,
   CreditAnalyticsData,
+  CreditTrendPoint,
   DailySummaryData,
   DashboardReportData,
   DiscountAnalyticsData,
@@ -48,6 +49,7 @@ export const useReportsData = ({ activeTab, dateRange, language }: UseReportsDat
   const [dailyProfitTrend, setDailyProfitTrend] = useState<NamedProfitPoint[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProductPoint[]>([]);
   const [analyticsTrend, setAnalyticsTrend] = useState<AnalyticsTrendPoint[]>([]);
+  const [creditTrendData, setCreditTrendData] = useState<CreditTrendPoint[]>([]);
   const [discountTrendData, setDiscountTrendData] = useState<DiscountTrendPoint[]>([]);
 
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
@@ -92,7 +94,23 @@ export const useReportsData = ({ activeTab, dateRange, language }: UseReportsDat
         }
 
         if (credit?.data) {
-          setCreditAnalytics(credit.data as CreditAnalyticsData);
+          const creditData = credit.data as CreditAnalyticsData;
+          const creditTrendMap = new Map(
+            (creditData.trend || []).map((entry) => [entry.date, Number(entry.total) || 0])
+          );
+
+          setCreditAnalytics(creditData);
+          setCreditTrendData(
+            (creditData.trend || []).length
+              ? trendDates.map((date) => ({
+                  name: formatTrendDateLabel(date, language),
+                  total: creditTrendMap.get(date) || 0,
+                }))
+              : []
+          );
+        } else {
+          setCreditAnalytics(null);
+          setCreditTrendData([]);
         }
 
         if (discounts?.data) {
@@ -349,6 +367,7 @@ export const useReportsData = ({ activeTab, dateRange, language }: UseReportsDat
   const hasAnalyticsTrendData = analyticsTrend.some(
     (point) => point.sales > 0 || point.profit > 0 || point.credit > 0 || point.discounts > 0
   );
+  const hasCreditTrendData = creditTrendData.some((point) => point.total > 0);
   const effectiveDiscountTrendData = discountTrendData.length
     ? discountTrendData
     : analyticsTrend.map((point) => ({ name: point.name, total: point.discounts }));
@@ -397,6 +416,7 @@ export const useReportsData = ({ activeTab, dateRange, language }: UseReportsDat
   return {
     analyticsTrend,
     creditAnalytics,
+    creditTrendData,
     dailyProfitTrend,
     dailySummary,
     dailyTrend,
@@ -409,6 +429,7 @@ export const useReportsData = ({ activeTab, dateRange, language }: UseReportsDat
     handleRowClick,
     handleSalesExport,
     hasAnalyticsTrendData,
+    hasCreditTrendData,
     hasDiscountTrendData,
     inventoryData,
     inventoryValue,

@@ -122,6 +122,11 @@ export interface DiscountTrendPoint {
   total: number;
 }
 
+export interface CreditTrendPoint {
+  name: string;
+  total: number;
+}
+
 export interface CreditAnalyticsData {
   summary?: {
     total_credit_amount: number;

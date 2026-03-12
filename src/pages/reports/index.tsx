@@ -25,6 +25,7 @@ const Reports = () => {
   const {
     analyticsTrend,
     creditAnalytics,
+    creditTrendData,
     dailyProfitTrend,
     dailySummary,
     dailyTrend,
@@ -37,6 +38,7 @@ const Reports = () => {
     handleRowClick,
     handleSalesExport,
     hasAnalyticsTrendData,
+    hasCreditTrendData,
     hasDiscountTrendData,
     inventoryData,
     inventoryValue,
@@ -90,10 +92,12 @@ const Reports = () => {
         return (
           <AnalyticsTab
             analyticsTrend={analyticsTrend}
+            creditTrendData={creditTrendData}
             dailyProfitTrend={dailyProfitTrend}
             dailyTrend={dailyTrend}
             effectiveDiscountTrendData={effectiveDiscountTrendData}
             hasAnalyticsTrendData={hasAnalyticsTrendData}
+            hasCreditTrendData={hasCreditTrendData}
             hasDiscountTrendData={hasDiscountTrendData}
             inventoryValue={inventoryValue}
             language={language}
