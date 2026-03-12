@@ -76,11 +76,11 @@ interface SubscriptionStatus {
   subscription_activated: string | null;
   days_remaining?: number; // legacy support if needed
   subscription?: {
-    package: SubscriptionPackage;
-    expires_at: string;
-    payment_reference: string;
+    package?: SubscriptionPackage | null;
+    expires_at?: string | null;
+    payment_reference?: string | null;
     granted_at?: string;
-  };
+  } | null;
   message?: string; // For error/info cases
 }
 

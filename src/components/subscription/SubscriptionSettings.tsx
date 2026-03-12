@@ -23,14 +23,23 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
     }
 
     const { status, status_display, subscription } = subscriptionStatus;
+    const activePackage = subscription?.package;
 
     const formatDate = (dateString?: string | null) => {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', {
+        const parsedDate = new Date(dateString);
+        if (Number.isNaN(parsedDate.getTime())) return '-';
+
+        return parsedDate.toLocaleDateString(language === 'sw' ? 'sw-TZ' : 'en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
+    };
+
+    const formatNumber = (value?: number | null) => {
+        if (typeof value !== 'number') return '-';
+        return value.toLocaleString();
     };
 
     return (
@@ -95,7 +104,7 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
                     )}
 
                     {/* Active Subscription */}
-                    {status === 'ACTIVE' && subscription && (
+                    {status === 'ACTIVE' && activePackage && (
                         <div className="grid gap-6 md:grid-cols-2">
                             <div className="space-y-4">
                                 <div>
@@ -103,20 +112,20 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
                                         {language === 'sw' ? 'Kifurushi' : 'Package'}
                                     </h4>
                                     <p className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                                        {subscription.package.name}
+                                        {activePackage.name}
                                     </p>
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-sm text-muted-foreground mb-1">
                                         {language === 'sw' ? 'Gharama' : 'Price'}
                                     </h4>
-                                    <p className="text-lg font-semibold">{subscription.package.price_display}/{language === 'sw' ? 'mwezi' : 'mo'}</p>
+                                    <p className="text-lg font-semibold">{activePackage.price_display}/{language === 'sw' ? 'mwezi' : 'mo'}</p>
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-sm text-muted-foreground mb-1">
                                         {language === 'sw' ? 'Tarehe ya Kuisha' : 'Expiry Date'}
                                     </h4>
-                                    <p className="text-lg font-semibold">{formatDate(subscription.expires_at)}</p>
+                                    <p className="text-lg font-semibold">{formatDate(subscription?.expires_at)}</p>
                                 </div>
                             </div>
 
@@ -128,18 +137,39 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
                                 <ul className="space-y-2 text-sm text-muted-foreground">
                                     <li className="flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                        {language === 'sw' ? `Hadi maduka ${subscription.package.max_stores}` : `Up to ${subscription.package.max_stores} stores`}
+                                        {language === 'sw' ? `Hadi maduka ${formatNumber(activePackage.max_stores)}` : `Up to ${formatNumber(activePackage.max_stores)} stores`}
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                        {language === 'sw' ? `${subscription.package.max_users_per_store} watumiaji kwa duka` : `${subscription.package.max_users_per_store} users per store`}
+                                        {language === 'sw' ? `${formatNumber(activePackage.max_users_per_store)} watumiaji kwa duka` : `${formatNumber(activePackage.max_users_per_store)} users per store`}
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                        {language === 'sw' ? `Bidhaa ${subscription.package.max_products.toLocaleString()}` : `${subscription.package.max_products.toLocaleString()} products`}
+                                        {language === 'sw' ? `Bidhaa ${formatNumber(activePackage.max_products)}` : `${formatNumber(activePackage.max_products)} products`}
                                     </li>
                                 </ul>
                             </div>
+                        </div>
+                    )}
+
+                    {status === 'ACTIVE' && !activePackage && (
+                        <div className="bg-primary/5 p-6 rounded-xl border border-primary/20 text-center">
+                            <AlertTriangle className="w-12 h-12 text-primary mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-foreground mb-2">
+                                {language === 'sw' ? 'Usajili Upo Hai' : 'Subscription Active'}
+                            </h3>
+                            <p className="text-muted-foreground mb-2">
+                                {language === 'sw'
+                                    ? 'Taarifa za kifurushi chako bado hazijakamilika. Ukurasa utaendelea kufanya kazi bila kuvunjika.'
+                                    : 'Your package details are temporarily unavailable. The page stays usable while the data finishes syncing.'
+                                }
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {language === 'sw'
+                                    ? `Tarehe ya kuisha: ${formatDate(subscription?.expires_at)}`
+                                    : `Expiry date: ${formatDate(subscription?.expires_at)}`
+                                }
+                            </p>
                         </div>
                     )}
 

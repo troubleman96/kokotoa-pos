@@ -223,7 +223,7 @@ const SettingsPage = () => {
 
         if (subRes.success) setSubscriptionStatus(subRes.data);
         if (storesRes.success) {
-          const maxStores = subRes.data?.subscription?.package.max_stores || 1;
+          const maxStores = subRes.data?.subscription?.package?.max_stores || 1;
           setStoreLimit({
             current: storesRes.data.length,
             max: maxStores
