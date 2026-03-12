@@ -742,7 +742,9 @@ const SettingsPage = () => {
                     {language === 'sw' ? 'Onyesha Risiti Baada ya Mauzo' : 'Show Receipt After Sale'}
                   </span>
                   <span className="text-[10px] sm:text-xs text-muted-foreground">
-                    {language === 'sw' ? 'Fungua dirisha la risiti kiotomatiki mauzo yanapokamilika' : 'Automatically open receipt modal when sale is complete'}
+                    {language === 'sw'
+                      ? 'Imezimwa kwa chaguo-msingi. Washa ukiwa unataka dirisha la risiti lifunguke kiotomatiki mauzo yanapokamilika.'
+                      : 'Off by default. Turn this on if you want the receipt modal to open automatically after each completed sale.'}
                   </span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">

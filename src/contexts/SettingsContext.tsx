@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface Settings {
     showReceiptAfterSale: boolean;
+    receiptPreferenceConfigured: boolean;
 }
 
 interface SettingsContextType {
@@ -10,7 +11,8 @@ interface SettingsContextType {
 }
 
 const defaultSettings: Settings = {
-    showReceiptAfterSale: true,
+    showReceiptAfterSale: false,
+    receiptPreferenceConfigured: false,
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -18,7 +20,27 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     const [settings, setSettings] = useState<Settings>(() => {
         const saved = localStorage.getItem('kokotoa_settings');
-        return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+        if (!saved) return defaultSettings;
+
+        try {
+            const parsed = JSON.parse(saved) as Partial<Settings>;
+
+            // Legacy settings stored the old auto-open default without tracking user intent.
+            // Reset those users to the new off-by-default behavior unless they explicitly reconfigure.
+            if (typeof parsed.receiptPreferenceConfigured !== 'boolean') {
+                return {
+                    ...defaultSettings,
+                    ...parsed,
+                    showReceiptAfterSale: false,
+                    receiptPreferenceConfigured: false,
+                };
+            }
+
+            return { ...defaultSettings, ...parsed };
+        } catch (error) {
+            console.error('Failed to parse saved settings:', error);
+            return defaultSettings;
+        }
     });
 
     useEffect(() => {
@@ -26,7 +48,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     }, [settings]);
 
     const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
-        setSettings((prev) => ({ ...prev, [key]: value }));
+        setSettings((prev) => ({
+            ...prev,
+            [key]: value,
+            ...(key === 'showReceiptAfterSale' ? { receiptPreferenceConfigured: true } : {}),
+        }));
     };
 
     return (
