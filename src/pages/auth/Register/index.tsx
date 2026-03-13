@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { TANZANIA_PHONE_PREFIX, extractTanzaniaPhoneLocalPart, normalizeTanzaniaPhone } from '@/lib/phone';
 import { ArrowRight, Lock, Phone, User, CheckCircle, Eye, EyeOff, Mail } from 'lucide-react';
 
 const Register = () => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { register } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +19,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    phone: '+255',
+    phone: '',
     email: '',
     promo_code: '',
     password: '',
@@ -27,17 +27,7 @@ const Register = () => {
   });
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    // Always ensure +255 is at the start
-    if (!value.startsWith('+255')) {
-      // If they tried to delete part of it, put it back
-      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
-        value = '+255';
-      } else {
-        value = '+255' + value.replace(/^\+?\d*/, '');
-      }
-    }
-    setFormData({ ...formData, phone: value });
+    setFormData({ ...formData, phone: extractTanzaniaPhoneLocalPart(e.target.value) });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,9 +52,11 @@ const Register = () => {
     }
 
     setIsLoading(true);
+    const normalizedPhone = normalizeTanzaniaPhone(formData.phone);
     try {
       await register({
         ...formData,
+        phone: normalizedPhone,
         promo_code: formData.promo_code.trim() || undefined,
         email: formData.email.trim() || undefined,
       });
@@ -175,17 +167,22 @@ const Register = () => {
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground sm:text-base">
+                      {TANZANIA_PHONE_PREFIX}
+                    </span>
                     <Input
                       type="tel"
-                      placeholder="+255xxxxxxxxx"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      placeholder="698993300"
                       value={formData.phone}
                       onChange={handlePhoneChange}
-                      className="pl-12 h-12 bg-background"
+                      className="h-12 bg-background pl-[5.8rem]"
                       required
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Anza na +255 (Mfano: +255712345678)' : 'Start with +255 (e.g., +255712345678)'}
+                    {language === 'sw' ? 'Ingiza namba, +255 itaongezwa moja kwa moja' : 'Enter the number and we will add +255 automatically'}
                   </p>
                 </div>
 
@@ -233,6 +230,7 @@ const Register = () => {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    autoComplete="new-password"
                     className="pl-12 pr-12 h-12 bg-background"
                     required
                   />
@@ -273,6 +271,7 @@ const Register = () => {
                     placeholder="••••••••"
                     value={formData.password_confirm}
                     onChange={(e) => setFormData({ ...formData, password_confirm: e.target.value })}
+                    autoComplete="new-password"
                     className={`pl-12 pr-12 h-12 bg-background ${formData.password_confirm && formData.password !== formData.password_confirm ? 'border-destructive' : ''}`}
                     required
                   />

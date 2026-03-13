@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { TANZANIA_PHONE_PREFIX, extractTanzaniaPhoneLocalPart, normalizeTanzaniaPhone } from '@/lib/phone';
 import { ArrowRight, Lock, Phone, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
@@ -15,27 +16,21 @@ const Login = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ phone: '+255', password: '' });
+  const [formData, setFormData] = useState({ phone: '', password: '' });
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    if (!value.startsWith('+255')) {
-      if (value.startsWith('+25') || value.startsWith('+2') || value.startsWith('+')) {
-        value = '+255';
-      } else {
-        value = '+255' + value.replace(/^\+?\d*/, '');
-      }
-    }
-    setFormData({ ...formData, phone: value });
+    setFormData({ ...formData, phone: extractTanzaniaPhoneLocalPart(e.target.value) });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('[Login] Attempting login with phone:', formData.phone);
+    const normalizedPhone = normalizeTanzaniaPhone(formData.phone);
+
+    console.log('[Login] Attempting login with phone:', normalizedPhone);
     try {
       console.log('[Login] Calling login function...');
-      await login(formData.phone, formData.password);
+      await login(normalizedPhone, formData.password);
       console.log('[Login] Login function completed successfully');
       toast({
         title: language === 'sw' ? 'Karibu tena!' : 'Welcome back!',
@@ -55,7 +50,7 @@ const Login = () => {
       // Check for specific error structure from backend
       if (error?.errors) {
         if (error.errors.requires_phone_verification) {
-          navigate('/verify-phone', { state: { phone: formData.phone } });
+          navigate('/verify-phone', { state: { phone: normalizedPhone } });
           return;
         }
 
@@ -117,17 +112,22 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
+                  <span className="absolute left-11 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground sm:left-12 sm:text-base">
+                    {TANZANIA_PHONE_PREFIX}
+                  </span>
                   <Input
                     type="tel"
-                    placeholder="+255xxxxxxxxx"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="698993300"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    className="h-11 bg-background pl-11 text-sm sm:h-12 sm:pl-12"
+                    className="h-11 bg-background pl-[5.6rem] text-sm sm:h-12 sm:pl-[6.2rem]"
                     required
                   />
                 </div>
                 <p className="mt-1 text-[10px] leading-tight text-muted-foreground">
-                  {language === 'sw' ? 'Hakikisha unaanza na +255' : 'Make sure to start with +255'}
+                  {language === 'sw' ? 'Ingiza namba, +255 itaongezwa moja kwa moja' : 'Enter the number and we will add +255 automatically'}
                 </p>
               </div>
 
@@ -144,6 +144,7 @@ const Login = () => {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    autoComplete="current-password"
                     className="h-11 bg-background pl-11 pr-11 text-sm sm:h-12 sm:pl-12 sm:pr-12"
                     required
                   />
