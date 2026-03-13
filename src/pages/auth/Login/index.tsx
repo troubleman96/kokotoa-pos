@@ -119,7 +119,7 @@ const Login = () => {
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel"
-                    placeholder="698993300"
+                    placeholder="xxx xxx xxx"
                     value={formData.phone}
                     onChange={handlePhoneChange}
                     className="h-11 bg-background pl-[5.6rem] text-sm sm:h-12 sm:pl-[6.2rem]"

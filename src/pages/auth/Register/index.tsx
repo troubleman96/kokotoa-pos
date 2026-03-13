@@ -174,7 +174,7 @@ const Register = () => {
                       type="tel"
                       inputMode="numeric"
                       autoComplete="tel"
-                      placeholder="698993300"
+                      placeholder="xxx xxx xxx"
                       value={formData.phone}
                       onChange={handlePhoneChange}
                       className="h-12 bg-background pl-[5.8rem]"
