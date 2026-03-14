@@ -22,6 +22,51 @@ if (import.meta.env.DEV) {
   console.log('[API] Base URL:', API_BASE_URL);
 }
 
+const getSharedCookieDomain = () => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const { hostname } = window.location;
+  const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+
+  if (
+    hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    isIpAddress
+  ) {
+    return undefined;
+  }
+
+  if (hostname === 'kokotoa.online' || hostname.endsWith('.kokotoa.online')) {
+    return '.kokotoa.online';
+  }
+
+  return undefined;
+};
+
+const getCookieBaseOptions = () => {
+  const isSecure = typeof window !== 'undefined' ? window.location.protocol === 'https:' : false;
+  const domain = getSharedCookieDomain();
+
+  return {
+    path: '/',
+    secure: isSecure,
+    sameSite: 'lax' as const,
+    ...(domain ? { domain } : {}),
+  };
+};
+
+const removeCookieEverywhere = (name: string) => {
+  Cookies.remove(name, { path: '/' });
+
+  const domain = getSharedCookieDomain();
+  if (domain) {
+    Cookies.remove(name, { path: '/', domain });
+  }
+};
+
 interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -114,9 +159,11 @@ class ApiService {
   setAccessToken(token: string | null) {
     this.accessToken = token;
     if (token) {
+      Cookies.set('access_token', token, getCookieBaseOptions());
       localStorage.setItem('jwt_token', token);
       localStorage.setItem('access_token', token);
     } else {
+      removeCookieEverywhere('access_token');
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('access_token');
     }
@@ -124,18 +171,17 @@ class ApiService {
 
   getAccessToken(): string | null {
     if (this.accessToken) return this.accessToken;
-    const token = localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
+    const token = Cookies.get('access_token') || localStorage.getItem('jwt_token') || localStorage.getItem('access_token');
     if (token) this.accessToken = token;
     return token;
   }
 
   setRefreshToken(token: string | null) {
     if (token) {
-      const isSecure = typeof window !== 'undefined' ? window.location.protocol === 'https:' : false;
-      Cookies.set('refresh_token', token, { expires: 30, secure: isSecure, sameSite: 'strict' });
+      Cookies.set('refresh_token', token, { ...getCookieBaseOptions(), expires: 30 });
       localStorage.setItem('refresh_token', token); // Fallback
     } else {
-      Cookies.remove('refresh_token');
+      removeCookieEverywhere('refresh_token');
       localStorage.removeItem('refresh_token');
     }
   }
