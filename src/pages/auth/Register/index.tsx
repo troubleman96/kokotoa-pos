@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { TANZANIA_PHONE_PREFIX, extractTanzaniaPhoneLocalPart, normalizeTanzaniaPhone } from '@/lib/phone';
+import {
+  TANZANIA_PHONE_FORMAT,
+  TANZANIA_PHONE_PREFIX,
+  formatTanzaniaPhoneLocalPart,
+  isAllowedTanzaniaPhoneInput,
+  normalizeTanzaniaPhone,
+} from '@/lib/phone';
 import { ArrowRight, Lock, Phone, User, CheckCircle, Eye, EyeOff, Mail } from 'lucide-react';
 
 const Register = () => {
@@ -25,9 +31,18 @@ const Register = () => {
     password: '',
     password_confirm: '',
   });
+  const phoneFormatMessage = language === 'sw'
+    ? `Tumia muundo ${TANZANIA_PHONE_FORMAT} pekee`
+    : `Use only the ${TANZANIA_PHONE_FORMAT} format`;
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, phone: extractTanzaniaPhoneLocalPart(e.target.value) });
+    const nextValue = e.target.value;
+
+    if (!isAllowedTanzaniaPhoneInput(nextValue)) {
+      return;
+    }
+
+    setFormData((current) => ({ ...current, phone: formatTanzaniaPhoneLocalPart(nextValue) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,8 +66,18 @@ const Register = () => {
       return;
     }
 
-    setIsLoading(true);
     const normalizedPhone = normalizeTanzaniaPhone(formData.phone);
+
+    if (!normalizedPhone) {
+      toast({
+        title: language === 'sw' ? 'Kosa!' : 'Error!',
+        description: phoneFormatMessage,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
     try {
       await register({
         ...formData,
@@ -174,15 +199,21 @@ const Register = () => {
                       type="tel"
                       inputMode="numeric"
                       autoComplete="tel"
-                      placeholder="xxx xxx xxx"
+                      placeholder="712 345 678"
                       value={formData.phone}
                       onChange={handlePhoneChange}
+                      minLength={11}
+                      maxLength={11}
+                      pattern="[0-9]{3} [0-9]{3} [0-9]{3}"
+                      title={phoneFormatMessage}
                       className="h-12 bg-background pl-[5.8rem]"
                       required
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    {language === 'sw' ? 'Ingiza namba, +255 itaongezwa moja kwa moja' : 'Enter the number and we will add +255 automatically'}
+                    {language === 'sw'
+                      ? `Ingiza namba kwa muundo ${TANZANIA_PHONE_FORMAT}`
+                      : `Enter the number in ${TANZANIA_PHONE_FORMAT} format`}
                   </p>
                 </div>
 
