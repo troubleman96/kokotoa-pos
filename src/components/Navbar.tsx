@@ -74,60 +74,68 @@ const Navbar = () => {
         className={`fixed inset-0 z-[999] ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
         aria-hidden={!isOpen}
       >
-        {/* Full opaque overlay to hide all background content */}
         <div
           onClick={() => setIsOpen(false)}
-          className={`absolute inset-0 bg-black transition-opacity duration-200 ${
+          className={`menu-overlay-blur absolute inset-0 transition-opacity duration-300 ${
             isOpen ? 'opacity-100' : 'opacity-0'
           }`}
         />
 
-        {/* Professional side panel */}
         <aside
-          className={`absolute right-0 top-0 h-full w-[88%] md:w-[38%] max-w-[460px]
-            bg-card text-card-foreground opacity-100 isolate
-            border-l border-border shadow-2xl
+          className={`menu-panel-glass absolute right-0 top-0 h-full w-[min(88vw,25rem)] md:w-[min(38vw,29rem)]
+            overflow-hidden text-card-foreground isolate
+            border-l border-border/60
             transform transition-transform duration-300 ease-out
             ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
           role="dialog"
           aria-modal="true"
         >
-          <div className="h-full flex flex-col p-5 md:p-6">
-            <div className="flex items-center justify-between pb-4 border-b border-border/70">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-primary/12 via-primary/5 to-transparent" />
+
+          <div className="relative flex h-full flex-col p-5 md:p-6">
+            <div className="flex items-center justify-between border-b border-border/60 pb-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Navigation</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Navigation</p>
                 <span className="font-display font-semibold text-foreground">KOKOTOA Menu</span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-md text-foreground hover:bg-muted"
+                className="rounded-2xl border border-border/50 bg-background/10 p-2 text-foreground backdrop-blur-sm transition-colors hover:bg-muted/50"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mt-5 space-y-2">
+            <div className="mt-5 rounded-[1.75rem] border border-border/45 bg-background/10 p-2 backdrop-blur-sm">
+              <p className="px-3 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                {language === 'sw' ? 'Kurasa' : 'Pages'}
+              </p>
+
+              <div className="space-y-1.5">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-3 py-3 rounded-xl font-medium transition-colors ${
+                  className={`block rounded-2xl border px-3 py-3.5 font-medium transition-all duration-200 ${
                     isActive(link.path)
-                      ? 'text-primary bg-primary/10 border border-primary/30'
-                      : 'text-foreground hover:bg-muted border border-transparent'
+                      ? 'border-primary/30 bg-primary/12 text-primary shadow-[inset_0_1px_0_hsl(0_0%_100%_/_0.05)]'
+                      : 'border-transparent text-foreground hover:border-border/50 hover:bg-background/20'
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
+              </div>
             </div>
 
-            <div className="mt-auto pt-6 border-t border-border/70">
+            <div className="mt-auto border-t border-border/60 pt-6">
               <p className="text-xs text-muted-foreground">
-                Chagua ukurasa kutoka menyu hii.
+                {language === 'sw'
+                  ? 'Chagua ukurasa kutoka menyu hii.'
+                  : 'Choose any page from this menu.'}
               </p>
             </div>
           </div>

@@ -36,10 +36,10 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
     return (
         <>
-            <aside className={`fixed lg:sticky lg:top-0 lg:h-screen inset-y-0 left-0 z-50 w-72 bg-card border-r border-border transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none`}>
+            <aside className={`menu-panel-glass fixed inset-y-0 left-0 z-50 w-72 border-r border-border/60 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-all duration-300 ease-in-out shadow-2xl lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:[background:hsl(var(--card))] lg:[backdrop-filter:none] lg:[-webkit-backdrop-filter:none] lg:shadow-none`}>
                 <div className="flex flex-col h-full overflow-hidden">
                     {/* Fixed Header */}
-                    <div className="p-6 border-b border-border bg-card/50 backdrop-blur-md flex-none relative">
+                    <div className="p-6 border-b border-border/60 bg-card/45 backdrop-blur-md flex-none relative">
                         <Link to="/dashboard" className="flex flex-col gap-4 group">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-105 shadow-inner">
@@ -116,7 +116,7 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
             </aside>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
+                <div className="menu-overlay-blur fixed inset-0 z-40 lg:hidden" onClick={onClose} />
             )}
         </>
     );

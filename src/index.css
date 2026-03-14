@@ -235,6 +235,25 @@
     background: hsl(var(--background) / 0.8);
   }
 
+  .menu-overlay-blur {
+    background:
+      radial-gradient(circle at top, hsl(var(--primary) / 0.12), transparent 32%),
+      linear-gradient(180deg, hsl(var(--background) / 0.18), hsl(var(--background) / 0.62));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .menu-panel-glass {
+    background:
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.14), transparent 36%),
+      linear-gradient(180deg, hsl(var(--card) / 0.96), hsl(var(--kokotoa-deep) / 0.94));
+    box-shadow:
+      0 24px 80px hsl(130 54% 2% / 0.45),
+      inset 0 1px 0 hsl(0 0% 100% / 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
   /* Currency formatting */
   .currency-tsh::before {
     content: 'TSh ';
