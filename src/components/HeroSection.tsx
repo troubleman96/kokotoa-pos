@@ -8,8 +8,12 @@ const HeroSection = () => {
   const { language } = useLanguage();
   const content = landingContent[language];
   const { hero } = content;
+  const whatsappMessageText =
+    language === 'sw'
+      ? 'Habari! Natafuta kuanza kutumia KOKOTOA POS SYSTEM. Naomba link ya kusajili akaunti mpya ya biashara yangu.'
+      : 'Hello! I am looking forward to start using KOKOTOA POS SYSTEM. Can I please get a link to register my new business account?';
   const whatsappMessage = encodeURIComponent(
-    'Habari KOKOTOA, naomba msaada wa bookings na support.'
+    whatsappMessageText
   );
   const whatsappLink = `https://wa.me/255692069230?text=${whatsappMessage}`;
 
