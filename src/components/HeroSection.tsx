@@ -26,7 +26,7 @@ const HeroSection = () => {
           {/* Left Content */}
           <div className="space-y-5 lg:space-y-7 animate-slide-up max-w-2xl">
             {/* Title */}
-            <h1 className="font-display text-[2.15rem] min-[380px]:text-[2.4rem] sm:text-[2.85rem] md:text-[3.2rem] lg:text-[3.5rem] xl:text-[3.75rem] font-bold leading-[1.02] tracking-[-0.045em] space-y-1 sm:space-y-1.5">
+            <h1 className="font-display text-[1.95rem] min-[380px]:text-[2.2rem] sm:text-[2.85rem] md:text-[3.2rem] lg:text-[3.5rem] xl:text-[3.75rem] font-bold leading-[1.02] tracking-[-0.045em] space-y-1 sm:space-y-1.5">
               {hero.title.lineOne && (
                 <span className="block text-foreground">{hero.title.lineOne}</span>
               )}
