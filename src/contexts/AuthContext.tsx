@@ -23,8 +23,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const safeStorageGet = (storage: Storage, key: string) => {
+    try {
+      return storage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+  const safeStorageSet = (storage: Storage, key: string, value: string) => {
+    try {
+      storage.setItem(key, value);
+    } catch {
+      // Ignore storage write failures.
+    }
+  };
+  const safeStorageRemove = (storage: Storage, key: string) => {
+    try {
+      storage.removeItem(key);
+    } catch {
+      // Ignore storage remove failures.
+    }
+  };
   const getPreferredStorage = () =>
-    sessionStorage.getItem('auth_storage_mode') === 'session' ? sessionStorage : localStorage;
+    safeStorageGet(sessionStorage, 'auth_storage_mode') === 'session' ? sessionStorage : localStorage;
 
   useEffect(() => {
     const initAuth = async () => {
@@ -32,9 +53,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const accessToken = api.getAccessToken();
       const refreshToken = api.getRefreshToken();
       const storedUser =
-        getPreferredStorage().getItem('user') ||
-        localStorage.getItem('user') ||
-        sessionStorage.getItem('user');
+        safeStorageGet(getPreferredStorage(), 'user') ||
+        safeStorageGet(localStorage, 'user') ||
+        safeStorageGet(sessionStorage, 'user');
 
       if (storedUser) {
         console.log('[AuthContext] Setting initial user from localStorage');
@@ -60,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
               const userRes = await accountsApi.getCurrentUser();
               setUser(userRes.data);
-              getPreferredStorage().setItem('user', JSON.stringify(userRes.data));
+              safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(userRes.data));
             }
           } catch (refreshErr) {
             console.error('[AuthContext] Silent refresh failed:', refreshErr);
@@ -73,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           accountsApi.getCurrentUser().then(response => {
             console.log('[AuthContext] Session validated');
             setUser(response.data);
-            getPreferredStorage().setItem('user', JSON.stringify(response.data));
+            safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data));
           }).catch(err => {
             console.error('[AuthContext] Background session validation failed:', err);
             // If it's a 401, we might want to logout, but for general network errors, keep the session
@@ -102,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       api.setAccessToken(response.data.access_token, rememberMe);
       api.setRefreshToken(response.data.refresh_token, rememberMe);
       setUser(response.data.user);
-      getPreferredStorage().setItem('user', JSON.stringify(response.data.user));
+      safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data.user));
 
       const isWorker = response.data.user.role === 'CASHIER' || response.data.user.role === 'STAFF';
       if (isWorker) {
@@ -134,7 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       api.setAccessToken(response.data.access_token);
       api.setRefreshToken(response.data.refresh_token);
       setUser(response.data.user);
-      getPreferredStorage().setItem('user', JSON.stringify(response.data.user));
+      safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data.user));
     }
 
     navigate('/create-store');
@@ -163,8 +184,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     api.setAccessToken(null);
     api.setRefreshToken(null);
     setUser(null);
-    localStorage.removeItem('user');
-    sessionStorage.removeItem('user');
+    safeStorageRemove(localStorage, 'user');
+    safeStorageRemove(sessionStorage, 'user');
     navigate('/login');
   };
 
@@ -172,7 +193,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await accountsApi.getCurrentUser();
       setUser(response.data);
-      getPreferredStorage().setItem('user', JSON.stringify(response.data));
+      safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data));
     } catch (error) {
       console.error('[AuthContext] Failed to refresh user profile:', error);
     }
@@ -182,7 +203,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      getPreferredStorage().setItem('user', JSON.stringify(updatedUser));
+      safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(updatedUser));
     }
   };
 
@@ -192,7 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Merge the updated email into the existing user object
       const updatedUser = { ...user, ...(response.data as any) };
       setUser(updatedUser);
-      getPreferredStorage().setItem('user', JSON.stringify(updatedUser));
+      safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(updatedUser));
     }
   };
 

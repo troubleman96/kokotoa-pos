@@ -169,22 +169,70 @@ class ApiService {
   private refreshPromise: Promise<boolean> | null = null;
   private readonly authStorageModeKey = 'auth_storage_mode';
 
+  private safeGetStorageItem(storage: Storage, key: string): string | null {
+    try {
+      return storage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private safeSetStorageItem(storage: Storage, key: string, value: string) {
+    try {
+      storage.setItem(key, value);
+    } catch {
+      // Ignore storage write failures (privacy mode/quota/security).
+    }
+  }
+
+  private safeRemoveStorageItem(storage: Storage, key: string) {
+    try {
+      storage.removeItem(key);
+    } catch {
+      // Ignore storage remove failures.
+    }
+  }
+
+  private getLocalStorageItem(key: string) {
+    return this.safeGetStorageItem(localStorage, key);
+  }
+
+  private setLocalStorageItem(key: string, value: string) {
+    this.safeSetStorageItem(localStorage, key, value);
+  }
+
+  private removeLocalStorageItem(key: string) {
+    this.safeRemoveStorageItem(localStorage, key);
+  }
+
+  private getSessionStorageItem(key: string) {
+    return this.safeGetStorageItem(sessionStorage, key);
+  }
+
+  private setSessionStorageItem(key: string, value: string) {
+    this.safeSetStorageItem(sessionStorage, key, value);
+  }
+
+  private removeSessionStorageItem(key: string) {
+    this.safeRemoveStorageItem(sessionStorage, key);
+  }
+
   private getStorageMode(): 'local' | 'session' {
     const savedMode =
-      localStorage.getItem(this.authStorageModeKey) ||
-      sessionStorage.getItem(this.authStorageModeKey);
+      this.getLocalStorageItem(this.authStorageModeKey) ||
+      this.getSessionStorageItem(this.authStorageModeKey);
     return savedMode === 'session' ? 'session' : 'local';
   }
 
   setStorageMode(mode: 'local' | 'session') {
     if (mode === 'session') {
-      sessionStorage.setItem(this.authStorageModeKey, mode);
-      localStorage.removeItem(this.authStorageModeKey);
+      this.setSessionStorageItem(this.authStorageModeKey, mode);
+      this.removeLocalStorageItem(this.authStorageModeKey);
       return;
     }
 
-    localStorage.setItem(this.authStorageModeKey, mode);
-    sessionStorage.removeItem(this.authStorageModeKey);
+    this.setLocalStorageItem(this.authStorageModeKey, mode);
+    this.removeSessionStorageItem(this.authStorageModeKey);
   }
 
   setAccessToken(token: string | null, rememberMe?: boolean) {
@@ -195,23 +243,23 @@ class ApiService {
 
       if (mode === 'session') {
         Cookies.set('access_token', token, getCookieBaseOptions());
-        sessionStorage.setItem('jwt_token', token);
-        sessionStorage.setItem('access_token', token);
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('access_token');
+        this.setSessionStorageItem('jwt_token', token);
+        this.setSessionStorageItem('access_token', token);
+        this.removeLocalStorageItem('jwt_token');
+        this.removeLocalStorageItem('access_token');
       } else {
         Cookies.set('access_token', token, getCookieBaseOptions());
-        localStorage.setItem('jwt_token', token);
-        localStorage.setItem('access_token', token);
-        sessionStorage.removeItem('jwt_token');
-        sessionStorage.removeItem('access_token');
+        this.setLocalStorageItem('jwt_token', token);
+        this.setLocalStorageItem('access_token', token);
+        this.removeSessionStorageItem('jwt_token');
+        this.removeSessionStorageItem('access_token');
       }
     } else {
       removeCookieEverywhere('access_token');
-      localStorage.removeItem('jwt_token');
-      localStorage.removeItem('access_token');
-      sessionStorage.removeItem('jwt_token');
-      sessionStorage.removeItem('access_token');
+      this.removeLocalStorageItem('jwt_token');
+      this.removeLocalStorageItem('access_token');
+      this.removeSessionStorageItem('jwt_token');
+      this.removeSessionStorageItem('access_token');
     }
   }
 
@@ -219,10 +267,10 @@ class ApiService {
     if (this.accessToken) return this.accessToken;
     const token =
       Cookies.get('access_token') ||
-      localStorage.getItem('jwt_token') ||
-      localStorage.getItem('access_token') ||
-      sessionStorage.getItem('jwt_token') ||
-      sessionStorage.getItem('access_token');
+      this.getLocalStorageItem('jwt_token') ||
+      this.getLocalStorageItem('access_token') ||
+      this.getSessionStorageItem('jwt_token') ||
+      this.getSessionStorageItem('access_token');
     if (token) this.accessToken = token;
     return token;
   }
@@ -234,24 +282,24 @@ class ApiService {
 
       if (mode === 'session') {
         Cookies.set('refresh_token', token, getCookieBaseOptions());
-        sessionStorage.setItem('refresh_token', token);
-        localStorage.removeItem('refresh_token');
+        this.setSessionStorageItem('refresh_token', token);
+        this.removeLocalStorageItem('refresh_token');
       } else {
         Cookies.set('refresh_token', token, { ...getCookieBaseOptions(), expires: 30 });
-        localStorage.setItem('refresh_token', token);
-        sessionStorage.removeItem('refresh_token');
+        this.setLocalStorageItem('refresh_token', token);
+        this.removeSessionStorageItem('refresh_token');
       }
     } else {
       removeCookieEverywhere('refresh_token');
-      localStorage.removeItem('refresh_token');
-      sessionStorage.removeItem('refresh_token');
-      localStorage.removeItem(this.authStorageModeKey);
-      sessionStorage.removeItem(this.authStorageModeKey);
+      this.removeLocalStorageItem('refresh_token');
+      this.removeSessionStorageItem('refresh_token');
+      this.removeLocalStorageItem(this.authStorageModeKey);
+      this.removeSessionStorageItem(this.authStorageModeKey);
     }
   }
 
   getRefreshToken(): string | null {
-    return Cookies.get('refresh_token') || localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+    return Cookies.get('refresh_token') || this.getLocalStorageItem('refresh_token') || this.getSessionStorageItem('refresh_token');
   }
 
   private async refreshAccessToken(): Promise<boolean> {
