@@ -7,7 +7,8 @@ import {
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { api, graphsApi, subscriptionApi, SubscriptionStatus } from '@/services/api';
+import { api, graphsApi } from '@/services/api';
+import { useSubscriptionStatus } from '@/hooks/use-subscriptions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -36,12 +37,20 @@ const Dashboard = () => {
   const [comparisonData, setComparisonData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Subscription State
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const shouldCheckSubscription = user?.role === 'OWNER';
+  const {
+    data: subscriptionStatus,
+    isLoading: isSubscriptionLoading,
+    refetch: refetchSubscription,
+  } = useSubscriptionStatus(shouldCheckSubscription);
+
+  const showRestrictedOwnerState = shouldCheckSubscription && Boolean(subscriptionStatus) && !subscriptionStatus.has_access;
 
   useEffect(() => {
     const fetchDashboard = async () => {
+      setIsLoading(true);
+
       try {
         const [dashRes, salesRes, profitRes, monthlyRes, monthlySalesRes] = await Promise.all([
           graphsApi.getDashboard().catch(() => null),
@@ -113,26 +122,27 @@ const Dashboard = () => {
       }
     };
 
-    const fetchSubscription = async () => {
-      try {
-        const subRes = await subscriptionApi.getStatus();
-        if (subRes.success) {
-          setSubscriptionStatus(subRes.data);
-          // Auto-show upgrade modal if expired
-          if (subRes.data.status === 'EXPIRED') {
-            setShowUpgradeModal(true);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-      }
-    };
-
-    if (user) {
-      fetchDashboard();
-      fetchSubscription();
+    if (!user) {
+      return;
     }
-  }, [language, user]);
+
+    if (shouldCheckSubscription && isSubscriptionLoading) {
+      return;
+    }
+
+    if (showRestrictedOwnerState) {
+      setIsLoading(false);
+      return;
+    }
+
+    fetchDashboard();
+  }, [isSubscriptionLoading, language, showRestrictedOwnerState, shouldCheckSubscription, user]);
+
+  useEffect(() => {
+    if (subscriptionStatus?.status === 'EXPIRED') {
+      setShowUpgradeModal(true);
+    }
+  }, [subscriptionStatus?.status]);
 
   const formatPrice = (price: number) => `TSh ${price.toLocaleString()}`;
 
@@ -166,6 +176,43 @@ const Dashboard = () => {
               <div className="flex items-center justify-center h-64">
                 <MathLoader size="lg" text={language === 'sw' ? 'Inapakia...' : 'Loading...'} />
               </div>
+            ) : showRestrictedOwnerState ? (
+              <Card className="card-kokotoa">
+                <CardHeader>
+                  <CardTitle>
+                    {subscriptionStatus?.status === 'BLOCKED'
+                      ? (language === 'sw' ? 'Ufikiaji Umezuiliwa' : 'Access Blocked')
+                      : (language === 'sw' ? 'Usajili Unahitajika' : 'Subscription Required')}
+                  </CardTitle>
+                  <CardDescription>
+                    {subscriptionStatus?.status === 'BLOCKED'
+                      ? (language === 'sw'
+                        ? 'Akaunti yako imezuiliwa kwa sasa. Wasiliana na timu ya msaada ili kusaidiwa.'
+                        : 'Your account is currently blocked. Contact support for help.')
+                      : (language === 'sw'
+                        ? 'Chagua kifurushi au thibitisha malipo ili kufungua dashibodi tena.'
+                        : 'Choose a package or confirm payment to unlock the dashboard again.')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-3">
+                  {subscriptionStatus?.status === 'BLOCKED' ? (
+                    <Button asChild variant="destructive">
+                      <Link to="/contact">
+                        {language === 'sw' ? 'Wasiliana na Msaada' : 'Contact Support'}
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setShowUpgradeModal(true)} className="btn-kokotoa">
+                      {language === 'sw' ? 'Fungua Vifurushi' : 'View Packages'}
+                    </Button>
+                  )}
+                  <Button asChild variant="outline">
+                    <Link to="/subscription">
+                      {language === 'sw' ? 'Nenda Usajili' : 'Open Subscription'}
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="stats-cards">
@@ -556,8 +603,13 @@ const Dashboard = () => {
 
         <UpgradeModal
           isOpen={showUpgradeModal}
-          onClose={() => setShowUpgradeModal(false)}
-          subscriptionInfo={subscriptionStatus || undefined}
+          onClose={() => {
+            setShowUpgradeModal(false);
+            if (shouldCheckSubscription) {
+              void refetchSubscription();
+            }
+          }}
+          subscriptionInfo={subscriptionStatus}
         />
       </DashboardLayout>
 

@@ -71,6 +71,7 @@ interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
+  errors?: Record<string, string[]> | null;
 }
 
 interface AuthResponse {
@@ -96,37 +97,48 @@ export interface RegisterPayload {
 }
 
 
+type SubscriptionState = 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'BLOCKED';
+
 interface SubscriptionPackage {
   id: number;
   name: string;
-  description?: string;
-  price: number;
+  description: string;
+  price: string;
   price_display: string;
+  currency: string;
   duration_days: number;
   max_stores: number;
   max_users_per_store: number;
   max_products: number;
   has_analytics: boolean;
+  has_reports: boolean;
   has_multi_store: boolean;
-  has_sms_notifications?: boolean;
+  has_sms_notifications: boolean;
+  is_active: boolean;
+  is_featured: boolean;
+}
+
+interface SubscriptionDetails {
+  granted_by: string | null;
+  granted_at: string | null;
+  expires_at: string | null;
+  payment_reference: string | null;
+  payment_amount: string | null;
+  notes: string | null;
+  is_active: boolean;
+  package?: SubscriptionPackage | null;
 }
 
 interface SubscriptionStatus {
-  status: 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'BLOCKED';
+  status: SubscriptionState;
   status_display: string;
   has_access: boolean;
-  trial_start: string;
-  trial_end: string;
+  trial_start: string | null;
+  trial_end: string | null;
   trial_days_left?: number | null;
   subscription_activated: string | null;
-  days_remaining?: number; // legacy support if needed
-  subscription?: {
-    package?: SubscriptionPackage | null;
-    expires_at?: string | null;
-    payment_reference?: string | null;
-    granted_at?: string;
-  } | null;
-  message?: string; // For error/info cases
+  days_remaining?: number | null;
+  subscription?: SubscriptionDetails | null;
 }
 
 interface User {
@@ -143,7 +155,7 @@ interface User {
   is_profile_complete: boolean;
   created_at: string;
   // Subscription fields
-  subscription_status?: 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'BLOCKED';
+  subscription_status?: SubscriptionState;
   subscription_status_display?: string;
   has_access?: boolean;
   trial_start_date?: string;
@@ -411,6 +423,39 @@ export const subscriptionApi = {
 
   getStatus: () =>
     api.get<{ success: boolean; message: string; data: SubscriptionStatus; errors: any }>('/subscriptions/status/'),
+
+  grantAccess: (data: {
+    user_id: number;
+    package_id?: number;
+    payment_reference?: string;
+    payment_amount?: string;
+    notes?: string;
+    expires_at?: string;
+    custom_expires_at?: string;
+  }) =>
+    api.post<{
+      success: boolean;
+      message: string;
+      data: {
+        user: {
+          id: number;
+          phone: string;
+          subscription_status: SubscriptionState;
+        };
+        subscription: {
+          id: number;
+          package?: Pick<SubscriptionPackage, 'id' | 'name' | 'price_display'> | null;
+          payment_reference: string | null;
+          payment_amount: string | null;
+          expires_at: string | null;
+          is_active: boolean;
+        };
+      };
+      errors: any;
+    }>('/subscriptions/grant-access/', data),
+
+  blockUser: (data: { user_id: number; reason: string }) =>
+    api.post<{ success: boolean; message: string; data: null; errors: any }>('/subscriptions/block-user/', data),
 };
 
 export const storesApi = {
@@ -938,4 +983,12 @@ export interface DailySummaryReport {
   }>;
 }
 
-export type { User, AuthResponse, ApiResponse, SubscriptionPackage, SubscriptionStatus };
+export type {
+  User,
+  AuthResponse,
+  ApiResponse,
+  SubscriptionPackage,
+  SubscriptionDetails,
+  SubscriptionState,
+  SubscriptionStatus,
+};

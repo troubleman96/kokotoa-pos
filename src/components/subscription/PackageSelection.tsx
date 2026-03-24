@@ -11,11 +11,20 @@ interface PackageSelectionProps {
 
 const PackageSelection = ({ packages, onSelect, selectedPackageId }: PackageSelectionProps) => {
     const { language } = useLanguage();
+    const getDurationLabel = (durationDays: number) => {
+        if (durationDays === 30) {
+            return language === 'sw' ? '/mwezi' : '/month';
+        }
+
+        return language === 'sw'
+            ? `/siku ${durationDays}`
+            : `/${durationDays} days`;
+    };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {packages.map((pkg) => {
-                const isPremium = pkg.name.toLowerCase().includes('premium');
+                const isFeatured = pkg.is_featured;
 
                 return (
                     <div
@@ -24,13 +33,13 @@ const PackageSelection = ({ packages, onSelect, selectedPackageId }: PackageSele
                             relative p-6 rounded-2xl border-2 transition-all duration-200 flex flex-col
                             ${selectedPackageId === pkg.id
                                 ? 'border-primary bg-primary/5 shadow-lg'
-                                : isPremium
+                                : isFeatured
                                     ? 'border-primary/40 bg-card hover:border-primary/60 hover:shadow-md'
                                     : 'border-border bg-card hover:border-primary/50 hover:shadow-md'
                             }
                         `}
                     >
-                        {(selectedPackageId === pkg.id || isPremium) && (
+                        {(selectedPackageId === pkg.id || isFeatured) && (
                             <div className="absolute -top-3 left-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-bold text-wrap whitespace-nowrap uppercase tracking-wider">
                                 {selectedPackageId === pkg.id
                                     ? (language === 'sw' ? 'Imechaguliwa' : 'Selected')
@@ -41,13 +50,18 @@ const PackageSelection = ({ packages, onSelect, selectedPackageId }: PackageSele
 
                         <div className="mb-4">
                             <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                {isPremium && <Zap className="w-5 h-5 text-primary fill-primary" />}
+                                {isFeatured && <Zap className="w-5 h-5 text-primary fill-primary" />}
                                 {pkg.name}
                             </h3>
                             <div className="mt-2 flex items-baseline text-foreground">
                                 <span className="text-3xl font-bold tracking-tight">{pkg.price_display}</span>
-                                <span className="ml-1 text-sm font-medium text-muted-foreground">/{language === 'sw' ? 'mwezi' : 'month'}</span>
+                                <span className="ml-1 text-sm font-medium text-muted-foreground">{getDurationLabel(pkg.duration_days)}</span>
                             </div>
+                            {pkg.description && (
+                                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                                    {pkg.description}
+                                </p>
+                            )}
                         </div>
 
                         <ul className="space-y-3 mb-6 flex-1">
@@ -79,7 +93,15 @@ const PackageSelection = ({ packages, onSelect, selectedPackageId }: PackageSele
                                 <li className="flex items-start gap-3">
                                     <Check className="w-5 h-5 text-green-500 shrink-0" />
                                     <span className="text-sm text-foreground">
-                                        {language === 'sw' ? 'Takwimu na Ripoti' : 'Analytics & Reports'}
+                                        {language === 'sw' ? 'Takwimu za biashara' : 'Business analytics'}
+                                    </span>
+                                </li>
+                            )}
+                            {pkg.has_reports && (
+                                <li className="flex items-start gap-3">
+                                    <Check className="w-5 h-5 text-green-500 shrink-0" />
+                                    <span className="text-sm text-foreground">
+                                        {language === 'sw' ? 'Ripoti za biashara' : 'Business reports'}
                                     </span>
                                 </li>
                             )}

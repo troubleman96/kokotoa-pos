@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Check, Copy, MessageCircle, Phone } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { subscriptionApi, SubscriptionPackage, SubscriptionStatus } from '@/services/api';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionPackage, SubscriptionStatus } from '@/services/api';
+import { useSubscriptionPackages } from '@/hooks/use-subscriptions';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Phone, Mail, MessageCircle, Copy, Check } from 'lucide-react';
 import PackageSelection from './PackageSelection';
 import MathLoader from '@/components/ui/MathLoader';
 
@@ -13,115 +16,164 @@ interface UpgradeModalProps {
     subscriptionInfo?: SubscriptionStatus;
 }
 
+const supportPhone = '+255 692 069 230';
+
+const formatPaymentAmount = (price: string) => {
+    const numericValue = Number.parseFloat(price);
+
+    if (Number.isNaN(numericValue)) {
+        return price;
+    }
+
+    return numericValue % 1 === 0 ? String(numericValue) : numericValue.toFixed(2);
+};
+
 const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) => {
     const { language } = useLanguage();
-    const [packages, setPackages] = useState<SubscriptionPackage[]>([]);
+    const { user } = useAuth();
+    const { data: packages = [], isLoading, isError } = useSubscriptionPackages(isOpen);
     const [selectedPackage, setSelectedPackage] = useState<SubscriptionPackage | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const fallbackPackages: SubscriptionPackage[] = [
-        {
-            id: 1,
-            name: language === 'sw' ? 'Kifurushi cha Majaribio' : 'Free Trial',
-            price: 0,
-            price_display: '0 TZS',
-            duration_days: 7,
-            max_stores: 1,
-            max_users_per_store: 1,
-            max_products: 100,
-            has_analytics: false,
-            has_multi_store: false,
-            has_sms_notifications: false
-        },
-        {
-            id: 2,
-            name: language === 'sw' ? 'Kifurushi cha Kawaida' : 'Basic Package',
-            price: 15000,
-            price_display: '15,000 TZS',
-            duration_days: 30,
-            max_stores: 1,
-            max_users_per_store: 2,
-            max_products: 1000,
-            has_analytics: true,
-            has_multi_store: false,
-            has_sms_notifications: false
-        },
-        {
-            id: 3,
-            name: language === 'sw' ? 'Kifurushi cha Premium' : 'Premium Package',
-            price: 22000,
-            price_display: '22,000 TZS',
-            duration_days: 30,
-            max_stores: 3,
-            max_users_per_store: 10,
-            max_products: 5000,
-            has_analytics: true,
-            has_multi_store: true,
-            has_sms_notifications: true
-        }
-    ];
-
     useEffect(() => {
-        if (isOpen) {
-            loadPackages();
-        } else {
-            setSelectedPackage(null); // Reset on close
+        if (!isOpen) {
+            setSelectedPackage(null);
+            setCopied(false);
         }
     }, [isOpen]);
 
-    const loadPackages = async () => {
-        try {
-            setIsLoading(true);
-            const response = await subscriptionApi.getPackages();
-            if (response.success && response.data && response.data.length > 0) {
-                setPackages(response.data);
-            } else {
-                setPackages(fallbackPackages);
-            }
-        } catch (error) {
-            console.error('Error loading packages:', error);
-            setPackages(fallbackPackages);
-        } finally {
-            setIsLoading(false);
+    const activePackages = packages.filter((pkg) => pkg.is_active);
+    const isVerified = Boolean(user?.is_phone_verified);
+    const durationLabel = selectedPackage?.duration_days === 30
+        ? (language === 'sw' ? 'Kwa mwezi' : 'Per month')
+        : (language === 'sw'
+            ? `Kwa siku ${selectedPackage?.duration_days ?? 0}`
+            : `For ${selectedPackage?.duration_days ?? 0} days`);
+
+    const paymentReference = useMemo(() => {
+        if (!selectedPackage) {
+            return '';
         }
+
+        return [
+            `Package ID: ${selectedPackage.id}`,
+            `Package: ${selectedPackage.name}`,
+            `Amount: ${selectedPackage.price_display}`,
+            `Phone: ${user?.phone ?? '-'}`,
+        ].join('\n');
+    }, [selectedPackage, user?.phone]);
+
+    const whatsappMessage = useMemo(() => {
+        if (!selectedPackage) {
+            return '';
+        }
+
+        const intro = language === 'sw'
+            ? 'Habari, nimelipia kifurushi hiki cha KOKOTOA POS:'
+            : 'Hello, I have paid for this KOKOTOA POS package:';
+
+        return `${intro}\n${paymentReference}\nTransaction Ref:`;
+    }, [language, paymentReference, selectedPackage]);
+
+    const whatsappLink = `https://wa.me/255692069230?text=${encodeURIComponent(whatsappMessage)}`;
+
+    const handleCopyReference = async () => {
+        if (!paymentReference || !navigator.clipboard) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(paymentReference);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleCopyReference = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+    const getModalDescription = () => {
+        if (!isVerified) {
+            return language === 'sw'
+                ? 'Thibitisha namba yako kwanza kabla ya kuchagua kifurushi.'
+                : 'Verify your phone number before choosing a package.';
+        }
+
+        if (selectedPackage) {
+            return language === 'sw'
+                ? `Lipia ${selectedPackage.name} na utume uthibitisho wa malipo.`
+                : `Pay for ${selectedPackage.name} and send your payment confirmation.`;
+        }
+
+        if (subscriptionInfo?.status === 'EXPIRED') {
+            return language === 'sw'
+                ? 'Chagua kifurushi, kisha tuma ujumbe wa muamala ili akaunti yako ianzishwe tena.'
+                : 'Choose a package, then send your transaction message so your account can be reactivated.';
+        }
+
+        return language === 'sw'
+            ? 'Chagua kifurushi kinachokufaa kulingana na mahitaji ya biashara yako.'
+            : 'Choose a package that suits your business needs.';
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-center">
                         {selectedPackage
-                            ? (language === 'sw' ? 'Malipo' : 'Payment')
-                            : (language === 'sw' ? 'Boresha Kifurushi Chako' : 'Upgrade Your Package')
-                        }
+                            ? (language === 'sw' ? 'Malipo ya Kifurushi' : 'Package Payment')
+                            : (language === 'sw' ? 'Boresha Kifurushi Chako' : 'Upgrade Your Package')}
                     </DialogTitle>
                     <DialogDescription className="text-center">
-                        {selectedPackage
-                            ? (language === 'sw' ? `Lipia ${selectedPackage.name}` : `Payment for ${selectedPackage.name}`)
-                            : subscriptionInfo?.message || (language === 'sw'
-                                ? 'Chagua kifurushi kinachokufaa kulingana na mahitaji ya biashara yako'
-                                : 'Choose a package that suits your business needs')
-                        }
+                        {getModalDescription()}
                     </DialogDescription>
                 </DialogHeader>
 
-                {!selectedPackage ? (
+                {!isVerified ? (
+                    <div className="py-6">
+                        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center space-y-4">
+                            <h3 className="text-xl font-semibold text-foreground">
+                                {language === 'sw' ? 'Thibitisha namba kwanza' : 'Verify your phone first'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                                {language === 'sw'
+                                    ? 'Backend inahitaji namba ya simu iliyothibitishwa kabla kifurushi hakijaidhinishwa. Ukishathibitisha, utarudi hapa uchague kifurushi.'
+                                    : 'The backend requires a verified phone number before a package can be approved. Verify your phone, then come back here to choose a package.'}
+                            </p>
+                            <Button className="btn-kokotoa" asChild>
+                                <Link to="/verify-phone">
+                                    {language === 'sw' ? 'Thibitisha Namba' : 'Verify Phone'}
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                ) : !selectedPackage ? (
                     <div className="py-4">
                         {isLoading ? (
                             <div className="flex justify-center py-12">
                                 <MathLoader size="lg" />
                             </div>
+                        ) : isError ? (
+                            <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-6 text-center space-y-2">
+                                <h3 className="text-lg font-semibold text-destructive">
+                                    {language === 'sw' ? 'Vifurushi havijapatikana' : 'Unable to load packages'}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {language === 'sw'
+                                        ? 'Jaribu tena baada ya muda mfupi. Bei na vipengele sasa vinatoka moja kwa moja kwenye API.'
+                                        : 'Please try again shortly. Prices and package features now come directly from the API.'}
+                                </p>
+                            </div>
+                        ) : activePackages.length === 0 ? (
+                            <div className="bg-muted/40 border border-border rounded-2xl p-6 text-center space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground">
+                                    {language === 'sw' ? 'Hakuna vifurushi vinavyopatikana sasa' : 'No packages are available right now'}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {language === 'sw'
+                                        ? 'Tafadhali wasiliana na timu yetu ikiwa unahitaji kusaidiwa.'
+                                        : 'Please contact our team if you need help right away.'}
+                                </p>
+                            </div>
                         ) : (
                             <PackageSelection
-                                packages={packages}
+                                packages={activePackages}
                                 onSelect={setSelectedPackage}
                             />
                         )}
@@ -141,12 +193,41 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                             <p className="text-muted-foreground mb-1">
                                 {language === 'sw' ? 'Kiasi cha Kulipa' : 'Amount to Pay'}
                             </p>
-                            <p className="text-4xl font-bold text-primary mb-4">
+                            <p className="text-4xl font-bold text-primary mb-2">
                                 {selectedPackage.price_display}
                             </p>
                             <p className="text-sm font-medium text-foreground">
-                                {language === 'sw' ? 'Kwa mwezi' : 'Per month'}
+                                {durationLabel}
                             </p>
+                            <p className="text-xs text-muted-foreground mt-3">
+                                {language === 'sw'
+                                    ? `Package ID: ${selectedPackage.id}`
+                                    : `Package ID: ${selectedPackage.id}`}
+                            </p>
+                        </div>
+
+                        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 space-y-3">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 className="font-semibold text-foreground">
+                                        {language === 'sw' ? 'Rejea ya kifurushi' : 'Package reference'}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {language === 'sw'
+                                            ? 'Tuma maelezo haya pamoja na ujumbe wa muamala ili timu iweze kuidhinisha kifurushi sahihi.'
+                                            : 'Send these details with your transaction message so the team can approve the right package.'}
+                                    </p>
+                                </div>
+                                <Button variant="outline" size="sm" onClick={handleCopyReference}>
+                                    {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                                    {copied
+                                        ? (language === 'sw' ? 'Imenakiliwa' : 'Copied')
+                                        : (language === 'sw' ? 'Nakili' : 'Copy')}
+                                </Button>
+                            </div>
+                            <pre className="whitespace-pre-wrap rounded-xl bg-muted/50 p-4 text-sm text-foreground font-medium">
+                                {paymentReference}
+                            </pre>
                         </div>
 
                         <div className="space-y-4">
@@ -161,10 +242,10 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                         Airtel
                                     </h4>
                                     <ul className="space-y-2 text-sm text-muted-foreground">
-                                        <li>1. Piga *150*60# (Au mtandao wako)</li>
-                                        <li>2. Chagua "Tuma Airtel au mitandao mengine "</li>
+                                        <li>1. Piga *150*60# (au mtandao wako)</li>
+                                        <li>2. Chagua &quot;Tuma pesa&quot;</li>
                                         <li>3. Weka namba ya simu: <strong>0692 069 230</strong></li>
-                                        <li>5. Weka kiasi: <strong>{selectedPackage.price}</strong></li>
+                                        <li>4. Weka kiasi: <strong>{formatPaymentAmount(selectedPackage.price)}</strong></li>
                                     </ul>
                                 </div>
 
@@ -175,16 +256,15 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                     </h4>
                                     <p className="text-sm text-muted-foreground mb-4">
                                         {language === 'sw'
-                                            ? 'Tafadhali tuma ujumbe wa muamala kwenda:'
-                                            : 'Please send the transaction message to:'
-                                        }
+                                            ? 'Tuma ujumbe wa muamala pamoja na rejea ya kifurushi hapa:'
+                                            : 'Send the transaction message together with the package reference here:'}
                                     </p>
                                     <div className="space-y-3">
-                                        <a href="tel:+255 692 069 230" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <a href={`tel:${supportPhone.replace(/\s+/g, '')}`} className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                             <Phone className="w-4 h-4 text-primary" />
-                                            <span className="text-sm">+255 692 069 230</span>
+                                            <span className="text-sm">{supportPhone}</span>
                                         </a>
-                                        <a href="https://wa.me/255692069230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
+                                        <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
                                             <MessageCircle className="w-4 h-4 text-green-500" />
                                             <span className="text-sm">WhatsApp</span>
                                         </a>
@@ -193,13 +273,10 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                             </div>
                         </div>
 
-
-
                         <p className="text-center text-sm text-muted-foreground">
                             {language === 'sw'
-                                ? 'Akaunti yako itaamilishwa muda mfupi baada ya malipo kuthibitishwa.'
-                                : 'Your account will be activated shortly after payment confirmation.'
-                            }
+                                ? 'Akaunti yako itaamilishwa muda mfupi baada ya malipo kuthibitishwa na kifurushi kuidhinishwa.'
+                                : 'Your account will be activated shortly after payment is confirmed and the package is approved.'}
                         </p>
                     </div>
                 )}

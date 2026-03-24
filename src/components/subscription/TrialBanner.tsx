@@ -5,7 +5,7 @@ import { SubscriptionStatus } from '@/services/api';
 import { Clock } from 'lucide-react';
 
 interface TrialBannerProps {
-    subscriptionStatus: SubscriptionStatus;
+    subscriptionStatus: SubscriptionStatus | null;
     onUpgrade?: () => void;
 }
 
@@ -15,7 +15,7 @@ const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
 
     if (!subscriptionStatus) return null;
 
-    const { status, days_remaining } = subscriptionStatus;
+    const { status, days_remaining, has_access } = subscriptionStatus;
     const isVerified = user?.is_phone_verified;
 
     // Cases:
@@ -23,7 +23,7 @@ const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
     // 2. EXPIRED and NOT verified - Show "Verify Phone"
     // 3. EXPIRED and verified - Show "Upgrade Subscription"
 
-    if (status === 'TRIAL') {
+    if (status === 'TRIAL' && has_access) {
         const daysLeft = subscriptionStatus.trial_days_left ?? user?.trial_days_left ?? days_remaining ?? 0;
         const isUrgent = daysLeft <= 3;
 
@@ -49,18 +49,20 @@ const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
                     </div>
                 </div>
 
-                <button
-                    onClick={onUpgrade}
-                    className={`
-                        px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                        ${isUrgent
-                            ? 'bg-orange-500 text-white hover:bg-orange-600'
-                            : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        }
-                    `}
-                >
-                    {language === 'sw' ? 'Boresha Sasa' : 'Upgrade Now'}
-                </button>
+                {onUpgrade && (
+                    <button
+                        onClick={onUpgrade}
+                        className={`
+                            px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                            ${isUrgent
+                                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                            }
+                        `}
+                    >
+                        {language === 'sw' ? 'Boresha Sasa' : 'Upgrade Now'}
+                    </button>
+                )}
             </div>
         );
     }
@@ -93,6 +95,35 @@ const TrialBanner = ({ subscriptionStatus, onUpgrade }: TrialBannerProps) => {
                         ? (language === 'sw' ? 'Thibitisha Sasa' : 'Verify Now')
                         : (language === 'sw' ? 'Lipia Sasa' : 'Pay Now')
                     }
+                </Link>
+            </div>
+        );
+    }
+
+    if (status === 'BLOCKED' || !has_access) {
+        return (
+            <div className="w-full px-4 py-3 mb-4 rounded-xl flex items-center justify-between flex-wrap gap-2 bg-destructive/10 border border-destructive/20">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-destructive/20 text-destructive">
+                        <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <p className="font-medium text-foreground">
+                            {language === 'sw' ? 'Huduma Imezuiliwa' : 'Access Blocked'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            {language === 'sw'
+                                ? 'Akaunti yako imezuiliwa kwa sasa. Tafadhali wasiliana na msaada ili kusaidiwa.'
+                                : 'Your account is currently blocked. Please contact support for help.'}
+                        </p>
+                    </div>
+                </div>
+
+                <Link
+                    to="/contact"
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-destructive text-white hover:bg-destructive/90"
+                >
+                    {language === 'sw' ? 'Wasiliana na Msaada' : 'Contact Support'}
                 </Link>
             </div>
         );

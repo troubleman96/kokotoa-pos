@@ -8,6 +8,10 @@ const HeroSection = () => {
   const { language } = useLanguage();
   const content = landingContent[language];
   const { hero } = content;
+  const whatsappMessage = encodeURIComponent(
+    'Habari KOKOTOA, naomba msaada wa bookings na support.'
+  );
+  const whatsappLink = `https://wa.me/255692069230?text=${whatsappMessage}`;
 
   return (
     <section className="relative flex min-h-[100svh] items-start overflow-hidden hero-pattern pt-20 sm:pt-24 lg:items-center lg:pt-0">
@@ -55,7 +59,12 @@ const HeroSection = () => {
                   </span>
                 </Button>
               </Link>
-              <Link to="/demo" className="min-w-0">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noreferrer"
+                className="min-w-0"
+              >
                 <Button
                   size="lg"
                   variant="outline"
@@ -64,7 +73,7 @@ const HeroSection = () => {
                   <Play className="w-4 h-4 mr-2" />
                   {hero.secondaryCta}
                 </Button>
-              </Link>
+              </a>
             </div>
 
             {(hero.proofPoints.length > 0 || hero.trustedBy) && (

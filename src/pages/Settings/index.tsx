@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { authApi, storesApi, accountsApi } from '@/services/api';
+import { useSubscriptionStatus } from '@/hooks/use-subscriptions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -18,7 +19,6 @@ import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { settingsTourSteps } from '@/data/tourSteps';
 import SubscriptionSettings from '@/components/subscription/SubscriptionSettings';
 import UpgradeModal from '@/components/subscription/UpgradeModal';
-import { subscriptionApi, SubscriptionStatus } from '@/services/api';
 
 const SettingsPage = () => {
   const { language, setLanguage } = useLanguage();
@@ -50,9 +50,17 @@ const SettingsPage = () => {
     details: string;
   } | null>(null);
 
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [storeLimit, setStoreLimit] = useState<{ current: number; max: number }>({ current: 0, max: 1 });
+  const [storeLimit, setStoreLimit] = useState<{ current: number; max: number | null; isPackageBased: boolean }>({
+    current: 0,
+    max: 1,
+    isPackageBased: true,
+  });
+  const {
+    data: subscriptionStatus,
+    isLoading: isSubscriptionStatusLoading,
+    refetch: refetchSubscriptionStatus,
+  } = useSubscriptionStatus(user?.role === 'OWNER');
 
 
 
@@ -213,29 +221,27 @@ const SettingsPage = () => {
   }, [user?.store]);
 
   useEffect(() => {
-    const fetchSubscriptionData = async () => {
+    const fetchStoreLimit = async () => {
       if (user?.role !== 'OWNER') return;
-      try {
-        const [subRes, storesRes] = await Promise.all([
-          subscriptionApi.getStatus(),
-          storesApi.list()
-        ]);
+      if (isSubscriptionStatusLoading) return;
 
-        if (subRes.success) setSubscriptionStatus(subRes.data);
+      try {
+        const storesRes = await storesApi.list();
         if (storesRes.success) {
-          const maxStores = subRes.data?.subscription?.package?.max_stores || 1;
+          const maxStores = subscriptionStatus?.subscription?.package?.max_stores ?? null;
           setStoreLimit({
             current: storesRes.data.length,
-            max: maxStores
+            max: maxStores,
+            isPackageBased: Boolean(subscriptionStatus?.subscription?.package),
           });
         }
       } catch (error) {
-        console.error('Error fetching subscription/stores data:', error);
+        console.error('Error fetching stores data:', error);
       }
     };
 
-    fetchSubscriptionData();
-  }, [user]);
+    void fetchStoreLimit();
+  }, [isSubscriptionStatusLoading, subscriptionStatus, user?.role]);
 
   const handleUpdateStore = async () => {
     if (!storeData || !storeData.name || !storeData.location) {
@@ -287,6 +293,11 @@ const SettingsPage = () => {
     setActiveTab(tabId as typeof activeTab);
     setShowMobileMenu(false);
   };
+
+  const storeLimitReached = typeof storeLimit.max === 'number' && storeLimit.current >= storeLimit.max;
+  const storeLimitProgress = typeof storeLimit.max === 'number' && storeLimit.max > 0
+    ? Math.min(100, (storeLimit.current / storeLimit.max) * 100)
+    : 100;
 
   return (
     <DashboardLayout
@@ -622,7 +633,7 @@ const SettingsPage = () => {
         {activeTab === 'subscription' && (!showMobileMenu || !window.matchMedia('(max-width: 768px)').matches) && (
           <div className="space-y-6">
             <SubscriptionSettings
-              subscriptionStatus={subscriptionStatus}
+              subscriptionStatus={subscriptionStatus ?? null}
               onUpgrade={() => setShowUpgradeModal(true)}
             />
 
@@ -638,12 +649,18 @@ const SettingsPage = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-2xl font-bold">{storeLimit.current} / {storeLimit.max}</p>
+                      <p className="text-2xl font-bold">
+                        {typeof storeLimit.max === 'number'
+                          ? `${storeLimit.current} / ${storeLimit.max}`
+                          : `${storeLimit.current}`}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {language === 'sw' ? 'Maduka yanayotumika' : 'Active stores'}
+                        {typeof storeLimit.max === 'number'
+                          ? (language === 'sw' ? 'Maduka yanayotumika' : 'Active stores')
+                          : (language === 'sw' ? 'Maduka yanayotumika kwa ufikiaji maalum' : 'Active stores under custom access')}
                       </p>
                     </div>
-                    {storeLimit.current >= storeLimit.max && (
+                    {storeLimitReached && (
                       <Badge variant="destructive" className="mb-1">
                         {language === 'sw' ? 'Mwisho Umefikiwa' : 'Limit Reached'}
                       </Badge>
@@ -652,13 +669,23 @@ const SettingsPage = () => {
 
                   <div className="h-3 bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all duration-1000 ${(storeLimit.current / storeLimit.max) >= 1 ? 'bg-destructive' : 'bg-primary'
+                      className={`h-full transition-all duration-1000 ${storeLimitReached ? 'bg-destructive' : 'bg-primary'
                         }`}
-                      style={{ width: `${Math.min(100, (storeLimit.current / storeLimit.max) * 100)}%` }}
+                      style={{ width: `${storeLimitProgress}%` }}
                     />
                   </div>
 
-                  {storeLimit.current >= storeLimit.max && (
+                  {!storeLimit.isPackageBased && (
+                    <div className="bg-muted/40 p-4 rounded-xl border border-border">
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'sw'
+                          ? 'Ufikiaji huu haujahusishwa na kifurushi maalum, kwa hiyo kikomo halisi cha maduka hakijarudishwa kwenye status endpoint.'
+                          : 'This access is not tied to a package, so the exact store cap is not available from the status endpoint.'}
+                      </p>
+                    </div>
+                  )}
+
+                  {storeLimitReached && (
                     <div className="bg-destructive/10 p-4 rounded-xl border border-destructive/20 flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                       <p className="text-sm text-destructive font-medium">
@@ -812,10 +839,10 @@ const SettingsPage = () => {
         isOpen={showUpgradeModal}
         onClose={() => {
           setShowUpgradeModal(false);
-          // Refresh status after modal close
-          refreshUser();
+          void refreshUser();
+          void refetchSubscriptionStatus();
         }}
-        subscriptionInfo={subscriptionStatus || undefined}
+        subscriptionInfo={subscriptionStatus}
       />
       <OnboardingTour page="settings" steps={settingsTourSteps} />
     </DashboardLayout>
