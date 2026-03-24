@@ -101,7 +101,7 @@ export const landingContent: Record<LandingLanguage, LandingContent> = {
       },
       subtitle:
         'Mfumo rahisi kwa biashara za Tanzania kuuza haraka, kufuatilia bidhaa, na kuona faida ya biashara yako bila usumbufu.',
-      primaryCta: 'Anza Sasa',
+      primaryCta: 'Ingia',
       secondaryCta: 'Lipia sasa',
       trustedBy: '',
       proofPoints: [],
@@ -295,7 +295,7 @@ export const landingContent: Record<LandingLanguage, LandingContent> = {
       },
       subtitle:
         'A simple system for Tanzanian businesses to sell faster, track stock, and see profit clearly without extra admin.',
-      primaryCta: 'Get Started',
+      primaryCta: 'Login',
       secondaryCta: 'Subscribe',
       trustedBy: 'Trusted by 1,000+ businesses in Tanzania',
       proofPoints: [

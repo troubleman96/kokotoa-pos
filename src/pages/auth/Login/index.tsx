@@ -202,18 +202,12 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex justify-center">
                 <Button
-                  asChild
-                  type="button"
-                  variant="outline"
-                  className="h-11 w-full border-primary/30 bg-background/70 text-sm hover:bg-muted sm:h-12 sm:text-base"
+                  type="submit"
+                  className="h-11 w-full max-w-xs text-base btn-kokotoa sm:h-12 sm:text-lg"
+                  isLoading={isLoading}
                 >
-                  <Link to="/register">
-                    {language === 'sw' ? 'Jisajili' : 'Register'}
-                  </Link>
-                </Button>
-                <Button type="submit" className="h-11 w-full text-base btn-kokotoa sm:h-12 sm:text-lg" isLoading={isLoading}>
                   {language === 'sw' ? 'Ingia' : 'Sign In'}
                   {!isLoading && <ArrowRight className="w-5 h-5" />}
                 </Button>
