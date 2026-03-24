@@ -45,7 +45,7 @@ const HeroSection = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
+            <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-base md:text-lg">
               {hero.subtitle}
             </p>
 
