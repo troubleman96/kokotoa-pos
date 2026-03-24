@@ -38,9 +38,25 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 
 const STORAGE_KEY = 'kokotoa_onboarding';
 
+const safeGetLocalStorage = (key: string) => {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeSetLocalStorage = (key: string, value: string) => {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Ignore localStorage write failures in restricted browsers.
+    }
+};
+
 const getStoredState = (): Partial<OnboardingState> => {
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = safeGetLocalStorage(STORAGE_KEY);
         return stored ? JSON.parse(stored) : {};
     } catch {
         return {};
@@ -50,7 +66,7 @@ const getStoredState = (): Partial<OnboardingState> => {
 const saveState = (state: Partial<OnboardingState>) => {
     try {
         const current = getStoredState();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...state }));
+        safeSetLocalStorage(STORAGE_KEY, JSON.stringify({ ...current, ...state }));
     } catch (error) {
         console.error('Failed to save onboarding state:', error);
     }

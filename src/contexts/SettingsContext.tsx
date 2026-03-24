@@ -17,9 +17,25 @@ const defaultSettings: Settings = {
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
+const safeGetLocalStorage = (key: string) => {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeSetLocalStorage = (key: string, value: string) => {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Ignore localStorage write failures in restricted browsers.
+    }
+};
+
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     const [settings, setSettings] = useState<Settings>(() => {
-        const saved = localStorage.getItem('kokotoa_settings');
+        const saved = safeGetLocalStorage('kokotoa_settings');
         if (!saved) return defaultSettings;
 
         try {
@@ -44,7 +60,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     });
 
     useEffect(() => {
-        localStorage.setItem('kokotoa_settings', JSON.stringify(settings));
+        safeSetLocalStorage('kokotoa_settings', JSON.stringify(settings));
     }, [settings]);
 
     const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {

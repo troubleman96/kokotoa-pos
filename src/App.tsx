@@ -81,20 +81,22 @@ const SubscriptionProtectedRoute = ({ children }: { children: React.ReactNode })
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import ScrollToHashElement from "@/components/ScrollToHashElement";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <ScrollToHashElement />
-      <LanguageProvider>
-        <AuthProvider>
-          <SettingsProvider>
-            <OnboardingProvider>
-              <NotificationProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <Routes>
+  <AppErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ScrollToHashElement />
+        <LanguageProvider>
+          <AuthProvider>
+            <SettingsProvider>
+              <OnboardingProvider>
+                <NotificationProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <Routes>
                     <Route path="/" element={<Landing />} />
                     <Route path="/demo" element={<Demo />} />
                     <Route path="/login" element={<Login />} />
@@ -120,15 +122,16 @@ const App = () => (
                     <Route path="/users" element={<ProtectedRoute><SubscriptionProtectedRoute><Users /></SubscriptionProtectedRoute></ProtectedRoute>} />
                     <Route path="/create-store" element={<ProtectedRoute><CreateStore /></ProtectedRoute>} />
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </TooltipProvider>
-              </NotificationProvider>
-            </OnboardingProvider>
-          </SettingsProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+                    </Routes>
+                  </TooltipProvider>
+                </NotificationProvider>
+              </OnboardingProvider>
+            </SettingsProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </AppErrorBoundary>
 );
 
 export default App;
