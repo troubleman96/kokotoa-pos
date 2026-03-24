@@ -46,6 +46,9 @@ const PackagesSection = () => {
         if (durationDays === 30) {
             return packageCopy.priceSuffix;
         }
+        if (durationDays === 365) {
+            return language === 'sw' ? '/Mwaka' : '/Year';
+        }
 
         return language === 'sw' ? `/siku ${durationDays}` : `/${durationDays} days`;
     };

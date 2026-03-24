@@ -15,6 +15,9 @@ const PackageSelection = ({ packages, onSelect, selectedPackageId }: PackageSele
         if (durationDays === 30) {
             return language === 'sw' ? '/mwezi' : '/month';
         }
+        if (durationDays === 365) {
+            return language === 'sw' ? '/Mwaka' : '/Year';
+        }
 
         return language === 'sw'
             ? `/siku ${durationDays}`

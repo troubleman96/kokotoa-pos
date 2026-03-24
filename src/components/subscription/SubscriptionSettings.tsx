@@ -49,6 +49,9 @@ const SubscriptionSettings = ({ subscriptionStatus, onUpgrade }: SubscriptionSet
         if (durationDays === 30) {
             return language === 'sw' ? 'Kila mwezi' : 'Monthly';
         }
+        if (durationDays === 365) {
+            return language === 'sw' ? 'Kila mwaka' : 'Yearly';
+        }
 
         return language === 'sw' ? `Kila siku ${durationDays}` : `Every ${durationDays} days`;
     };
