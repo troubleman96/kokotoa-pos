@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (phone: string, password: string) => Promise<void>;
+  login: (phone: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: RegisterPayload) => Promise<void>;
   verifyOtp: (phone: string, otpCode: string) => Promise<{ can_create_store: boolean; subscription_status?: string }>;
   requestPhoneVerification: (phone: string) => Promise<void>;
@@ -23,13 +23,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const getPreferredStorage = () =>
+    sessionStorage.getItem('auth_storage_mode') === 'session' ? sessionStorage : localStorage;
 
   useEffect(() => {
     const initAuth = async () => {
       console.log('[AuthContext] Start initAuth');
       const accessToken = api.getAccessToken();
       const refreshToken = api.getRefreshToken();
-      const storedUser = localStorage.getItem('user');
+      const storedUser =
+        getPreferredStorage().getItem('user') ||
+        localStorage.getItem('user') ||
+        sessionStorage.getItem('user');
 
       if (storedUser) {
         console.log('[AuthContext] Setting initial user from localStorage');
@@ -55,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
               const userRes = await accountsApi.getCurrentUser();
               setUser(userRes.data);
-              localStorage.setItem('user', JSON.stringify(userRes.data));
+              getPreferredStorage().setItem('user', JSON.stringify(userRes.data));
             }
           } catch (refreshErr) {
             console.error('[AuthContext] Silent refresh failed:', refreshErr);
@@ -68,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           accountsApi.getCurrentUser().then(response => {
             console.log('[AuthContext] Session validated');
             setUser(response.data);
-            localStorage.setItem('user', JSON.stringify(response.data));
+            getPreferredStorage().setItem('user', JSON.stringify(response.data));
           }).catch(err => {
             console.error('[AuthContext] Background session validation failed:', err);
             // If it's a 401, we might want to logout, but for general network errors, keep the session
@@ -87,17 +92,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = async (phone: string, password: string) => {
+  const login = async (phone: string, password: string, rememberMe = true) => {
     console.log('[AuthContext] login called for phone:', phone, 'password length:', password.length);
     try {
       console.log('[AuthContext] Sending login request to API...');
       const response = await authApi.login({ phone, password });
       console.log('[AuthContext] Login response received:', JSON.stringify(response, null, 2));
       console.log('[AuthContext] Setting tokens...');
-      api.setAccessToken(response.data.access_token);
-      api.setRefreshToken(response.data.refresh_token);
+      api.setAccessToken(response.data.access_token, rememberMe);
+      api.setRefreshToken(response.data.refresh_token, rememberMe);
       setUser(response.data.user);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      getPreferredStorage().setItem('user', JSON.stringify(response.data.user));
 
       const isWorker = response.data.user.role === 'CASHIER' || response.data.user.role === 'STAFF';
       if (isWorker) {
@@ -129,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       api.setAccessToken(response.data.access_token);
       api.setRefreshToken(response.data.refresh_token);
       setUser(response.data.user);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      getPreferredStorage().setItem('user', JSON.stringify(response.data.user));
     }
 
     navigate('/create-store');
@@ -159,6 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     api.setRefreshToken(null);
     setUser(null);
     localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
     navigate('/login');
   };
 
@@ -166,7 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await accountsApi.getCurrentUser();
       setUser(response.data);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      getPreferredStorage().setItem('user', JSON.stringify(response.data));
     } catch (error) {
       console.error('[AuthContext] Failed to refresh user profile:', error);
     }
@@ -176,7 +182,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      getPreferredStorage().setItem('user', JSON.stringify(updatedUser));
     }
   };
 
@@ -186,7 +192,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Merge the updated email into the existing user object
       const updatedUser = { ...user, ...(response.data as any) };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      getPreferredStorage().setItem('user', JSON.stringify(updatedUser));
     }
   };
 

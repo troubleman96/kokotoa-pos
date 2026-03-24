@@ -22,6 +22,7 @@ const Login = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [formData, setFormData] = useState({ phone: '', password: '' });
   const phoneFormatMessage = language === 'sw'
     ? `Tumia muundo ${TANZANIA_PHONE_FORMAT} pekee`
@@ -55,7 +56,7 @@ const Login = () => {
     console.log('[Login] Attempting login with phone:', normalizedPhone);
     try {
       console.log('[Login] Calling login function...');
-      await login(normalizedPhone, formData.password);
+      await login(normalizedPhone, formData.password, rememberMe);
       console.log('[Login] Login function completed successfully');
       toast({
         title: language === 'sw' ? 'Karibu tena!' : 'Welcome back!',
@@ -193,7 +194,12 @@ const Login = () => {
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-background/60 px-2.5 py-1.5 text-muted-foreground">
-                    <input type="checkbox" className="rounded border-border accent-primary" />
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="rounded border-border accent-primary"
+                    />
                     <span>{language === 'sw' ? 'Nikumbuke' : 'Remember me'}</span>
                   </label>
                   <Link to="/forgot-password" className="font-medium text-primary hover:underline">
