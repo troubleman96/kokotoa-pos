@@ -8,14 +8,6 @@ const HeroSection = () => {
   const { language } = useLanguage();
   const content = landingContent[language];
   const { hero } = content;
-  const whatsappMessageText =
-    language === 'sw'
-      ? 'Habari! Nategemea kuanza kutumia KOKOTOA POS SYSTEM. Naomba link ya kusajili akaunti mpya ya biashara yangu.'
-      : 'Hello! I am looking forward to start using KOKOTOA POS SYSTEM. Can I please get a link to register my new business account?';
-  const whatsappMessage = encodeURIComponent(
-    whatsappMessageText
-  );
-  const whatsappLink = `https://wa.me/255692069230?text=${whatsappMessage}`;
 
   return (
     <section className="relative flex min-h-[100svh] items-start overflow-hidden hero-pattern pt-20 sm:pt-24 lg:items-center lg:pt-0">
@@ -30,7 +22,7 @@ const HeroSection = () => {
           {/* Left Content */}
           <div className="space-y-5 lg:space-y-7 animate-slide-up max-w-2xl">
             {/* Title */}
-            <h1 className="font-display text-[1.95rem] min-[380px]:text-[2.2rem] sm:text-[2.85rem] md:text-[3.2rem] lg:text-[3.5rem] xl:text-[3.75rem] font-bold leading-[1.02] tracking-[-0.045em] space-y-1 sm:space-y-1.5">
+            <h1 className="font-display text-[2.15rem] min-[380px]:text-[2.4rem] sm:text-[2.85rem] md:text-[3.2rem] lg:text-[3.5rem] xl:text-[3.75rem] font-bold leading-[1.02] tracking-[-0.045em] space-y-1 sm:space-y-1.5">
               {hero.title.lineOne && (
                 <span className="block text-foreground">{hero.title.lineOne}</span>
               )}
@@ -49,7 +41,7 @@ const HeroSection = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-base md:text-lg">
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
               {hero.subtitle}
             </p>
 
@@ -63,12 +55,7 @@ const HeroSection = () => {
                   </span>
                 </Button>
               </Link>
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noreferrer"
-                className="min-w-0"
-              >
+              <Link to="/demo" className="min-w-0">
                 <Button
                   size="lg"
                   variant="outline"
@@ -77,7 +64,7 @@ const HeroSection = () => {
                   <Play className="w-4 h-4 mr-2" />
                   {hero.secondaryCta}
                 </Button>
-              </a>
+              </Link>
             </div>
 
             {(hero.proofPoints.length > 0 || hero.trustedBy) && (
