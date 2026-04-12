@@ -22,6 +22,65 @@ if (import.meta.env.DEV) {
   console.log('[API] Base URL:', API_BASE_URL);
 }
 
+const getApiOrigin = () => {
+  try {
+    return new URL(API_BASE_URL, typeof window !== 'undefined' ? window.location.origin : 'http://localhost').origin;
+  } catch {
+    return typeof window !== 'undefined' ? window.location.origin : '';
+  }
+};
+
+const resolveMediaUrl = (value?: string | null) => {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (/^(https?:|data:|blob:)/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith('//')) {
+    return `${typeof window !== 'undefined' ? window.location.protocol : 'https:'}${trimmed}`;
+  }
+
+  if (trimmed.startsWith('/api/')) {
+    return trimmed;
+  }
+
+  const normalizedPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+
+  // Use backend origin when possible so image paths like /media/... resolve correctly.
+  const apiOrigin = getApiOrigin();
+  if (apiOrigin) {
+    return `${apiOrigin}${normalizedPath}`;
+  }
+
+  return normalizedPath;
+};
+
+const normalizeProductMedia = (product: Product): Product => {
+  const bestImageUrl = resolveMediaUrl(product.image_url) || resolveMediaUrl(product.image);
+  const bestImageRaw = resolveMediaUrl(product.image);
+
+  return {
+    ...product,
+    image: bestImageRaw,
+    image_url: bestImageUrl,
+    qr_code_url: resolveMediaUrl(product.qr_code_url),
+  };
+};
+
+const normalizeProductListResponse = (response: { success: boolean; message: string; data: Product[]; errors: any }) => ({
+  ...response,
+  data: response.data.map(normalizeProductMedia),
+});
+
+const normalizeProductResponse = (response: { success: boolean; message: string; data: Product; errors: any }) => ({
+  ...response,
+  data: normalizeProductMedia(response.data),
+});
+
 const getSharedCookieDomain = () => {
   if (typeof window === 'undefined') {
     return undefined;
@@ -602,23 +661,33 @@ export const productsApi = {
     if (params?.low_stock) queryParams.append('low_stock', 'true');
     if (params?.search) queryParams.append('search', params.search);
     const query = queryParams.toString();
-    return api.get<{ success: boolean; message: string; data: Product[]; errors: any }>(`/inventory/products/${query ? `?${query}` : ''}`);
+    return api
+      .get<{ success: boolean; message: string; data: Product[]; errors: any }>(`/inventory/products/${query ? `?${query}` : ''}`)
+      .then(normalizeProductListResponse);
   },
 
   create: (formData: FormData) =>
-    api.postFormData<{ success: boolean; message: string; data: Product; errors: any }>('/inventory/products/', formData),
+    api
+      .postFormData<{ success: boolean; message: string; data: Product; errors: any }>('/inventory/products/', formData)
+      .then(normalizeProductResponse),
 
   get: (id: number) =>
-    api.get<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`),
+    api
+      .get<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`)
+      .then(normalizeProductResponse),
 
   update: (id: number, data: Record<string, unknown>) =>
-    api.put<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`, data),
+    api
+      .put<{ success: boolean; message: string; data: Product; errors: any }>(`/inventory/products/${id}/`, data)
+      .then(normalizeProductResponse),
 
   delete: (id: number) =>
     api.delete<{ success: boolean; message: string; errors: any }>(`/inventory/products/${id}/`),
 
   getLowStock: () =>
-    api.get<{ success: boolean; message: string; data: Product[]; errors: any }>('/inventory/products/low-stock/'),
+    api
+      .get<{ success: boolean; message: string; data: Product[]; errors: any }>('/inventory/products/low-stock/')
+      .then(normalizeProductListResponse),
 
   getCategories: () =>
     api.get<{ success: boolean; message: string; data: { categories: string[] }; errors: any }>('/inventory/products/categories/'),
