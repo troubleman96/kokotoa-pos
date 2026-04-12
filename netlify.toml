@@ -15,6 +15,18 @@
   force = true
 
 [[redirects]]
+  from = "/media/*"
+  to = "https://api-pos.kokotoa.online/media/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://api-pos.kokotoa.online/uploads/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
