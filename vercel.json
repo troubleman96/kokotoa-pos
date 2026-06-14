@@ -1,18 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://api-pos.kokotoa.online/api/:path*"
-    },
-    {
-      "source": "/media/:path*",
-      "destination": "https://api-pos.kokotoa.online/media/:path*"
-    },
-    {
-      "source": "/uploads/:path*",
-      "destination": "https://api-pos.kokotoa.online/uploads/:path*"
-    },
-    {
       "source": "/:path*",
       "destination": "/index.html"
     }

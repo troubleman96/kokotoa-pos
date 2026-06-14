@@ -1,6 +1,25 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, api, User, storesApi, accountsApi, RegisterPayload } from '@/services/api';
+import { authApi, accountsApi, User, RegisterPayload } from '@/services/api';
+
+const DEFAULT_USER: User = {
+  id: 1,
+  phone: '+255700000001',
+  email: 'owner@kokotoa.local',
+  first_name: 'Asha',
+  last_name: 'Mwanaidi',
+  role: 'OWNER',
+  role_name: 'Owner',
+  store: 1,
+  store_name: 'Kokotoa Main Store',
+  is_phone_verified: true,
+  is_profile_complete: true,
+  created_at: new Date().toISOString(),
+  subscription_status: 'ACTIVE',
+  subscription_status_display: 'Active',
+  has_access: true,
+  trial_days_left: 0,
+};
 
 interface AuthContextType {
   user: User | null;
@@ -20,8 +39,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(DEFAULT_USER);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const safeStorageGet = (storage: Storage, key: string) => {
     try {
@@ -48,112 +67,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     safeStorageGet(sessionStorage, 'auth_storage_mode') === 'session' ? sessionStorage : localStorage;
 
   useEffect(() => {
-    const initAuth = async () => {
-      console.log('[AuthContext] Start initAuth');
-      const accessToken = api.getAccessToken();
-      const refreshToken = api.getRefreshToken();
-      const storedUser =
-        safeStorageGet(getPreferredStorage(), 'user') ||
-        safeStorageGet(localStorage, 'user') ||
-        safeStorageGet(sessionStorage, 'user');
+    const storedUser =
+      safeStorageGet(getPreferredStorage(), 'user') ||
+      safeStorageGet(localStorage, 'user') ||
+      safeStorageGet(sessionStorage, 'user');
 
-      if (storedUser) {
-        console.log('[AuthContext] Setting initial user from localStorage');
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error('[AuthContext] Failed to parse stored user', e);
-        }
-      }
-
+    if (storedUser) {
       try {
-        if (!accessToken && refreshToken) {
-          console.log('[AuthContext] Access token missing, attempting silent refresh...');
-          try {
-            const refreshRes = await authApi.refreshToken(refreshToken) as any;
-            const newAccess = refreshRes?.data?.access || refreshRes?.access || refreshRes?.data?.access_token || refreshRes?.access_token;
-            const newRefresh = refreshRes?.data?.refresh || refreshRes?.refresh || refreshRes?.data?.refresh_token || refreshRes?.refresh_token;
-
-            if (newAccess) {
-              console.log('[AuthContext] Silent refresh success');
-              api.setAccessToken(newAccess);
-              if (newRefresh) api.setRefreshToken(newRefresh);
-
-              const userRes = await accountsApi.getCurrentUser();
-              setUser(userRes.data);
-              safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(userRes.data));
-            }
-          } catch (refreshErr) {
-            console.error('[AuthContext] Silent refresh failed:', refreshErr);
-            // Don't auto-logout here, let the user stay in "optimistic" mode
-            // If the session is truly dead, API calls will return 401 anyway
-          }
-        } else if (accessToken) {
-          console.log('[AuthContext] Access token present, validating session in background...');
-          // Validate in background, don't block login if we have a stored user
-          accountsApi.getCurrentUser().then(response => {
-            console.log('[AuthContext] Session validated');
-            setUser(response.data);
-            safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data));
-          }).catch(err => {
-            console.error('[AuthContext] Background session validation failed:', err);
-            // If it's a 401, we might want to logout, but for general network errors, keep the session
-            if (err.message && (err.message.includes('401') || err.message.includes('unauthorized'))) {
-              logout();
-            }
-          });
-        }
-      } catch (error) {
-        console.error('[AuthContext] Auth initialization error (outer):', error);
-      } finally {
-        setIsLoading(false);
-        console.log('[AuthContext] initAuth complete');
+        setUser(JSON.parse(storedUser));
+        return;
+      } catch {
+        // Fall back to the default static user.
       }
-    };
-    initAuth();
+    }
+
+    setUser(DEFAULT_USER);
+    safeStorageSet(localStorage, 'user', JSON.stringify(DEFAULT_USER));
   }, []);
 
   const login = async (phone: string, password: string, rememberMe = true) => {
-    console.log('[AuthContext] login called for phone:', phone, 'password length:', password.length);
     try {
-      console.log('[AuthContext] Sending login request to API...');
       const response = await authApi.login({ phone, password });
-      console.log('[AuthContext] Login response received:', JSON.stringify(response, null, 2));
-      console.log('[AuthContext] Setting tokens...');
-      api.setAccessToken(response.data.access_token, rememberMe);
-      api.setRefreshToken(response.data.refresh_token, rememberMe);
+      safeStorageSet(getPreferredStorage(), 'auth_storage_mode', rememberMe ? 'local' : 'session');
       setUser(response.data.user);
       safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data.user));
-
-      const isWorker = response.data.user.role === 'CASHIER' || response.data.user.role === 'STAFF';
-      if (isWorker) {
-        window.location.href = 'https://worker-pos.kokotoa.online';
-        return;
-      }
-
-      // Profile completion logic
-      if (response.data.user.is_profile_complete) {
-        navigate('/dashboard');
-      } else {
-        navigate('/create-store');
-      }
+      navigate(response.data.user.is_profile_complete ? '/dashboard' : '/create-store');
     } catch (error: any) {
-      console.error('[AuthContext] Login error caught:', error);
-      if (error?.errors?.requires_phone_verification || error?.requires_phone_verification) {
-        console.log('[AuthContext] Redirecting to phone verification');
-        navigate('/verify-phone', { state: { phone } });
-      }
       throw error;
     }
   };
 
   const register = async (data: RegisterPayload) => {
     const response = await authApi.register(data);
-
-    // New flow: Registration returns tokens directly
     if (response.data.access_token) {
-      api.setAccessToken(response.data.access_token);
-      api.setRefreshToken(response.data.refresh_token);
       setUser(response.data.user);
       safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data.user));
     }
@@ -180,12 +126,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    console.log('[AuthContext] Performing logout');
-    api.setAccessToken(null);
-    api.setRefreshToken(null);
-    setUser(null);
-    safeStorageRemove(localStorage, 'user');
-    safeStorageRemove(sessionStorage, 'user');
+    setUser(DEFAULT_USER);
+    safeStorageSet(localStorage, 'user', JSON.stringify(DEFAULT_USER));
     navigate('/dashboard');
   };
 
@@ -196,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(response.data));
     } catch (error) {
       console.error('[AuthContext] Failed to refresh user profile:', error);
+      setUser(DEFAULT_USER);
     }
   };
 
@@ -210,7 +153,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateEmail = async (email: string) => {
     const response = await accountsApi.updateEmail({ email });
     if (user) {
-      // Merge the updated email into the existing user object
       const updatedUser = { ...user, ...(response.data as any) };
       setUser(updatedUser);
       safeStorageSet(getPreferredStorage(), 'user', JSON.stringify(updatedUser));
