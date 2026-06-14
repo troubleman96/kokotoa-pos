@@ -82,7 +82,7 @@ const PackagesSection = () => {
                                 : 'Pricing and package features now come directly from the API. Please try again shortly.'}
                         </p>
                         <Button className="btn-kokotoa" asChild>
-                            <Link to="/login">
+                            <Link to="/dashboard">
                                 {packageCopy.cta}
                             </Link>
                         </Button>
@@ -133,7 +133,7 @@ const PackagesSection = () => {
                                     </div>
 
                                     <Button className="w-full h-12 btn-kokotoa text-lg shadow-lg shadow-primary/20" asChild>
-                                        <Link to="/login">
+                                        <Link to="/dashboard">
                                             {packageCopy.cta}
                                         </Link>
                                     </Button>

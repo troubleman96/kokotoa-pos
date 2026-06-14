@@ -137,8 +137,8 @@ const UpgradeModal = ({ isOpen, onClose, subscriptionInfo }: UpgradeModalProps) 
                                     : 'The backend requires a verified phone number before a package can be approved. Verify your phone, then come back here to choose a package.'}
                             </p>
                             <Button className="btn-kokotoa" asChild>
-                                <Link to="/verify-phone">
-                                    {language === 'sw' ? 'Thibitisha Namba' : 'Verify Phone'}
+                                <Link to="/contact">
+                                    {language === 'sw' ? 'Wasiliana na Msaada' : 'Contact Support'}
                                 </Link>
                             </Button>
                         </div>

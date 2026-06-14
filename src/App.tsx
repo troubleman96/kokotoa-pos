@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { useSubscriptionStatus } from "@/hooks/use-subscriptions";
+import { useAuth } from "@/contexts/AuthContext";
 import Landing from "./pages/Landing";
 import Demo from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
@@ -25,31 +26,10 @@ import Notebook from "./pages/Notebook";
 import Users from "./pages/management/Users";
 import CreateStore from "./pages/management/CreateStore";
 import Subscription from "./pages/Subscription";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import VerifyOTP from "./pages/auth/VerifyOTP";
-import PhoneVerification from "./pages/auth/PhoneVerification";
-import ForgotPassword from "./pages/auth/ForgotPassword";
 import NotFound from "./pages/NotFound";
 import MathLoader from "@/components/ui/MathLoader";
 
 const queryClient = new QueryClient();
-
-import { useAuth } from "@/contexts/AuthContext";
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background text-primary">
-        <MathLoader size="xl" />
-      </div>
-    );
-  }
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
-};
 
 const SubscriptionProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -99,28 +79,23 @@ const App = () => (
                     <Routes>
                     <Route path="/" element={<Landing />} />
                     <Route path="/demo" element={<Demo />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/verify-otp" element={<VerifyOTP />} />
-                    <Route path="/verify-phone" element={<PhoneVerification />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/dashboard" element={<ProtectedRoute><SubscriptionProtectedRoute><Dashboard /></SubscriptionProtectedRoute></ProtectedRoute>} />
+                    <Route path="/dashboard" element={<SubscriptionProtectedRoute><Dashboard /></SubscriptionProtectedRoute>} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/pos" element={<ProtectedRoute><SubscriptionProtectedRoute><POS /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/inventory" element={<ProtectedRoute><SubscriptionProtectedRoute><Inventory /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/inventory/add" element={<ProtectedRoute><SubscriptionProtectedRoute><Inventory /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/stock-history" element={<ProtectedRoute><SubscriptionProtectedRoute><StockHistory /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/sales-history" element={<ProtectedRoute><SubscriptionProtectedRoute><SalesHistory /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/credit-debts" element={<ProtectedRoute><SubscriptionProtectedRoute><CreditDebts /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/notebook" element={<ProtectedRoute><SubscriptionProtectedRoute><Notebook /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/reports" element={<ProtectedRoute><SubscriptionProtectedRoute><Reports /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
-                    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                    <Route path="/users" element={<ProtectedRoute><SubscriptionProtectedRoute><Users /></SubscriptionProtectedRoute></ProtectedRoute>} />
-                    <Route path="/create-store" element={<ProtectedRoute><CreateStore /></ProtectedRoute>} />
+                    <Route path="/pos" element={<SubscriptionProtectedRoute><POS /></SubscriptionProtectedRoute>} />
+                    <Route path="/inventory" element={<SubscriptionProtectedRoute><Inventory /></SubscriptionProtectedRoute>} />
+                    <Route path="/inventory/add" element={<SubscriptionProtectedRoute><Inventory /></SubscriptionProtectedRoute>} />
+                    <Route path="/stock-history" element={<SubscriptionProtectedRoute><StockHistory /></SubscriptionProtectedRoute>} />
+                    <Route path="/sales-history" element={<SubscriptionProtectedRoute><SalesHistory /></SubscriptionProtectedRoute>} />
+                    <Route path="/credit-debts" element={<SubscriptionProtectedRoute><CreditDebts /></SubscriptionProtectedRoute>} />
+                    <Route path="/notebook" element={<SubscriptionProtectedRoute><Notebook /></SubscriptionProtectedRoute>} />
+                    <Route path="/reports" element={<SubscriptionProtectedRoute><Reports /></SubscriptionProtectedRoute>} />
+                    <Route path="/subscription" element={<Subscription />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/users" element={<SubscriptionProtectedRoute><Users /></SubscriptionProtectedRoute>} />
+                    <Route path="/create-store" element={<CreateStore />} />
                     <Route path="*" element={<NotFound />} />
                     </Routes>
                   </TooltipProvider>

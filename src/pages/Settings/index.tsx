@@ -80,8 +80,10 @@ const SettingsPage = () => {
 
   // Force refresh user data on mount to ensure accuracy
   useEffect(() => {
-    refreshUser();
-  }, []);
+    if (user) {
+      refreshUser();
+    }
+  }, [refreshUser, user]);
 
   const handleUpdateProfile = async () => {
     if (!profileData.first_name || !profileData.last_name) {

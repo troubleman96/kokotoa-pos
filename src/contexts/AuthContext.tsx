@@ -186,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     safeStorageRemove(localStorage, 'user');
     safeStorageRemove(sessionStorage, 'user');
-    navigate('/login');
+    navigate('/dashboard');
   };
 
   const refreshUser = async () => {

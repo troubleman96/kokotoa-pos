@@ -12,7 +12,7 @@ import LogoSpinner from '@/components/ui/LogoSpinner';
 
 const CreateStore = () => {
   const { language } = useLanguage();
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -26,8 +26,7 @@ const CreateStore = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      logout && logout();
-      navigate('/login');
+      navigate('/dashboard');
       return;
     }
     // Allow access whether profile is complete or not
@@ -40,8 +39,7 @@ const CreateStore = () => {
     setIsLoading(true);
     try {
       if (!user) {
-        logout && logout();
-        navigate('/login');
+        navigate('/dashboard');
         return;
       }
 

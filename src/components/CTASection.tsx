@@ -35,7 +35,7 @@ const CTASection = () => {
           </p>
 
           {/* CTA Button */}
-          <Link to="/register" className="inline-flex w-full justify-center sm:w-auto">
+          <Link to="/dashboard" className="inline-flex w-full justify-center sm:w-auto">
             <Button size="lg" className="btn-kokotoa h-14 w-full px-6 text-base text-primary-foreground sm:h-16 sm:w-auto sm:px-10 sm:text-lg">
               <span className="relative z-10 flex items-center gap-2">
                 {cta.button}

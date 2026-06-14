@@ -47,7 +47,7 @@ const HeroSection = () => {
 
             {/* CTA Buttons */}
             <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:items-center sm:gap-4">
-              <Link to="/login" className="min-w-0">
+              <Link to="/dashboard" className="min-w-0">
                 <Button size="lg" className="btn-kokotoa text-primary-foreground h-10 w-full px-3 text-xs min-[380px]:text-sm sm:h-11 sm:min-w-[170px] sm:px-7 md:h-12 md:text-base">
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {hero.primaryCta}
